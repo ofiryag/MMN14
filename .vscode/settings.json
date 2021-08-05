@@ -1,5 +1,6 @@
 {
+    "C_Cpp.errorSquiggles": "Disabled",
     "files.associations": {
-        "cstdio": "c"
+        "recognize_helper.h": "c"
     }
 }
