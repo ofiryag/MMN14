@@ -5,7 +5,7 @@
 /* reads each line and check its validation */
 void read_line(char *line, int *ic, int *dc, int *ec, int *ln, int *error)
 {	
-	int macro, dirtype;
+	int dirtype;
 
 	/* if the line is empty line or comment ignore it */
 	if(ignore_line(line) == TRUE)
@@ -21,7 +21,6 @@ void read_line(char *line, int *ic, int *dc, int *ec, int *ln, int *error)
 		return;
 	}
 
-/*TODO - Implement functions below*/
 
 	/* if the first word is a label and it is vaild then put it in symbol table and go to next word */
 	if(is_label(line, ic, dc, ec, ln,  error))
@@ -39,21 +38,15 @@ void read_line(char *line, int *ic, int *dc, int *ec, int *ln, int *error)
 	/* if the word is directive sentence or macro it check its validation then put it in data table */
 	if(*line == '.')
 	{
-		macro =  is_macro(line+1, error);
-		if(macro != NA)
-		{
-			line=next_word(line);
-			return;
-		}
 		dirtype = is_dir(line+1, error);
-		
 		if(dirtype != NA) 
 		{
 			line = next_word(line);
 			if(check_dir(line, dirtype, dc, error))
 				return;
 		}
-		if(dirtype != NA || macro != NA){
+		if(dirtype != NA)
+        {
 			
 			*error=0;
 		}
@@ -62,7 +55,7 @@ void read_line(char *line, int *ic, int *dc, int *ec, int *ln, int *error)
 		return;
 	
 	/* if the word is instruction sentence it checks its validation */
-	if(is_inst(line) >= MOV_INST)
+	if(is_inst(line) != NA)
 	{
 		check_inst(line, error, ic);
 		check_errors(ln, error, ec);

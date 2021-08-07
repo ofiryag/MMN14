@@ -35,6 +35,9 @@ enum{NO_ERROR, SYNTAX_ERROR, LABEL_INST_ERROR, DEF_LABEL_ERROR,
 enum{FALSE, TRUE};
 
 /*Direction types*/
-enum{NUMBER_DIR, ASCIZ_DIR,ENTRY_DIR, EXTERN_DIR};
+enum{NUMBER_DIR,DD_DIR,DW_DIR,DB_DIR, ASCIZ_DIR,ENTRY_DIR, EXTERN_DIR};
+
+/*Instruction types*/
+enum{R,I,J};
 
 #endif

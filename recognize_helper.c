@@ -2,7 +2,7 @@
 
 #include "recognize_helper.h"
 
-keywords instruction[] =
+keywords instructions[] =
 {
   /*R instruction */
   {"add"},{"sub"},{"and"},{"or"},{"nor"},{"move"},{"mvhi"},{"mvlo"},
@@ -14,14 +14,13 @@ keywords instruction[] =
   {"jmp"},{"la"},{"call"},{"stop"}
 };
 
-keywords directive[] = 
+keywords directives[] = 
 {
-  {"data"},{"asciz"},{"entry"},{"extern"}
+  {".dd"},{".dw"}.{".db"},{"asciz"},{"entry"},{"extern"}
 };
 
 
 /*TODO - Implement functions below*/
-
 /* checks if the word is a valid label and put it in symbol table */
 int is_label(char *line, int* ic, int* dc, int* ec,int *ln, int *error)
 {
@@ -66,15 +65,22 @@ int is_label(char *line, int* ic, int* dc, int* ec,int *ln, int *error)
 			
 			label[c] = '\0';
 			
-			/* check if the label is one of the saved words */
+			/* check if the label is one of the saved words - instructions */
 			if(is_inst(label) > NA)
 			{
 				*error = LABEL_INST_ERROR;
 				return FALSE;
 			}
+
+            /* check if the label is one of the saved words - directives */
+			if(is_dir(label) > NA)
+			{
+				*error = DIR_ERROR;
+				return FALSE;
+			}
 			
 			/* check if the label is not a register */	
-			if(strlen(label) == REG_LEN && label[0] == 'r' && label[1] >= '0' && label[1] <= '7')
+			if(strlen(label) == REG_LEN && label[0] == '$' && label[1] >= '0' && label[1] <= '3' && label[2] <= '1') //32 registers
 			{
 				*error = LABEL_REG_ERROR;
 				return FALSE;
@@ -87,6 +93,7 @@ int is_label(char *line, int* ic, int* dc, int* ec,int *ln, int *error)
 				return FALSE;
 			}
 
+//TODO - Implement this part
 			/* if the label points to directive or macro then the symbol address is the dc */
 			if(*(next_word(line)) == '.')
 			{
@@ -112,13 +119,13 @@ int is_label(char *line, int* ic, int* dc, int* ec,int *ln, int *error)
 						*(next_word(line)-i)=(node-> address);
 						macro_flag = TRUE;
 					}
-					address = *dc;
 				}
+                					address = *dc;
 				check_errors(ln, error, ec);
 			}
 				
 			/* if the label points to instruction then the symbol addres is the ic */
-			else if(is_inst(next_word(line)) >= MOV_INST)
+			else if(is_inst(next_word(line)) !=NA)
 			{
 				inst_flag = TRUE;
 				address = *ic;
@@ -169,7 +176,7 @@ int is_dir(char *line, int *error)
 	for(i=0;i<DIR_SIZE;i++)
 	{
 
-		if (!strcmp(directive[i].word, dir))
+		if (!strcmp(directives[i].word, dir))
 		{
 			if(next_word(line) == NULL)
 			{
@@ -205,14 +212,28 @@ int is_inst(char *line)
 	inst[c] ='\0';
 	
 	for(i=0;i<=INST_SIZE;i++)
-		if (strcmp(instruction[i].word, inst) == FALSE)
+		if (strcmp(instructions[i].word, inst) == FALSE)
 			return i ;
 	
-	return NA ;
+	return NA;
+}
+
+/* checks if the word is an instruction and returns it's index */
+int check_inst_type(int instructionIndex)
+{
+	if(instructionIndex>0 && instructionIndex<8)
+    return R;
+
+    if(instructionIndex>7 && instructionIndex<23)
+    return I;
+
+    if(instructionIndex>22 && instructionIndex<27)
+    return J;
 }
 
 /* checks the validation of the directive sentence */
 int check_dir(char *line, int dirtype, int *dc, int *error)
+
 {	int macro_flag=FALSE;
 	switch(dirtype)
 	{
@@ -423,8 +444,10 @@ int check_dir(char *line, int dirtype, int *dc, int *error)
 }
 /* checks the validation of the instruction sentence */
 int check_inst(char *line, int *error, int *ic)
+
 {
-	int opcode = is_inst(line);
+	int opcode = is_inst(line); //change to inst index
+    int instTye = check_inst_type(opcode);
 	int addressing1, addressing2;
 	line = next_word(line);
 	
@@ -641,7 +664,7 @@ int check_addressing(char *line, int *error)
 		}
 	}
 	
-	if(strlen(operand) == REG_LEN && operand[0] == 'r' && operand[1] >= '0' && operand[1] <= '7')
+	if(strlen(operand) == REG_LEN && operand[0] == '$' && operand[1] >= '0' && operand[1] <= '3' && operand[2] <= '1') //32 registers)
 		return REG_ADDRESS;
 	
 	/*checks if macro */
