@@ -3,7 +3,7 @@
 #include "read_line.h"
 
 /* reads each line and check its validation */
-void read_line(char *line, int *ic, int *dc, int *ec, int *ln, int *error)
+void read_line(char *line, int *ic, int *dc, int *errorCounter, int *lineNumber, int *errorType)
 {	
 	int dirtype;
 
@@ -17,54 +17,54 @@ void read_line(char *line, int *ic, int *dc, int *ec, int *ln, int *error)
 	/* if the line is too long */
 	if(strlen(line) > MAX_LINE_LEN-1)
 	{
-		*error = LONG_LINE_ERROR;
+		*errorType = LONG_LINE_ERROR;
 		return;
 	}
 
 
 	/* if the first word is a label and it is vaild then put it in symbol table and go to next word */
-	if(is_label(line, ic, dc, ec, ln,  error))
+	if(is_label(line, ic, dc, errorCounter, lineNumber,  errorType))
 		line = next_word(line);
 
-	if(check_errors(ln, error, ec))
+	if(check_errors(lineNumber, errorType, errorCounter))
 		return;
 		
 	if(!isalpha(*line) && *line != '.')
 	{   
-		*error = SYNTAX_ERROR;
+		*errorType = SYNTAX_ERROR;
 		return;
 	}
 	
 	/* if the word is directive sentence check its validation then put it in data table */
 	if(*line == '.')
 	{
-		dirtype = is_dir(line+1, error);
+		dirtype = is_dir(line+1, errorType);
 		if(dirtype != NA) 
 		{
 			line = next_word(line);
-			if(check_dir(line, dirtype, dc, error))
+			if(check_dir(line, dirtype, dc, errorType))
 				return;
 		}
 		if(dirtype != NA)
         {
 			
-			*error=0;
+			*errorType=0;
 		}
 	}
-	if(check_errors(ln, error, ec))
+	if(check_errors(lineNumber, errorType, errorCounter))
 		return;
 	
 	/* if the word is instruction sentence it checks its validation */
 	if(is_inst(line) != NA)
 	{
-		check_inst(line, error, ic);
-		check_errors(ln, error, ec);
+		check_inst(line, errorType, ic);
+		check_errors(lineNumber, errorType, errorCounter);
 	}
 		
 	/* if its not directive or instruction sentence */
-	else if((*error == NO_ERROR))
+	else if((*errorType == NO_ERROR))
 	{
-		*error = INST_ERROR;
+		*errorType = INST_ERROR;
 		return;
 	}
 }
