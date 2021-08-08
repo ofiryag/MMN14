@@ -231,7 +231,7 @@ int check_inst_type(int instructionIndex)
     return J;
 }
 
-/* checks the validation of the directive sentence */
+/* checks the validation of the directive sentence */ 
 int check_dir(char *line, int dirtype, int *dc, int *error)
 {	
 	switch(dirtype)
@@ -261,7 +261,7 @@ int check_dir(char *line, int dirtype, int *dc, int *error)
 						
 						/* checks if the  integer fits 10 bits */
 						if(integer >= MIN_DATA_INT && integer <= MAX_DATA_INT)
-							to_data(integer, dc,DW_SIZE); /*TODO - pass to "to_data" the type of the DIR, so it could extend DC accrodingly*/
+							to_data(integer, dc,DW_DIR); /*TODO - pass to "to_data" the type of the DIR, so it could extend DC accrodingly*/
 						else
 						{
 							*error = BAD_ARG_ERROR;
@@ -298,9 +298,9 @@ int check_dir(char *line, int dirtype, int *dc, int *error)
 			
 			else
 				return TRUE;
-			
 			break;
-			case DH_DIR:
+
+		case DH_DIR:
 			if(line != NULL)
 			{
 				char data[MAX_INTEGER_LEN];
@@ -364,7 +364,8 @@ int check_dir(char *line, int dirtype, int *dc, int *error)
 				return TRUE;
 			
 			break;
-			case DB_DIR:
+
+		case DB_DIR:
 			if(line != NULL)
 			{
 				char data[MAX_INTEGER_LEN];
@@ -446,7 +447,7 @@ int check_dir(char *line, int dirtype, int *dc, int *error)
 							return FALSE;
 						}
 						ch = (int)*line;
-						to_data(ch, dc); //ADD to dc the size of the string +1 for '/0'
+						to_data(ch, dc);
 						line++;
 					}
 					
@@ -516,7 +517,7 @@ int check_dir(char *line, int dirtype, int *dc, int *error)
 				{
 					if(search_sym(label) == NULL)
 					{
-						to_symbol(label, FALSE, TRUE, FALSE, macro_flag);
+						to_symbol(label, FALSE, TRUE, FALSE);
 						return TRUE;
 					}
 					
@@ -542,7 +543,7 @@ int check_dir(char *line, int dirtype, int *dc, int *error)
 			
 			break;
 	}
-	
+
 	return FALSE;
 }
 /* checks the validation of the instruction sentence */
@@ -714,121 +715,14 @@ int check_addressing(char *line, int *error)
 	}
 	
 	operand[i] = '\0';
-	
-	if(operand[0] == '#')
-	{
-		/* checks if macro */
-		while(j<i)
-		{
-			key[j-1] = operand[j];
-			j++;
-		}
-		key[j-1] = '\0';
-
-		if((node = search_sym(key)) != NULL){
-			operand[1]=node-> address + '0';
-			operand[2]='\0';
-		}
-		
-			if(operand[1] == '-' || operand[1] == '+' || isdigit(operand[1]))
-			{
-
-				if((operand[1] == '-' || operand[1] == '+') && !isdigit(operand[2]))
-				{
-					*error = BAD_ARG_ERROR;
-					return NA;
-				}
-			
-				for(i=2;operand[i] != '\0';i++)
-				{
-					if(!isdigit(operand[i]))
-					{
-						*error = ADD_ERROR;
-						return NA;
-					}
-				}
-			
-				i = atoi(operand+1);
-			
-				if(i > MAX_IMM_INT || i < MIN_IMM_INT)
-				{
-					*error = BAD_ARG_ERROR;
-					return NA;
-				}
-			
-				else
-					return IMM_ADDRESS;
-		}
-		
-		else
-		{
-			*error = SYNTAX_ERROR;
-			return NA;
-		}
-	}
-	
-	if(strlen(operand) == REG_LEN && operand[0] == '$' && operand[1] >= '0' && operand[1] <= '3' && operand[2] <= '1') //32 registers)
+	if(strlen(operand) == REG_LEN && operand[0] == '$' && operand[1] >= '0' && operand[1] <= '3' && operand[2] <= '1') //32 bits per register)
 		return REG_ADDRESS;
 	
-	/*checks if macro */
+	/*checks if label */
 	if(isalpha(operand[0]))
 	{
-		char key[MAX_MACRO_LEN];
-		int j=0,k=0;
-		char value[4] = "[ ]";
-		int c =0; 
-		for(i=1;i<strlen(operand);i++)
-		{
-			/* checks if macro */
-			if(operand[i] == '[')
-			{
-				i++;
-				k=i;
-				while(operand[k] != ']')
-				{
-					key[j] = operand[k];
-					j++;
-					k++;
-				}
-				key[j] = '\0';
-
-				if((node = search_sym(key)) != NULL)
-				{
-					value[1] = node-> address + '0';
-					for(c=0;c<3;c++)
-					{
-						operand[i-1]=value[c];
-						i++;
-					}
-					operand[i-1] = '\0';
-					i=i-3;
-				}
-								
-				if(isdigit(operand[i]))
-				{
-					
-					i++;
-					if(operand[i] == ']')
-					{
-						i++;
-						if(operand[i] == '\0')
-							return INDEX_ADDRESS; 
-					}
-				}
-				*error = SYNTAX_ERROR;
-				return NA;
-			}
-
-			if(!isalpha(operand[i]) && !isdigit(operand[i]))
-			{
-				*error = BAD_ARG_ERROR;
-				return NA;
-			}
-		}
-		
 		return LABEL_ADDRESS;
 	}
-	
 	*error = ADD_ERROR;
 	return NA;
 }

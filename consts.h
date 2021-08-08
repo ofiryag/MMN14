@@ -43,4 +43,8 @@ enum{NUMBER_DIR,DH_DIR,DW_DIR,DB_DIR, ASCIZ_DIR,ENTRY_DIR, EXTERN_DIR};
 /*Instruction types*/
 enum{R,I,J};
 
+/*Address types*/
+enum{IMM_ADDRESS, LABEL_ADDRESS, INDEX_ADDRESS, REG_ADDRESS};
+
+
 #endif
