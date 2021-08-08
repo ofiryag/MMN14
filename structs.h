@@ -1,13 +1,6 @@
 /*This file contains all the structs of the project.*/
-
 #ifndef STRUCTS_H_
 #define STRUCTS_H_
-
-typedef struct keywords /*names of the symbols.*/
-{
-	char *word;
-} keywords;
-
 typedef struct data_node /*addresses of the symbols*/
 {
 	int address;
@@ -104,7 +97,6 @@ struct instruction_node_j
 } instruction_node_j;
 
 } instruction_node;
-
 
 
 typedef struct ent_ext_node
