@@ -35,7 +35,7 @@ void read_line(char *line, int *ic, int *dc, int *ec, int *ln, int *error)
 		return;
 	}
 	
-	/* if the word is directive sentence or macro it check its validation then put it in data table */
+	/* if the word is directive sentence check its validation then put it in data table */
 	if(*line == '.')
 	{
 		dirtype = is_dir(line+1, error);

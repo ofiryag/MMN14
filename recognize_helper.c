@@ -138,7 +138,7 @@ int is_label(char *line, int* ic, int* dc, int* ec,int *ln, int *error)
 				return FALSE;
 			}
 			
-			to_symbol(label, address, ext_flag, inst_flag, macro_flag);
+			to_symbol(label, address, ext_flag, inst_flag);
 			return TRUE;
 		}
 		else
@@ -211,7 +211,7 @@ int is_inst(char *line)
 	
 	inst[c] ='\0';
 	
-	for(i=0;i<=INST_SIZE;i++)
+	for(i=0;i<=INST_AMOUNT;i++)
 		if (strcmp(instructions[i].word, inst) == FALSE)
 			return i ;
 	
@@ -233,42 +233,18 @@ int check_inst_type(int instructionIndex)
 
 /* checks the validation of the directive sentence */
 int check_dir(char *line, int dirtype, int *dc, int *error)
-
-{	int macro_flag=FALSE;
+{	
 	switch(dirtype)
 	{
-		/* if the directive is immidiate number */
-		case DATA_DIR :
+	case DW_DIR:
 			if(line != NULL)
 			{
 				char data[MAX_INTEGER_LEN];
-				int integer, i,j=0,k=0;
-				char key[MAX_MACRO_LEN];
+				int integer, i;
 				symbol_node * node;
 				
 				while(TRUE)
 				{
-					/* checks if macro */
-					if(isalpha(*line))
-					{
-						while(line[j] != ',' && line[j] !='\0' && line[j] != ' ')
-						{
-							key[j] = *(line+j);
-							j++;
-						}
-						key[j-1] = '\0';
-
-						if((node = search_sym(key)) != NULL){ 
-							*(line)=(node-> address) + '0';
-							macro_flag=TRUE;
-						}
-						while(line[k] != '\0')
-						{
-							*(line+k+1) = *(line+k+j);
-							k++;
-						}
-					}
-
 					if(*line == '-' || *line == '+' || isdigit(*line))
 					{
 						data[0] = *line;
@@ -285,8 +261,135 @@ int check_dir(char *line, int dirtype, int *dc, int *error)
 						
 						/* checks if the  integer fits 10 bits */
 						if(integer >= MIN_DATA_INT && integer <= MAX_DATA_INT)
-							to_data(integer, dc);
+							to_data(integer, dc,DW_SIZE); /*TODO - pass to "to_data" the type of the DIR, so it could extend DC accrodingly*/
+						else
+						{
+							*error = BAD_ARG_ERROR;
+							return FALSE;
+						}
 						
+						line = skip_space(line);
+						
+						if(line == NULL)
+							return TRUE;
+						
+						if(*line != ',')
+						{
+							*error = SYNTAX_ERROR;
+							return FALSE;
+						}
+						
+						line = skip_space(line+1);
+						
+						if(line == NULL)
+						{
+							*error = SYNTAX_ERROR;
+							return FALSE;
+						}
+					}
+					
+					else 
+					{
+						*error = SYNTAX_ERROR;
+						return FALSE;
+					}
+				}
+			}
+			
+			else
+				return TRUE;
+			
+			break;
+			case DH_DIR:
+			if(line != NULL)
+			{
+				char data[MAX_INTEGER_LEN];
+				int integer, i;
+				symbol_node * node;
+				
+				while(TRUE)
+				{
+					if(*line == '-' || *line == '+' || isdigit(*line))
+					{
+						data[0] = *line;
+						line++;
+						
+						for(i=1;i<MAX_INTEGER_LEN && isdigit(*line);i++)
+						{
+							data[i] = *line;
+							line++;
+						}
+						
+						data[i] = '\0';
+						integer = atoi(data);
+						
+						/* checks if the  integer fits 10 bits */
+						if(integer >= MIN_DATA_INT && integer <= MAX_DATA_INT)
+							to_data(integer, dc,DH_SIZE); /*TODO - pass to "to_data" the type of the DIR, so it could extend DC accrodingly*/
+						else
+						{
+							*error = BAD_ARG_ERROR;
+							return FALSE;
+						}
+						
+						line = skip_space(line);
+						
+						if(line == NULL)
+							return TRUE;
+						
+						if(*line != ',')
+						{
+							*error = SYNTAX_ERROR;
+							return FALSE;
+						}
+						
+						line = skip_space(line+1);
+						
+						if(line == NULL)
+						{
+							*error = SYNTAX_ERROR;
+							return FALSE;
+						}
+					}
+					
+					else 
+					{
+						*error = SYNTAX_ERROR;
+						return FALSE;
+					}
+				}
+			}
+			
+			else
+				return TRUE;
+			
+			break;
+			case DB_DIR:
+			if(line != NULL)
+			{
+				char data[MAX_INTEGER_LEN];
+				int integer, i;
+				symbol_node * node;
+				
+				while(TRUE)
+				{
+					if(*line == '-' || *line == '+' || isdigit(*line))
+					{
+						data[0] = *line;
+						line++;
+						
+						for(i=1;i<MAX_INTEGER_LEN && isdigit(*line);i++)
+						{
+							data[i] = *line;
+							line++;
+						}
+						
+						data[i] = '\0';
+						integer = atoi(data);
+						
+						/* checks if the  integer fits 10 bits */
+						if(integer >= MIN_DATA_INT && integer <= MAX_DATA_INT)
+							to_data(integer, dc,DB_SIZE); /*TODO - pass to "to_data" the type of the DIR, so it could extend DC accrodingly*/
 						else
 						{
 							*error = BAD_ARG_ERROR;
@@ -343,7 +446,7 @@ int check_dir(char *line, int dirtype, int *dc, int *error)
 							return FALSE;
 						}
 						ch = (int)*line;
-						to_data(ch, dc);
+						to_data(ch, dc); //ADD to dc the size of the string +1 for '/0'
 						line++;
 					}
 					

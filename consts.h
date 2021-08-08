@@ -16,12 +16,15 @@
 #define MAX_OPERAND_LEN 40
 #define MASK_2BIT 3
 #define NA -1
-#define INST_SIZE 15
+#define INST_AMOUNT 26
 #define DIR_SIZE 4
 #define MAX_IMM_INT 127
 #define MIN_IMM_INT -128
 #define REG_LEN 2
 #define MAX_INTEGER_LEN 4
+#define DW_SIZE 4
+#define DH_SIZE 2
+#define DB_SIZE 1
 #define MAX_DATA_INT 511
 #define MIN_DATA_INT -512
 
@@ -35,7 +38,7 @@ enum{NO_ERROR, SYNTAX_ERROR, LABEL_INST_ERROR, DEF_LABEL_ERROR,
 enum{FALSE, TRUE};
 
 /*Direction types*/
-enum{NUMBER_DIR,DD_DIR,DW_DIR,DB_DIR, ASCIZ_DIR,ENTRY_DIR, EXTERN_DIR};
+enum{NUMBER_DIR,DH_DIR,DW_DIR,DB_DIR, ASCIZ_DIR,ENTRY_DIR, EXTERN_DIR};
 
 /*Instruction types*/
 enum{R,I,J};
