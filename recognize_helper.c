@@ -33,65 +33,7 @@ int is_label(char *line, int* ic, int* dc, int* ec,int *ln, int *error)
 		/* if it is label */
 		if (*p == ':') 
 		{
-			/* max length of a label is 31 characters */
-			if (i >= MAX_LABEL_LEN) 
-			{
-				*error = LONG_LABEL_ERROR;
-				return FALSE;
-			}
-			
-			p = line;
-			/* first character of label have to be letter */
-			if (!isalpha(*p))
-			{
-				*error = FCHAR_LABEL_ERROR;
-				return FALSE;
-			}
-			
-			/* label characters can be only letters or digits */
-			for(c=0;c<i;c++)
-			{
-				label[c] = *p;
-				
-				/* label characters can be only letters or digits */
-				if(!isdigit(label[c]) && !isalpha(label[c]))
-				{
-					*error = SYNTAX_ERROR;
-					return FALSE;
-				}
-				
-				p++;
-			}
-			
-			label[c] = '\0';
-			
-			/* check if the label is one of the saved words - instructions */
-			if(is_inst(label) > NA)
-			{
-				*error = LABEL_INST_ERROR;
-				return FALSE;
-			}
-
-            /* check if the label is one of the saved words - directives */
-			if(is_dir(label) > NA)
-			{
-				*error = DIR_ERROR;
-				return FALSE;
-			}
-			
-			/* check if the label is not a register */	
-			if(strlen(label) == REG_LEN && label[0] == '$' && label[1] >= '0' && label[1] <= '3' && label[2] <= '1') //32 registers
-			{
-				*error = LABEL_REG_ERROR;
-				return FALSE;
-			}
-
-			/* after a label it has to be somthing */
-			if(next_word(line) == NULL)
-			{
-				*error = ONLY_LABEL_ERROR;
-				return FALSE;
-			}
+			is_valid_label(line,i,c,label,p,error)
 
 //TODO - Implement this part
 			/* if the label points to directive or macro then the symbol address is the dc */
@@ -106,21 +48,7 @@ int is_label(char *line, int* ic, int* dc, int* ec,int *ln, int *error)
 					return TRUE;
 				}
 				
-				else{
-					/* checks if macro */
-					while(*(next_word(line)+i) != ',' && *(next_word(line)+i) !='\0')
-					{
-						key[i-1] = *(next_word(line)+i);
-						i++;
-					}
-					key[i-1] = '\0';
-
-					if((node = search_sym(key)) != NULL){
-						*(next_word(line)-i)=(node-> address);
-						macro_flag = TRUE;
-					}
-				}
-                					address = *dc;
+                address = *dc;
 				check_errors(ln, error, ec);
 			}
 				

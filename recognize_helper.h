@@ -10,6 +10,8 @@
 #include "read_line.h"
 #include "consts.h"
 #include "structs.h"
+#include "validations.h"
+
 /*
 #include "tables.h"
 #include "errors.h"
@@ -29,7 +31,8 @@ int check_dir(char *, int,  int *, int *);
 
 /* checks the validation of the instruction sentence */
 int check_inst(char *, int *, int *);
-
+/* checks if the word is an instruction and returns it's index */
+int check_inst_type(int instructionIndex)
 /* checks operand addressing */
 int check_addressing(char *, int *);
 
