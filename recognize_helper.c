@@ -527,160 +527,34 @@ int check_dir(char *line, int dirtype, int *dc, int *error)
 
 	return FALSE;
 }
+
 /* checks the validation of the instruction sentence */
 int check_inst(char *line, int *error, int *ic)
 
 {
-	int opcode = is_inst(line); //change to inst index
-    int instTye = check_inst_type(opcode);
-	int addressing1, addressing2;
+	int instruction = is_inst(line); //change to inst index
+    int instType = check_inst_type(instruction);
 	line = next_word(line);
-	
-	/* if the instruction doesn't need operands */
-	if(opcode > JSR_INST)
-	{
-		if(line == NULL)
-		{
-			(*ic)++;
-			return TRUE;
-		}
-		
-		else
-		{
-			*error = SYNTAX_ERROR;
-			return FALSE;
-		}
-	}
-	
-	if(line == NULL)
-	{
-		*error = BAD_ARG_ERROR;
-		return FALSE;
-	}
-	
-	addressing1 = check_addressing(line, error);
-	
-	if(*error != NO_ERROR)
-		return FALSE;
-	
 	line = to_comma(line);
-
-	/* if first operand is immidiate number */
-	if(addressing1 == IMM_ADDRESS)
-	{
-
-		if(opcode > SUB_INST && opcode != PRN_INST)
-		{
-			*error = ADD_ERROR;
-			return FALSE;
-		}
-		
-		if(opcode == PRN_INST)
-		{
-			if(line == NULL)
-			{	
-				(*ic) += 2;
-				return TRUE;
-			}
-			
-			else
-			{
-				*error = ADD_ERROR;
-				return FALSE;
-			}			
-		}
-		
-		(*ic)++;
-	}
-	
 	/* if first operand isn't immidiate number */
-	else if(addressing1 > IMM_ADDRESS)
-	{
-
-		if(opcode == LEA_INST && addressing1 == SUB_INST)
-		{
-			*error = ADD_ERROR;
-			return FALSE;
-		}
-		
-		if(opcode > SUB_INST && opcode != LEA_INST)
-		{
-			if(line == NULL)
-			{
-				(*ic)++;
-				
-				if(addressing1 == INDEX_ADDRESS)
-					(*ic) += 2;
-				else
-					(*ic)++;
-					
-				return TRUE;
-			}
-			
-			else
-			{
-				*error = ADD_ERROR;
-				return FALSE;
-			}	
-		}
-		
-		if(addressing1 == INDEX_ADDRESS)
-			(*ic) += 2;
-		else
-			(*ic)++;
-	}
-	
 	if(line == NULL)
 	{
 		*error = SYNTAX_ERROR;
 		return FALSE;
 	}
-	
-	addressing2 = check_addressing(line, error);
-	
-	if(*error != NO_ERROR)
-		return FALSE;
-	
-	if(next_word(line) == NULL && to_comma(line) == NULL)
+
+	if(instType == R)
 	{
-		/* if second operand is immidiate number */
-		if(addressing2 == IMM_ADDRESS)
-		{
-			if(opcode == CMP_INST || opcode == PRN_INST)
-			{
-				(*ic) += 2;
-				return TRUE;
-			}
-			
-			else 
-			{
-				*error = ADD_ERROR;
-				return FALSE;
-			}
-		}
+		if(line)
+	}
+
+	if(instType == I)
+	{
 		
-		/* if second operand isn't immidiate number */
-		if(addressing2 > IMM_ADDRESS)
-		{
-			(*ic)++;
-			
-			if(addressing2 == INDEX_ADDRESS)
-				(*ic) += 2;
-			else if((addressing2 == REG_ADDRESS && addressing1 != REG_ADDRESS) || addressing2 == LABEL_ADDRESS)
-				(*ic)++;
-			
-			return TRUE;
-		}
 	}
 	
-	else
-	{
-		*error = SYNTAX_ERROR;
-		return FALSE;
-	}
-	
-	return FALSE;
 }
+
 /* checks operand addressing */
 int check_addressing(char *line, int *error)
 {
@@ -706,4 +580,66 @@ int check_addressing(char *line, int *error)
 	}
 	*error = ADD_ERROR;
 	return NA;
+}
+
+int validate_inst_r_arithmetic(char *line, int *error)
+{
+	char *p = line;
+	if(*p !='$')
+	{
+			*error = SYNTAX_ERROR;
+			return FALSE;
+	}
+	validate_register_syntax(line,error);
+	line = to_comma(line);
+	validate_register_syntax(line,error);
+	line = to_comma(line);
+	validate_register_syntax(line,error);
+	if(next_word(line)!=NULL)
+	{
+		*error = SYNTAX_ERROR;
+			return FALSE;
+	}
+}
+
+int validate_inst_r_copy(char *line, int *error)
+{
+	char *p = line;
+	if(*p !='$')
+	{
+			*error = SYNTAX_ERROR;
+			return FALSE;
+	}
+	validate_register_syntax(line,error);
+	line = to_comma(line);
+	validate_register_syntax(line,error);
+	if(next_word(line)!=NULL)
+	{
+		*error = SYNTAX_ERROR;
+			return FALSE;
+	}
+}
+
+//TOdo - add validators per all command types - I , J 
+
+int validate_register_syntax(char *line,char * error)
+{
+	char *p = line;
+	if(*p !='$')
+	{
+			*error = SYNTAX_ERROR;
+			return FALSE;
+	}
+
+	while(isdigit(p))
+	{
+		p=p+1;
+	}
+	if(*p =! isdigit && *p =! ',' *p =!isspace) 
+	{
+		*error = SYNTAX_ERROR;
+			return FALSE;
+	}
+	
+	return TRUE;
 }
