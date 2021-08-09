@@ -18,7 +18,7 @@ data_node *new_data(int data, int* dc)
 }
 
 /* creates new node for symbol table and initializing it */
-symbol_node *new_symbol(char *symbol, int address, int ext_flag, int inst_flag, int macro_flag)
+symbol_node *new_symbol(char *symbol, int address, int ext_flag, int inst_flag)
 {
 	symbol_node *new = (symbol_node *)malloc(sizeof(symbol_node));
 	new->address = address;
@@ -26,7 +26,6 @@ symbol_node *new_symbol(char *symbol, int address, int ext_flag, int inst_flag, 
 	strcpy(new->symbol,symbol);
 	new->ext_flag = ext_flag;
 	new->inst_flag = inst_flag;
-	new->macro_flag = macro_flag;
 	new->next = NULL;
 	return new;
 }
@@ -80,11 +79,11 @@ ent_ext_node *new_ent_ext(char *label, int address, int ext_flag)
 }
 
 /* adds data to directive data table */
-void to_data(int data, int *dc)
+void to_data(int data, int *dc,int dataSize)
 {
 	data_node *temp = data_head;
 	data_node *new = new_data(data, dc);
-	(*dc)++;
+	(*dc)+=dataSize;
 	
 	if(data_head == NULL)
 	{
@@ -100,10 +99,10 @@ void to_data(int data, int *dc)
 }
 
 /* adds symbol to symbol table */
-void to_symbol(char *symbol, int address, int ext_flag, int inst_flag, int macro_flag)
+void to_symbol(char *symbol, int address, int ext_flag, int inst_flag)
 {
 	symbol_node *temp = symbol_head;
-	symbol_node *new = new_symbol(symbol, address, ext_flag, inst_flag, macro_flag);
+	symbol_node *new = new_symbol(symbol, address, ext_flag, inst_flag);
 	
 	if(symbol_head == NULL)
 	{
@@ -277,7 +276,7 @@ void update_DC(int *ic, int *error)
 	}
 	while(sym_temp != NULL)
 	{
-		if(!sym_temp->ext_flag && !sym_temp->inst_flag &&!sym_temp->macro_flag)
+		if(!sym_temp->ext_flag && !sym_temp->inst_flag)
 			sym_temp->address += (*ic);
 		sym_temp = sym_temp->next;
 	}

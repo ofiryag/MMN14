@@ -17,65 +17,27 @@ typedef struct symbol_node /*the symbols node*/
 	struct symbol_node *next;
 } symbol_node;
 
-
 typedef struct instruction_node
 {
 	int instructiontype;
 	int address : 32;
 	struct instruction_node *next;
-	struct data
+	union {
+		struct instruction_node_r *inst_r;
+		struct instruction_node_i *inst_i;
+		struct instruction_node_j *inst_j;
+
+		struct data
 		{
 			int value : 32;
-		} data;
-		
-	struct label
+		 } data;
+
+		struct label
 		{
 			unsigned int address : 32;
 		} label;
-	
-	struct instruction_node_r{
-	union type
-	{
-		struct inst
-		{
-			unsigned int opcode : 6;
-			unsigned int rs : 5;
-			unsigned int rd : 5;
-			unsigned int rt : 5;
-			unsigned int funct : 5;
-		} inst;
-		
-		struct reg
-		{
-			unsigned int rs : 5;
-			unsigned int rd : 5;
-			unsigned int rt : 5;
-		} reg;
-	} type;
-
-	} instruction_node_r;
-
-	struct instruction_node_i
-{
-
-	union type
-	{
-		struct inst
-		{
-			unsigned int opcode : 6;
-			unsigned int rs : 5;
-			unsigned int rt : 5;
-			unsigned int immed : 16;
-		} inst;
-		
-		struct reg
-		{
-			unsigned int rs : 5;
-			unsigned int immed : 16;
-			unsigned int rt : 5;
-		} reg;
-	} type;
-} instruction_node_i;
+	}
+} instruction_node;
 
 struct instruction_node_j
 {
@@ -96,8 +58,49 @@ struct instruction_node_j
 	} type;
 } instruction_node_j;
 
-} instruction_node;
+struct instruction_node_r{
+	union type
+	{
+		struct inst
+		{
+				unsigned int opcode : 6;
+				unsigned int rs : 5;
+				unsigned int rd : 5;
+				unsigned int rt : 5;
+				unsigned int funct : 5;
+		} inst;
 
+		struct reg
+		{
+				unsigned int rs : 5;
+				unsigned int rd : 5;
+				unsigned int rt : 5;
+		} reg;
+	} type;
+
+	} instruction_node_r;
+
+struct instruction_node_i
+{
+
+	union type
+	{
+		struct inst
+		{
+			unsigned int opcode : 6;
+			unsigned int rs : 5;
+			unsigned int rt : 5;
+			unsigned int immed : 16;
+		} inst;
+		
+		struct reg
+		{
+			unsigned int rs : 5;
+			unsigned int immed : 16;
+			unsigned int rt : 5;
+		} reg;
+	} type;
+} instruction_node_i;
 
 typedef struct ent_ext_node
 {
