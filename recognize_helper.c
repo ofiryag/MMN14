@@ -16,7 +16,7 @@ keywords instructions[] =
 
 keywords directives[] = 
 {
-  {".dd"},{".dw"}.{".db"},{"asciz"},{"entry"},{"extern"}
+  {".dh"},{".dw"}.{".db"},{"asciz"},{"entry"},{"extern"}
 };
 
 
@@ -27,7 +27,7 @@ int is_label(char *line, int* ic, int* dc, int* ec,int *ln, int *error)
 	char label[MAX_LABEL_LEN];
 	char *p = line;
 	
-	int  i = 0, c = 0, address = 0, ext_flag = FALSE, inst_flag = FALSE, macro_flag = FALSE;
+	int  i = 0, c = 0, address = 0, ext_flag = FALSE, inst_flag = FALSE;
 	while (*p != '\0') 
 	{
 		/* if it is label */
@@ -93,34 +93,15 @@ int is_label(char *line, int* ic, int* dc, int* ec,int *ln, int *error)
 				return FALSE;
 			}
 
-//TODO - Implement this part
-			/* if the label points to directive or macro then the symbol address is the dc */
+			/* if the label points to directive then the symbol address is the dc */
 			if(*(next_word(line)) == '.')
 			{
-				char key[MAX_MACRO_LEN];
-				symbol_node * node;
 				int i=1;
-
 				if(is_dir(next_word(line)+1, error) >= ENTRY_DIR)
 				{
 					return TRUE;
 				}
-				
-				else{
-					/* checks if macro */
-					while(*(next_word(line)+i) != ',' && *(next_word(line)+i) !='\0')
-					{
-						key[i-1] = *(next_word(line)+i);
-						i++;
-					}
-					key[i-1] = '\0';
-
-					if((node = search_sym(key)) != NULL){
-						*(next_word(line)-i)=(node-> address);
-						macro_flag = TRUE;
-					}
-				}
-                					address = *dc;
+                address = *dc;
 				check_errors(ln, error, ec);
 			}
 				
@@ -190,7 +171,7 @@ int is_dir(char *line, int *error)
 	}
 	*error = DIR_ERROR;
 	return NA;
-    }
+}
 /* checks if the word is an instruction and returns it's index */
 int is_inst(char *line)
 {
@@ -239,7 +220,7 @@ int check_dir(char *line, int dirtype, int *dc, int *error)
 	case DW_DIR:
 			if(line != NULL)
 			{
-				char data[MAX_INTEGER_LEN];
+				char data[MAX_DW_INT_LENGTH];
 				int integer, i;
 				symbol_node * node;
 				
@@ -250,7 +231,7 @@ int check_dir(char *line, int dirtype, int *dc, int *error)
 						data[0] = *line;
 						line++;
 						
-						for(i=1;i<MAX_INTEGER_LEN && isdigit(*line);i++)
+						for(i=1;i<MAX_DW_INT_LENGTH && isdigit(*line);i++)
 						{
 							data[i] = *line;
 							line++;
@@ -259,9 +240,9 @@ int check_dir(char *line, int dirtype, int *dc, int *error)
 						data[i] = '\0';
 						integer = atoi(data);
 						
-						/* checks if the  integer fits 10 bits */
-						if(integer >= MIN_DATA_INT && integer <= MAX_DATA_INT)
-							to_data(integer, dc,DW_DIR); /*TODO - pass to "to_data" the type of the DIR, so it could extend DC accrodingly*/
+						/* checks if the  integer fits 32 bits */
+						if(integer >= MIN_DW_INT && integer <= MAX_DW_INT)
+							to_data(integer, dc,DW_SIZE); /*TODO - pass to "to_data" the type of the DIR, so it could extend DC accrodingly - DONE*/
 						else
 						{
 							*error = BAD_ARG_ERROR;
@@ -303,7 +284,7 @@ int check_dir(char *line, int dirtype, int *dc, int *error)
 		case DH_DIR:
 			if(line != NULL)
 			{
-				char data[MAX_INTEGER_LEN];
+				char data[MAX_DH_INT_LENGTH];
 				int integer, i;
 				symbol_node * node;
 				
@@ -314,7 +295,7 @@ int check_dir(char *line, int dirtype, int *dc, int *error)
 						data[0] = *line;
 						line++;
 						
-						for(i=1;i<MAX_INTEGER_LEN && isdigit(*line);i++)
+						for(i=1;i<MAX_DH_INT_LENGTH && isdigit(*line);i++)
 						{
 							data[i] = *line;
 							line++;
@@ -323,8 +304,8 @@ int check_dir(char *line, int dirtype, int *dc, int *error)
 						data[i] = '\0';
 						integer = atoi(data);
 						
-						/* checks if the  integer fits 10 bits */
-						if(integer >= MIN_DATA_INT && integer <= MAX_DATA_INT)
+						/* checks if the  integer fits 16 bits */
+						if(integer >= MIN_DH_INT && integer <= MAX_DH_INT)
 							to_data(integer, dc,DH_SIZE); /*TODO - pass to "to_data" the type of the DIR, so it could extend DC accrodingly*/
 						else
 						{
@@ -368,7 +349,7 @@ int check_dir(char *line, int dirtype, int *dc, int *error)
 		case DB_DIR:
 			if(line != NULL)
 			{
-				char data[MAX_INTEGER_LEN];
+				char data[MAX_DB_INT_LENGTH];
 				int integer, i;
 				symbol_node * node;
 				
@@ -379,7 +360,7 @@ int check_dir(char *line, int dirtype, int *dc, int *error)
 						data[0] = *line;
 						line++;
 						
-						for(i=1;i<MAX_INTEGER_LEN && isdigit(*line);i++)
+						for(i=1;i<MAX_DB_INT_LENGTH && isdigit(*line);i++)
 						{
 							data[i] = *line;
 							line++;
@@ -388,8 +369,8 @@ int check_dir(char *line, int dirtype, int *dc, int *error)
 						data[i] = '\0';
 						integer = atoi(data);
 						
-						/* checks if the  integer fits 10 bits */
-						if(integer >= MIN_DATA_INT && integer <= MAX_DATA_INT)
+						/* checks if the  integer fits 8 bits */
+						if(integer >= MIN_DB_INT && integer <= MAX_DB_INT)
 							to_data(integer, dc,DB_SIZE); /*TODO - pass to "to_data" the type of the DIR, so it could extend DC accrodingly*/
 						else
 						{
@@ -447,7 +428,7 @@ int check_dir(char *line, int dirtype, int *dc, int *error)
 							return FALSE;
 						}
 						ch = (int)*line;
-						to_data(ch, dc);
+						to_data(ch, dc,CHAR_SIZE);
 						line++;
 					}
 					
