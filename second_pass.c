@@ -155,7 +155,7 @@ void read_line2(char *line, FILE *ob_file, FILE *ent_file, FILE *ext_file, int *
 		/* if the instruction is Stop */
 		if(opcode > JSR_INST)
 		{
-			to_inst(INST_TYPE, opcode, addressing1, addressing2, data, ABSOLUTE, ic);
+			to_inst_j(opcode, addressing1, addressing2,ic);
 			(*ic)++;
 			return;
 		}

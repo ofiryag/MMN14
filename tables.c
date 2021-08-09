@@ -32,7 +32,7 @@ symbol_node *new_symbol(char *symbol, int address, int ext_flag, int inst_flag)
 
 
 /* creates new node for instructions table and initializing it */
-instruction_node *new_inst(int insttype, int opcode, int src, int dst, int data, int era,int *ic)
+instruction_node *new_inst(int insttype, int opcode, int rs, int rd, int data, int era,int *ic)
 {
 	instruction_node *new = (instruction_node *)malloc(sizeof(instruction_node));
 	new->insttype = insttype;
@@ -43,14 +43,14 @@ instruction_node *new_inst(int insttype, int opcode, int src, int dst, int data,
 	if(insttype == INST_TYPE)
 	{
 		new->type.inst.opcode = opcode;
-		new->type.inst.src = src;
-		new->type.inst.dst = dst;
+		new->type.inst.rs = rs;
+		new->type.inst.rd = rd;
 	}
 	
 	else if(insttype == REG_TYPE)
 	{
-		new->type.reg.dst = dst;
-		new->type.reg.src = src;
+		new->type.reg.rd = rd;
+		new->type.reg.rs = rs;
 	}
 	
 	else if(insttype == DATA_TYPE)
@@ -118,10 +118,46 @@ void to_symbol(char *symbol, int address, int ext_flag, int inst_flag)
 }
 
 /* adds instruction to instruction table */
-void to_inst(int insttype, int opcode, int src, int dst, int data, int era, int *ic)
+void to_inst_r(int opcode, int rs, int rt, int rd, int funct, int *ic)
 {
-	instruction_node *temp = instruction_head;
-	instruction_node *new = new_inst(insttype, opcode, src, dst, data, era, ic);
+	instruction_node_r *temp = instruction_head;
+	instruction_node_r *new = new_inst(opcode,rs,rt,rd, funct, ic);
+	
+	if(instruction_head == NULL)
+	{
+		instruction_head = new;
+		return;
+	}
+	
+	while(temp->next != NULL)
+		temp = temp->next;
+	
+	temp->next = new;
+	return;
+}
+
+void to_inst_i(int opcode, int rs, int rt,int immed,int *ic)
+{
+	instruction_node_i *temp = instruction_head;
+	instruction_node_i *new = new_inst(opcode,rs,rt,immed,ic);
+	
+	if(instruction_head == NULL)
+	{
+		instruction_head = new;
+		return;
+	}
+	
+	while(temp->next != NULL)
+		temp = temp->next;
+	
+	temp->next = new;
+	return;
+}
+
+void to_inst_j(int opcode,int reg,int address,int *ic)
+{
+	instruction_node_j *temp = instruction_head;
+	instruction_node_j *new = new_inst(opcode,reg,address,ic);
 	
 	if(instruction_head == NULL)
 	{
@@ -179,29 +215,29 @@ void print_to_files(FILE *ob_file, FILE *ent_file, FILE *ext_file, int* ic, int*
 		if(temp_inst->insttype == INST_TYPE)
 		{
 			char opcode[3];
-			char src;
-			char dst;
+			char rs;
+			char rd;
 			
 			for(i=0,j=2;i<2;i++,j-=2)
 				opcode[i] = base4_chars[(temp_inst->type.inst.opcode >> j) & mask];
 			opcode[2] = '\0';
 			
-			src = base4_chars[temp_inst->type.inst.src];
-			dst = base4_chars[temp_inst->type.inst.dst];
+			rs = base4_chars[temp_inst->type.inst.rs];
+			rd = base4_chars[temp_inst->type.inst.rd];
 			
-			fprintf(ob_file, "\t%04d\t%s%s%c%c%c\n", line,unused_bits, opcode, src, dst, era);
+			fprintf(ob_file, "\t%04d\t%s%s%c%c%c\n", line,unused_bits, opcode, rs, rd, era);
 		
 		}
 		else if(temp_inst->insttype == REG_TYPE)
 		{
 			char print[4];
-			int srcndst = 0;
+			int rsnrd = 0;
 			char* temp_unusedbits = "***";
-			srcndst = (temp_inst->type.reg.src << 3) | temp_inst->type.reg.dst;
+			rsnrd = (temp_inst->type.reg.rs << 3) | temp_inst->type.reg.rd;
 			
 			for(i=0, j=4;i<4;i++,j-=2)
 			{
-				print[i] = base4_chars[(srcndst >> j) & mask];
+				print[i] = base4_chars[(rsnrd >> j) & mask];
 			}
 			print[3] = '\0';
 			
