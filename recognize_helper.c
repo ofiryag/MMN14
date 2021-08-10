@@ -5,10 +5,20 @@
 keywords instructions[] =
 {
   /*R instruction */
-  {"add"},{"sub"},{"and"},{"or"},{"nor"},{"move"},{"mvhi"},{"mvlo"},
+  /*Arithmetic*/
+  {"add"},{"sub"},{"and"},{"or"},{"nor"},
+  /*Copy*/
+  {"move"},{"mvhi"},{"mvlo"},
+/*<-------------------->*/
 
   /*I instructions*/
-  {"addi"},{"subi"},{"andi"},{"ori"},{"nori"},{"bne"},{"beq"},{"blt"},{"bgt"},{"lb"},{"sb"},{"lw"},{"sw"},{"lh"},{"sh"},
+  /*Arithmetic*/
+  {"addi"},{"subi"},{"andi"},{"ori"},{"nori"},
+  /*Conditional Branching*/
+  {"bne"},{"beq"},{"blt"},{"bgt"},
+  /*Storage*/
+{"lb"},{"sb"},{"lw"},{"sw"},{"lh"},{"sh"},
+/*<-------------------->*/
 
   /*J instructions*/
   {"jmp"},{"la"},{"call"},{"stop"}
@@ -202,11 +212,20 @@ int is_inst(char *line)
 /* checks if the word is an instruction and returns it's index */
 int check_inst_type(int instructionIndex)
 {
-	if(instructionIndex>0 && instructionIndex<8)
-    return R;
+	if(instructionIndex>=0 && instructionIndex<5)
+    return R_ARITHMETHIC;
 
-    if(instructionIndex>7 && instructionIndex<23)
-    return I;
+	if(instructionIndex>=5 && instructionIndex<=7)
+    return R_COPY;
+
+    if(instructionIndex>=8 && instructionIndex<=12)
+    return I_ARITHMETIC;
+
+	if(instructionIndex>=13 && instructionIndex<=16)
+    return I_CONDITIONAL_BRANCHING;
+
+	if(instructionIndex>=17 && instructionIndex<=22)
+    return I_STORAGE;
 
     if(instructionIndex>22 && instructionIndex<27)
     return J;
@@ -543,16 +562,27 @@ int check_inst(char *line, int *error, int *ic)
 		return FALSE;
 	}
 
-	if(instType == R)
+	switch (instType)
 	{
-		if(line)
+		case R_ARITHMETHIC:validate_inst_r_arithmetic(line,error);
+			break;
+		case R_COPY:validate_inst_r_copy(line,error);
+			break;
+		case I_CONDITIONAL_BRANCHING || I_STORAGE:validate_inst_i_conditional_branching(line,error);
+			break;
+		case I_ARITHMETIC:validate_inst_i_arithmetic_or_storage(line,error);
+			break;
+		case I_ARITHMETIC:validate_inst_i_arithmetic_or_storage(line,error);
+			break;
+		case J_JMP:/*implement*/;
+			break;
+		case J_CALL||J_LA:/*implement*/;
+			break;
+		case J_STOP:/*implement*/;
+			break;
+		default:
+			break;
 	}
-
-	if(instType == I)
-	{
-		
-	}
-	
 }
 
 /* checks operand addressing */
@@ -582,6 +612,7 @@ int check_addressing(char *line, int *error)
 	return NA;
 }
 
+/*validate that using R arithmetic instruction is int the correct syntax, for example add $1, $2, $3*/
 int validate_inst_r_arithmetic(char *line, int *error)
 {
 	char *p = line;
@@ -590,17 +621,31 @@ int validate_inst_r_arithmetic(char *line, int *error)
 			*error = SYNTAX_ERROR;
 			return FALSE;
 	}
-	validate_register_syntax(line,error);
+	validate_register_operand(line,error);
 	line = to_comma(line);
-	validate_register_syntax(line,error);
+
+	if(line==NULL)
+	{
+		*error = SYNTAX_ERROR;
+		return FALSE;
+	}	
+	validate_register_operand(line,error);
+
 	line = to_comma(line);
-	validate_register_syntax(line,error);
+	if(line==NULL)
+	{
+		*error = SYNTAX_ERROR;
+		return FALSE;
+	}	
+	validate_register_operand(line,error);
+
 	if(next_word(line)!=NULL)
 	{
 		*error = SYNTAX_ERROR;
 			return FALSE;
 	}
 }
+/*validate that using R copy instruction is int the correct syntax, for example add $1, $2*/
 
 int validate_inst_r_copy(char *line, int *error)
 {
@@ -610,9 +655,14 @@ int validate_inst_r_copy(char *line, int *error)
 			*error = SYNTAX_ERROR;
 			return FALSE;
 	}
-	validate_register_syntax(line,error);
+	validate_register_operand(line,error);
 	line = to_comma(line);
-	validate_register_syntax(line,error);
+	if(line==NULL)
+	{
+		*error = SYNTAX_ERROR;
+		return FALSE;
+	}
+	validate_register_operand(line,error);
 	if(next_word(line)!=NULL)
 	{
 		*error = SYNTAX_ERROR;
@@ -620,9 +670,71 @@ int validate_inst_r_copy(char *line, int *error)
 	}
 }
 
-//TOdo - add validators per all command types - I , J 
+/*validate that using I arithmetic instruction is int the correct syntax, for example add $1, -35, $2*/
 
-int validate_register_syntax(char *line,char * error)
+int validate_inst_i_arithmetic_or_storage(char *line, int *error)
+{
+	char *p = line;
+	if(*p !='$')
+	{
+			*error = SYNTAX_ERROR;
+			return FALSE;
+	}
+	validate_register_operand(line,error);
+	line = to_comma(line);
+	if(line==NULL)
+	{
+		*error = SYNTAX_ERROR;
+		return FALSE;
+	}
+	validate_immed_operand(line,error);
+	line = to_comma(line);
+	if(line==NULL)
+	{
+		*error = SYNTAX_ERROR;
+		return FALSE;
+	}
+	validate_register_operand(line,error);
+	if(next_word(line)!=NULL)
+	{
+		*error = SYNTAX_ERROR;
+			return FALSE;
+	}
+}
+
+/*validate that using I conditional branching instruction is int the correct syntax, for example add $1, $2, label*/
+int validate_inst_i_conditional_branching(char *line, int *error)
+{
+	char *p = line;
+	if(*p !='$')
+	{
+			*error = SYNTAX_ERROR;
+			return FALSE;
+	}
+	validate_register_operand(line,error);
+	line = to_comma(line);
+	if(line==NULL)
+	{
+		*error = SYNTAX_ERROR;
+		return FALSE;
+	}
+	validate_register_operand(line,error);
+	line = to_comma(line);
+	if(next_word(line)!=NULL)
+	{
+		*error = SYNTAX_ERROR;
+			return FALSE;
+	}
+	validate_label_operand(line,error);
+	if(line==NULL)
+	{
+		*error = SYNTAX_ERROR;
+		return FALSE;
+	}
+}
+
+//validate that register operand doesn't contain invalid characters
+int validate_register_operand(char *line,char * error)
 {
 	char *p = line;
 	if(*p !='$')
@@ -635,11 +747,70 @@ int validate_register_syntax(char *line,char * error)
 	{
 		p=p+1;
 	}
-	if(*p =! isdigit && *p =! ',' *p =!isspace) 
+	//check that the are no invalid characters between operands
+	if(*p =! ',' *p =!isspace) 
 	{
 		*error = SYNTAX_ERROR;
 			return FALSE;
 	}
-	
+	return TRUE;
+}
+
+//validate that immed doesn't contain invalid characters
+int validate_immed_operand(char *line,char * error) // validate is contains digits
+{
+	char *p = line;
+	while(isdigit(p))
+	{
+		p=p+1;
+	}
+
+	//check that the are no invalid characters between operands
+	if(*p =! ',' *p =!isspace) 
+	{
+		*error = SYNTAX_ERROR;
+			return FALSE;
+	}
+	return TRUE;
+}
+
+//validate that label doesn't contain invalid characters
+int validate_label_operand(char *line,char * error) // validate is contains digits
+{
+	char *p = line;
+	while(isdigit(p)||isalpha)
+	{
+		p=p+1;
+	}
+
+	//check that the are no invalid characters between operands
+	if(*p =! ',' *p =!isspace) 
+	{
+		*error = SYNTAX_ERROR;
+			return FALSE;
+	}
+	return TRUE;
+}
+
+
+
+//validate that label doesn't contain invalid characters
+int validate_label_exists_on_symbole_table(char *line,char * error) 
+{
+	char *p = line;
+	char label[MAX_LABEL_LEN];
+	int c =0;
+		/* label characters can be only letters or digits */
+		while (*p != '\0') 
+		{
+			label[c] = *p;
+			p++;
+			c++;
+		}
+	if(search_sym(label)==NULL) // label should be on symbole table
+	{
+	 		*error = LABEL_DOESNT_EXIST;
+			return FALSE;
+	}
 	return TRUE;
 }
