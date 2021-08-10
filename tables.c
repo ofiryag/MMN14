@@ -104,7 +104,7 @@ void to_data(int data, int *dc,int dataSize)
 void to_symbol(char *symbol, int address,int ext_flag, int data_flag,int code_flag, int entry_flag)
 {
 	symbol_node *temp = symbol_head;
-	symbol_node *new = new_symbol(symbol, address, ext_flag, data_flag, code_flag,  entry_flag);
+	symbol_node *new = new_symbol(symbol, address, ext_flag, data_flag, code_flag, entry_flag);
 	
 	if(symbol_head == NULL)
 	{

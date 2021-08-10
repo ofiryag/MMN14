@@ -21,7 +21,9 @@ keywords instructions[] =
 /*<-------------------->*/
 
   /*J instructions*/
-  {"jmp"},{"la"},{"call"},{"stop"}
+  {"jmp"}, /*one operand - label or register*/
+  {"la"},{"call"},/*one operand - label*/
+  {"stop"} /*zero operand*/
 };
 
 keywords directives[] = 
@@ -212,22 +214,31 @@ int is_inst(char *line)
 int check_inst_type(int instructionIndex)
 {
 	if(instructionIndex>=0 && instructionIndex<5)
-    return R_ARITHMETHIC;
+    	return R_ARITHMETHIC;
 
 	if(instructionIndex>=5 && instructionIndex<=7)
-    return R_COPY;
+    	return R_COPY;
 
     if(instructionIndex>=8 && instructionIndex<=12)
-    return I_ARITHMETIC;
+    	return I_ARITHMETIC;
 
 	if(instructionIndex>=13 && instructionIndex<=16)
-    return I_CONDITIONAL_BRANCHING;
+    	return I_CONDITIONAL_BRANCHING;
 
 	if(instructionIndex>=17 && instructionIndex<=22)
-    return I_STORAGE;
+    	return I_STORAGE;
 
-    if(instructionIndex>22 && instructionIndex<27)
-    return J;
+    if(instructionIndex=23)
+    	return J_JMP; 
+
+	if(instructionIndex=24)
+    	return J_LA; 
+
+	if(instructionIndex=25)
+    	return J_CALL; 
+
+	if(instructionIndex=26)
+    	return J_STOP; 
 }
 
 /* checks the validation of the directive sentence */ 
