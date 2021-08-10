@@ -10,10 +10,8 @@
 #include "read_line.h"
 #include "consts.h"
 #include "structs.h"
-/*
 #include "tables.h"
-#include "errors.h"
-*/
+/*#include "errors.h"*/
 
 /* checks if the word is a valid label and put it in symbol table */
 int is_label(char *, int *, int *, int *, int *, int *);

@@ -25,7 +25,7 @@ ent_ext_node *new_ent_ext(char *,int,int);
 void to_data(int, int *);
 
 /* adds symbol to symbol table */
-void to_symbol(char *,int,int,int, int);
+void to_symbol(char *, int ,int , int ,int , int);
 
 /* adds instruction to instruction table */
 void to_inst(int,int,int,int,int,int, int *);

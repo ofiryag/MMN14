@@ -5,18 +5,30 @@
 keywords instructions[] =
 {
   /*R instruction */
-  {"add"},{"sub"},{"and"},{"or"},{"nor"},{"move"},{"mvhi"},{"mvlo"},
+  /*Arithmetic*/
+  {"add"},{"sub"},{"and"},{"or"},{"nor"},
+  /*Copy*/
+  {"move"},{"mvhi"},{"mvlo"},
+/*<-------------------->*/
 
   /*I instructions*/
-  {"addi"},{"subi"},{"andi"},{"ori"},{"nori"},{"bne"},{"beq"},{"blt"},{"bgt"},{"lb"},{"sb"},{"lw"},{"sw"},{"lh"},{"sh"},
+  /*Arithmetic*/
+  {"addi"},{"subi"},{"andi"},{"ori"},{"nori"},
+  /*Conditional Branching*/
+  {"bne"},{"beq"},{"blt"},{"bgt"},
+  /*Storage*/
+{"lb"},{"sb"},{"lw"},{"sw"},{"lh"},{"sh"},
+/*<-------------------->*/
 
   /*J instructions*/
-  {"jmp"},{"la"},{"call"},{"stop"}
+  {"jmp"}, /*one operand - label or register*/
+  {"la"},{"call"},/*one operand - label*/
+  {"stop"} /*zero operand*/
 };
 
 keywords directives[] = 
 {
-  {".dh"},{".dw"}.{".db"},{"asciz"},{"entry"},{"extern"}
+  {".dh"},{".dw"}.{".db"},{"asciz"},{"extern"},{"entry"}
 };
 
 
@@ -27,7 +39,7 @@ int is_label(char *line, int* ic, int* dc, int* ec,int *ln, int *error)
 	char label[MAX_LABEL_LEN];
 	char *p = line;
 	
-	int  i = 0, c = 0, address = 0, ext_flag = FALSE, inst_flag = FALSE;
+	int  i = 0, c = 0, address = 0, ext_flag = FALSE, ext_flag,  data_flag, code_flag, entry_flag;
 	while (*p != '\0') 
 	{
 		/* if it is label */
@@ -97,21 +109,21 @@ int is_label(char *line, int* ic, int* dc, int* ec,int *ln, int *error)
 			if(*(next_word(line)) == '.')
 			{
 				int i=1;
-				if(is_dir(next_word(line)+1, error) >= ENTRY_DIR)
+				if(is_dir(next_word(line)+1, error) <= EXTERN_DIR)
 				{
 					return TRUE;
 				}
-                address = *dc;
+				data_flag = TRUE;
 				check_errors(ln, error, ec);
 			}
 				
 			/* if the label points to instruction then the symbol addres is the ic */
 			else if(is_inst(next_word(line)) !=NA)
 			{
-				inst_flag = TRUE;
+				code_flag = TRUE;
 				address = *ic;
 			}
-			
+
 			/* label cannot be declared twice */
 			if(search_sym(label))
 			{
@@ -119,7 +131,7 @@ int is_label(char *line, int* ic, int* dc, int* ec,int *ln, int *error)
 				return FALSE;
 			}
 			
-			to_symbol(label, address, ext_flag, inst_flag);
+			to_symbol(label, address, ext_flag, inst_flag,inst_data);
 			return TRUE;
 		}
 		else
@@ -167,7 +179,6 @@ int is_dir(char *line, int *error)
 			
 			return i;
 		}
-
 	}
 	*error = DIR_ERROR;
 	return NA;
@@ -202,14 +213,32 @@ int is_inst(char *line)
 /* checks if the word is an instruction and returns it's index */
 int check_inst_type(int instructionIndex)
 {
-	if(instructionIndex>0 && instructionIndex<8)
-    return R;
+	if(instructionIndex>=0 && instructionIndex<5)
+    	return R_ARITHMETHIC;
 
-    if(instructionIndex>7 && instructionIndex<23)
-    return I;
+	if(instructionIndex>=5 && instructionIndex<=7)
+    	return R_COPY;
 
-    if(instructionIndex>22 && instructionIndex<27)
-    return J;
+    if(instructionIndex>=8 && instructionIndex<=12)
+    	return I_ARITHMETIC;
+
+	if(instructionIndex>=13 && instructionIndex<=16)
+    	return I_CONDITIONAL_BRANCHING;
+
+	if(instructionIndex>=17 && instructionIndex<=22)
+    	return I_STORAGE;
+
+    if(instructionIndex=23)
+    	return J_JMP; 
+
+	if(instructionIndex=24)
+    	return J_LA; 
+
+	if(instructionIndex=25)
+    	return J_CALL; 
+
+	if(instructionIndex=26)
+    	return J_STOP; 
 }
 
 /* checks the validation of the directive sentence */ 
@@ -498,7 +527,7 @@ int check_dir(char *line, int dirtype, int *dc, int *error)
 				{
 					if(search_sym(label) == NULL)
 					{
-						to_symbol(label, FALSE, TRUE, FALSE);
+						to_symbol(label, FALSE, TRUE, FALSE,FALSE,FALSE,FALSE);
 						return TRUE;
 					}
 					
@@ -543,16 +572,29 @@ int check_inst(char *line, int *error, int *ic)
 		return FALSE;
 	}
 
-	if(instType == R)
+	switch (instType)
 	{
-		if(line)
+		case R_ARITHMETHIC:validate_inst_r_arithmetic(line,error);
+			break;
+		case R_COPY:validate_inst_r_copy(line,error);
+			break;
+		case I_CONDITIONAL_BRANCHING || I_STORAGE:validate_inst_i_conditional_branching_or_storage(line,error);
+			break;
+		case I_ARITHMETIC:validate_inst_i_arithmetic_or_storage(line,error);
+			break;
+		case I_ARITHMETIC:validate_inst_i_arithmetic_or_storage(line,error);
+			break;
+		case J_JMP:validate_inst_j_jmp(line,error);
+			break;
+		case J_CALL||J_LA:validate_inst_j_call_or_la(line,error);
+			break;
+		case J_STOP:validate_inst_j_stop(line,error);
+			break;
+		default:
+			break;
 	}
+	(*ic)+=INST_SIZE;
 
-	if(instType == I)
-	{
-		
-	}
-	
 }
 
 /* checks operand addressing */
@@ -582,6 +624,7 @@ int check_addressing(char *line, int *error)
 	return NA;
 }
 
+/*validate that using R arithmetic instruction is int the correct syntax, for example add $1, $2, $3*/
 int validate_inst_r_arithmetic(char *line, int *error)
 {
 	char *p = line;
@@ -590,17 +633,31 @@ int validate_inst_r_arithmetic(char *line, int *error)
 			*error = SYNTAX_ERROR;
 			return FALSE;
 	}
-	validate_register_syntax(line,error);
+	validate_register_operand(line,error);
 	line = to_comma(line);
-	validate_register_syntax(line,error);
+
+	if(line==NULL)
+	{
+		*error = SYNTAX_ERROR;
+		return FALSE;
+	}	
+	validate_register_operand(line,error);
+
 	line = to_comma(line);
-	validate_register_syntax(line,error);
+	if(line==NULL)
+	{
+		*error = SYNTAX_ERROR;
+		return FALSE;
+	}	
+	validate_register_operand(line,error);
+
 	if(next_word(line)!=NULL)
 	{
 		*error = SYNTAX_ERROR;
 			return FALSE;
 	}
 }
+/*validate that using R copy instruction is int the correct syntax, for example add $1, $2*/
 
 int validate_inst_r_copy(char *line, int *error)
 {
@@ -610,9 +667,14 @@ int validate_inst_r_copy(char *line, int *error)
 			*error = SYNTAX_ERROR;
 			return FALSE;
 	}
-	validate_register_syntax(line,error);
+	validate_register_operand(line,error);
 	line = to_comma(line);
-	validate_register_syntax(line,error);
+	if(line==NULL)
+	{
+		*error = SYNTAX_ERROR;
+		return FALSE;
+	}
+	validate_register_operand(line,error);
 	if(next_word(line)!=NULL)
 	{
 		*error = SYNTAX_ERROR;
@@ -620,9 +682,9 @@ int validate_inst_r_copy(char *line, int *error)
 	}
 }
 
-//TOdo - add validators per all command types - I , J 
+/*validate that using I arithmetic instruction is int the correct syntax, for example add $1, -35, $2*/
 
-int validate_register_syntax(char *line,char * error)
+int validate_inst_i_arithmetic_or_storage(char *line, int *error)
 {
 	char *p = line;
 	if(*p !='$')
@@ -630,16 +692,169 @@ int validate_register_syntax(char *line,char * error)
 			*error = SYNTAX_ERROR;
 			return FALSE;
 	}
-
-	while(isdigit(p))
+	validate_register_operand(line,error);
+	line = to_comma(line);
+	if(line==NULL)
 	{
-		p=p+1;
+		*error = SYNTAX_ERROR;
+		return FALSE;
 	}
-	if(*p =! isdigit && *p =! ',' *p =!isspace) 
+	validate_immed_operand(line,error);
+	line = to_comma(line);
+	if(line==NULL)
+	{
+		*error = SYNTAX_ERROR;
+		return FALSE;
+	}
+	validate_register_operand(line,error);
+	if(next_word(line)!=NULL)
 	{
 		*error = SYNTAX_ERROR;
 			return FALSE;
 	}
-	
+}
+
+/*validate that using I conditional branching or storage instruction is int the correct syntax, for example add $1, $2, label*/
+int validate_inst_i_conditional_branching_or_storage(char *line, int *error)
+{
+	char *p = line;
+	if(*p !='$')
+	{
+			*error = SYNTAX_ERROR;
+			return FALSE;
+	}
+	validate_register_operand(line,error);
+	line = to_comma(line);
+	if(line==NULL)
+	{
+		*error = SYNTAX_ERROR;
+		return FALSE;
+	}
+	validate_register_operand(line,error);
+	line = to_comma(line);
+	if(next_word(line)!=NULL)
+	{
+		*error = SYNTAX_ERROR;
+			return FALSE;
+	}
+	validate_label_operand(line,error);
+	if(line==NULL)
+	{
+		*error = SYNTAX_ERROR;
+		return FALSE;
+	}
+}
+
+/*validate that using j jmp instruction is in the correct syntax, for example jmp label OR jmp $reg*/
+int validate_inst_j_jmp(char *line, int *error)
+{
+	char *p = line;
+	if (validate_register_operand(line,error) == FALSE && validate_label_operand(line,error))
+	{
+		*error = SYNTAX_ERROR;
+			return FALSE;
+	}
+	return TRUE;
+}
+
+/*validate that using j call or la instructions is in the correct syntax, for example call label || la label*/
+int validate_inst_j_call_or_la(char *line, int *error)
+{
+	char *p = line;
+	if (validate_label_operand(p,error) == FALSE)
+	{
+		*error = SYNTAX_ERROR;
+			return FALSE;
+	}
+	return TRUE;
+}
+
+/*validate that using j stop instructions is in the correct syntax, for example stop    */
+int validate_inst_j_stop(char *line, int *error)
+{
+	char *p = line;
+	to_comma(p);
+	if(p!=NULL)
+	{
+		*error = SYNTAX_ERROR;
+			return FALSE;
+	}
+	return TRUE;
+}
+
+
+//validate that register operand doesn't contain invalid characters
+int validate_register_operand(char *line,char * error)
+{
+	char *p = line;
+	if(p[0] != '$' || p[1] < '0' && p[1] > '3' || p[2] > '1') //migth cause error index out of range if p size is 2 chars
+		{
+			*error = REG_IS_NOT_VALID;
+			return FALSE;
+		}
+	else
+	return TRUE;
+}
+
+//validate that immed doesn't contain invalid characters
+int validate_immed_operand(char *line,char * error) // validate is contains digits
+{
+	char *p = line;
+	while(isdigit(p))
+	{
+		p=p+1;
+	}
+
+	//check that the are no invalid characters between operands
+	if(*p =! ',' || *p =!isspace) 
+	{
+		*error = SYNTAX_ERROR;
+			return FALSE;
+	}
+	return TRUE;
+}
+
+//validate that label doesn't contain invalid characters
+int validate_label_operand(char *line,char * error) // validate is contains digits
+{
+	char *p = line;
+	if(isalpha(p[0]==FALSE)
+	{
+			*error = SYNTAX_ERROR;
+			return FALSE;
+	}
+
+	while(isdigit(p)||isalpha)
+	{
+		p=p+1;
+	}
+
+	//check that the are no invalid characters between operands
+	if(*p =! ',' || *p =!isspace) 
+	{
+		*error = SYNTAX_ERROR;
+			return FALSE;
+	}
+	return TRUE;
+}
+
+//validate that label doesn't contain invalid characters
+int validate_label_exists_on_symbole_table(char *line,char * error) 
+{
+	char *p = line;
+	char label[MAX_LABEL_LEN];
+	int c =0;
+		/* label characters can be only letters or digits */
+		while (*p != '\0') 
+		{
+			label[c] = *p;
+			p++;
+			c++;
+		}
+	if(search_sym(label)==NULL) // label should be on symbole table
+	{
+	 		*error = LABEL_DOESNT_EXIST;
+			return FALSE;
+	}
 	return TRUE;
 }
