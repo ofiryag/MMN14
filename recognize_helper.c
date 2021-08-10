@@ -26,7 +26,7 @@ keywords instructions[] =
 
 keywords directives[] = 
 {
-  {".dh"},{".dw"}.{".db"},{"asciz"},{"entry"},{"extern"}
+  {".dh"},{".dw"}.{".db"},{"asciz"},{"extern"},{"entry"}
 };
 
 
@@ -37,7 +37,7 @@ int is_label(char *line, int* ic, int* dc, int* ec,int *ln, int *error)
 	char label[MAX_LABEL_LEN];
 	char *p = line;
 	
-	int  i = 0, c = 0, address = 0, ext_flag = FALSE, inst_flag = FALSE;
+	int  i = 0, c = 0, address = 0, ext_flag = FALSE, ext_flag,  data_flag, code_flag, entry_flag;
 	while (*p != '\0') 
 	{
 		/* if it is label */
@@ -107,21 +107,21 @@ int is_label(char *line, int* ic, int* dc, int* ec,int *ln, int *error)
 			if(*(next_word(line)) == '.')
 			{
 				int i=1;
-				if(is_dir(next_word(line)+1, error) >= ENTRY_DIR)
+				if(is_dir(next_word(line)+1, error) <= EXTERN_DIR)
 				{
 					return TRUE;
 				}
-                address = *dc;
+				data_flag = TRUE;
 				check_errors(ln, error, ec);
 			}
 				
 			/* if the label points to instruction then the symbol addres is the ic */
 			else if(is_inst(next_word(line)) !=NA)
 			{
-				inst_flag = TRUE;
+				code_flag = TRUE;
 				address = *ic;
 			}
-			
+
 			/* label cannot be declared twice */
 			if(search_sym(label))
 			{
@@ -129,7 +129,7 @@ int is_label(char *line, int* ic, int* dc, int* ec,int *ln, int *error)
 				return FALSE;
 			}
 			
-			to_symbol(label, address, ext_flag, inst_flag);
+			to_symbol(label, address, ext_flag, inst_flag,inst_data);
 			return TRUE;
 		}
 		else
@@ -177,7 +177,6 @@ int is_dir(char *line, int *error)
 			
 			return i;
 		}
-
 	}
 	*error = DIR_ERROR;
 	return NA;
@@ -517,7 +516,7 @@ int check_dir(char *line, int dirtype, int *dc, int *error)
 				{
 					if(search_sym(label) == NULL)
 					{
-						to_symbol(label, FALSE, TRUE, FALSE);
+						to_symbol(label, FALSE, TRUE, FALSE,FALSE,FALSE,FALSE);
 						return TRUE;
 					}
 					
@@ -568,21 +567,23 @@ int check_inst(char *line, int *error, int *ic)
 			break;
 		case R_COPY:validate_inst_r_copy(line,error);
 			break;
-		case I_CONDITIONAL_BRANCHING || I_STORAGE:validate_inst_i_conditional_branching(line,error);
+		case I_CONDITIONAL_BRANCHING || I_STORAGE:validate_inst_i_conditional_branching_or_storage(line,error);
 			break;
 		case I_ARITHMETIC:validate_inst_i_arithmetic_or_storage(line,error);
 			break;
 		case I_ARITHMETIC:validate_inst_i_arithmetic_or_storage(line,error);
 			break;
-		case J_JMP:/*implement*/;
+		case J_JMP:validate_inst_j_jmp(line,error);
 			break;
-		case J_CALL||J_LA:/*implement*/;
+		case J_CALL||J_LA:validate_inst_j_call_or_la(line,error);
 			break;
-		case J_STOP:/*implement*/;
+		case J_STOP:validate_inst_j_stop(line,error);
 			break;
 		default:
 			break;
 	}
+	(*ic)+=INST_SIZE;
+
 }
 
 /* checks operand addressing */
@@ -702,8 +703,8 @@ int validate_inst_i_arithmetic_or_storage(char *line, int *error)
 	}
 }
 
-/*validate that using I conditional branching instruction is int the correct syntax, for example add $1, $2, label*/
-int validate_inst_i_conditional_branching(char *line, int *error)
+/*validate that using I conditional branching or storage instruction is int the correct syntax, for example add $1, $2, label*/
+int validate_inst_i_conditional_branching_or_storage(char *line, int *error)
 {
 	char *p = line;
 	if(*p !='$')
@@ -733,26 +734,54 @@ int validate_inst_i_conditional_branching(char *line, int *error)
 	}
 }
 
-//validate that register operand doesn't contain invalid characters
-int validate_register_operand(char *line,char * error)
+/*validate that using j jmp instruction is in the correct syntax, for example jmp label OR jmp $reg*/
+int validate_inst_j_jmp(char *line, int *error)
 {
 	char *p = line;
-	if(*p !='$')
-	{
-			*error = SYNTAX_ERROR;
-			return FALSE;
-	}
-
-	while(isdigit(p))
-	{
-		p=p+1;
-	}
-	//check that the are no invalid characters between operands
-	if(*p =! ',' *p =!isspace) 
+	if (validate_register_operand(line,error) == FALSE && validate_label_operand(line,error))
 	{
 		*error = SYNTAX_ERROR;
 			return FALSE;
 	}
+	return TRUE;
+}
+
+/*validate that using j call or la instructions is in the correct syntax, for example call label || la label*/
+int validate_inst_j_call_or_la(char *line, int *error)
+{
+	char *p = line;
+	if (validate_label_operand(p,error) == FALSE)
+	{
+		*error = SYNTAX_ERROR;
+			return FALSE;
+	}
+	return TRUE;
+}
+
+/*validate that using j stop instructions is in the correct syntax, for example stop    */
+int validate_inst_j_stop(char *line, int *error)
+{
+	char *p = line;
+	to_comma(p);
+	if(p!=NULL)
+	{
+		*error = SYNTAX_ERROR;
+			return FALSE;
+	}
+	return TRUE;
+}
+
+
+//validate that register operand doesn't contain invalid characters
+int validate_register_operand(char *line,char * error)
+{
+	char *p = line;
+	if(p[0] != '$' || p[1] < '0' && p[1] > '3' || p[2] > '1') //migth cause error index out of range if p size is 2 chars
+		{
+			*error = REG_IS_NOT_VALID;
+			return FALSE;
+		}
+	else
 	return TRUE;
 }
 
@@ -766,7 +795,7 @@ int validate_immed_operand(char *line,char * error) // validate is contains digi
 	}
 
 	//check that the are no invalid characters between operands
-	if(*p =! ',' *p =!isspace) 
+	if(*p =! ',' || *p =!isspace) 
 	{
 		*error = SYNTAX_ERROR;
 			return FALSE;
@@ -778,21 +807,25 @@ int validate_immed_operand(char *line,char * error) // validate is contains digi
 int validate_label_operand(char *line,char * error) // validate is contains digits
 {
 	char *p = line;
+	if(isalpha(p[0]==FALSE)
+	{
+			*error = SYNTAX_ERROR;
+			return FALSE;
+	}
+
 	while(isdigit(p)||isalpha)
 	{
 		p=p+1;
 	}
 
 	//check that the are no invalid characters between operands
-	if(*p =! ',' *p =!isspace) 
+	if(*p =! ',' || *p =!isspace) 
 	{
 		*error = SYNTAX_ERROR;
 			return FALSE;
 	}
 	return TRUE;
 }
-
-
 
 //validate that label doesn't contain invalid characters
 int validate_label_exists_on_symbole_table(char *line,char * error) 
