@@ -75,6 +75,9 @@ enum{FALSE, TRUE};
 enum{DH_DIR,DW_DIR,DB_DIR, ASCIZ_DIR, EXTERN_DIR,ENTRY_DIR};
 
 /*Instruction types*/
+enum{R,I,J}
+
+/*Sub-Instruction types*/
 enum{R_ARITHMETHIC,R_COPY,I_ARITHMETIC,I_CONDITIONAL_BRANCHING,I_STORAGE,J_JMP,J_LA,J_CALL,J_STOP};
 
 /*Address types*/

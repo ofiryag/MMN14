@@ -41,6 +41,7 @@ instruction_node *new_inst(int opcode, int rs, int rt, int rd, int funct,int imm
 	/* if R instruction */
 	if(opcode==R_MIN_OPCODE || opcode==R_MAX_OPCODE)
 	{
+		new->instructiontype = R;
 		new->type.inst.opcode = opcode;
 		new->type.inst.rs = rs;
 		new->type.inst.rd = rd;
@@ -53,18 +54,22 @@ instruction_node *new_inst(int opcode, int rs, int rt, int rd, int funct,int imm
 		new->type.inst.rs = rs;
 		new->type.inst.rt = rt;
 		new->type.inst.immed = immed;
+		new->instructiontype = I;
 	}
 	/* if J instruction */
 	else if(opcode >= J_MIN_OPCODE && opcode <= J_MAX_OPCODE){
 		new->type.inst.opcode = opcode;
 		new->type.inst.reg = reg;
 		new->type.inst.address = address;
+		new->instructiontype = J;
+
 	}
 	/* if Stop instruction */
 		else if(opcode==STOP_OPCODE){
 		new->type.inst.opcode = opcode;
 		new->type.inst.reg = 0;
 		new->type.inst.address = 0;
+		new->instructiontype = J;
 	}
 	
 	return new;
@@ -167,71 +172,41 @@ void print_to_files(FILE *ob_file, FILE *ent_file, FILE *ext_file, int* ic, int*
 	data_node *temp_data = data_head;
 	ent_ext_node *temp_ent_ext = ent_ext_head;
 	char base4_chars[4] = {'*', '#', '%', '!'};
-	char data[8]; 
+	char one_byte[4];
+	char data[32]; 
 	char era;
 	int mask = MASK_2BIT, i, j;
 	int line;
 	char* unused_bits = "**";
+	char data_as_hex [32];
 	
 	fprintf(ob_file, "\t%d\t%d\n\n", (*ic) - 100, *dc);
-
 	line = 100;
 	while(temp_inst != NULL)
 	{
-		era = base4_chars[temp_inst->era];
 		
-		if(temp_inst->insttype == INST_TYPE)
+		if(temp_inst->instructiontype == R)
 		{
-			char opcode[3];
-			char rs;
-			char rd;
-			
-			for(i=0,j=2;i<2;i++,j-=2)
-				opcode[i] = base4_chars[(temp_inst->type.inst.opcode >> j) & mask];
-			opcode[2] = '\0';
-			
-			rs = base4_chars[temp_inst->type.inst.rs];
-			rd = base4_chars[temp_inst->type.inst.rd];
-			
-			fprintf(ob_file, "\t%04d\t%s%s%c%c%c\n", line,unused_bits, opcode, rs, rd, era);
-		
-		}
-		else if(temp_inst->insttype == REG_TYPE)
-		{
-			char print[4];
-			int rsnrd = 0;
-			char* temp_unusedbits = "***";
-			rsnrd = (temp_inst->type.reg.rs << 3) | temp_inst->type.reg.rd;
-			
-			for(i=0, j=4;i<4;i++,j-=2)
+			char binary_Opcode[7] = convert_decimal_to_binary(temp_inst->instruction_details->inst_r->type->inst->opcode,6);
+			char binary_rs[7] = convert_decimal_to_binary(temp_inst->instruction_details->inst_r->type->inst->rs,5);
+			char binary_rt[7] = convert_decimal_to_binary(temp_inst->instruction_details->inst_r->type->inst->rt,5);
+			char binary_rd[7] = convert_decimal_to_binary(temp_inst->instruction_details->inst_r->type->inst->rd,5);
+			char binary_funct[7] = convert_decimal_to_binary(temp_inst->instruction_details->inst_r->type.inst->funct,5);
+			strcat(data, binary_Opcode);
+			strcat(data, binary_rs);
+			strcat(data, binary_rt);
+			strcat(data, binary_rd);
+			strcat(data, binary_funct);
+			strcat(data, "00000"); //unused
+			for (i = 0; i < sizeof(data); i+4)
 			{
-				print[i] = base4_chars[(rsnrd >> j) & mask];
+				for (int j = 0; j<4; i++)
+				{
+					one_byte[j] = data[i+j];
+				}
+				
 			}
-			print[3] = '\0';
 			
-
-		
-			fprintf(ob_file, "\t%04d\t%s%s%c\n", line,temp_unusedbits, print, era);
-		}
-		
-		else if(temp_inst->insttype == DATA_TYPE)
-		{
-			char value[7];
-			for(i=0,j=10;i<7;i++,j-=2)
-				value[i] = base4_chars[(temp_inst->type.data.value >> j) & mask];
-			value[6] = '\0';
-			fprintf(ob_file, "\t%04d\t%s%c\n", line,value, era);
-		}
-	
-		else if(temp_inst->insttype == LABEL_TYPE)
-		{
-			char label[5];
-			
-			for(i=0,j=6;i<4;i++,j-=2)
-				label[i] = base4_chars[(temp_inst->type.label.address >> j) & mask];
-			label[4] = '\0';
-			
-			fprintf(ob_file, "\t%04d\t%s%s%c\n", line, unused_bits,label, era);
 		}
 			
 		line++;
@@ -260,6 +235,22 @@ void print_to_files(FILE *ob_file, FILE *ent_file, FILE *ext_file, int* ic, int*
 		temp_ent_ext = temp_ent_ext->next;
 	}
 
+}
+
+char * convert_decimal_to_binary(int decimal,int bitSize)
+{
+	int decimal, c, k;
+	char data[bitSize+1];
+  for (c = bitSize; c >= 0; c--)
+  {
+    k = decimal >> c;
+
+    if (k & 1)
+      data[bitSize]="1";
+    else
+      data[bitSize]="0";
+  }
+  return data;
 }
 
 /* updates the addressess of the directive data table */

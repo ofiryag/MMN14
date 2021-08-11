@@ -30,24 +30,15 @@ typedef struct instruction_node
 	int instructiontype;
 	int address : 32;
 	struct instruction_node *next;
-	union {
-		struct instruction_node_r *inst_r;
-		struct instruction_node_i *inst_i;
-		struct instruction_node_j *inst_j;
-
-		struct data
-		{
-			int value : 32;
-		 } data;
-
-		struct label
-		{
-			unsigned int address : 32;
-		} label;
-	}
+	union instruction_details
+	{
+		struct instruction_node_r inst_r;
+		struct instruction_node_i inst_i;
+		struct instruction_node_j inst_j;
+	} instruction_details
 } instruction_node;
 
-struct instruction_node_j
+typedef struct instruction_node_j
 {
 	union type
 	{
@@ -66,7 +57,7 @@ struct instruction_node_j
 	} type;
 } instruction_node_j;
 
-struct instruction_node_r{
+typedef struct instruction_node_r{
 	union type
 	{
 		struct inst
@@ -88,7 +79,7 @@ struct instruction_node_r{
 
 	} instruction_node_r;
 
-struct instruction_node_i
+typedef struct instruction_node_i
 {
 
 	union type
