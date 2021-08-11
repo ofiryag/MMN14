@@ -52,6 +52,14 @@
 
 #define CHAR_SIZE 1
 
+#define R_MIN_OPCODE 0
+#define R_MAX_OPCODE 1
+#define I_MIN_OPCODE 10
+#define I_MAX_OPCODE 24
+#define J_MIN_OPCODE 10
+#define J_MAX_OPCODE 24
+#define STOP_OPCODE 63
+
 
 
 /*Error Types*/
