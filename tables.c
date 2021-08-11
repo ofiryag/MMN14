@@ -32,16 +32,14 @@ symbol_node *new_symbol(char *symbol, int address, int ext_flag, int data_flag,i
 	return new;
 }
 
-
 /* creates new node for instructions table and initializing it */
 instruction_node *new_inst(int opcode, int rs, int rt, int rd, int funct,int immed,int reg,int address,int *ic)
 {
 	instruction_node *new = (instruction_node *)malloc(sizeof(instruction_node));
-	new->insttype = insttype;
 	new->address = *ic;
 	new->next = NULL;
 	/* if R instruction */
-	if(opcode==0 || opcode==1)
+	if(opcode==R_MIN_OPCODE || opcode==R_MAX_OPCODE)
 	{
 		new->type.inst.opcode = opcode;
 		new->type.inst.rs = rs;
@@ -50,20 +48,20 @@ instruction_node *new_inst(int opcode, int rs, int rt, int rd, int funct,int imm
 		new->type.inst.funct = funct;
 	}
 	/* if I instruction */
-	else if(opcode > 9 && opcode < 25){
+	else if(opcode >= I_MIN_OPCODE && opcode <= I_MAX_OPCODE){
 		new->type.inst.opcode = opcode;
 		new->type.inst.rs = rs;
 		new->type.inst.rt = rt;
 		new->type.inst.immed = immed;
 	}
 	/* if J instruction */
-	else if(opcode > 29 && opcode < 33){
+	else if(opcode >= J_MIN_OPCODE && opcode <= J_MAX_OPCODE){
 		new->type.inst.opcode = opcode;
 		new->type.inst.reg = reg;
 		new->type.inst.address = address;
 	}
 	/* if Stop instruction */
-		else if(opcode==63){
+		else if(opcode==STOP_OPCODE){
 		new->type.inst.opcode = opcode;
 		new->type.inst.reg = 0;
 		new->type.inst.address = 0;
@@ -124,46 +122,10 @@ void to_symbol(char *symbol, int address,int ext_flag, int data_flag,int code_fl
 }
 
 /* adds instruction to instruction table */
-void to_inst_r(int opcode, int rs, int rt, int rd, int funct, int *ic)
+void to_inst(int opcode, int rs, int rt, int rd, int funct,int immed,int reg,int address,int *ic)
 {
 	instruction_node *temp = instruction_head;
-	instruction_node *new = new_inst(opcode,rs,rt,rd, funct, ic);
-	
-	if(instruction_head == NULL)
-	{
-		instruction_head = new;
-		return;
-	}
-	
-	while(temp->next != NULL)
-		temp = temp->next;
-	
-	temp->next = new;
-	return;
-}
-
-void to_inst_i(int opcode, int rs, int rt,int immed,int *ic)
-{
-	instruction_node *temp = instruction_head;
-	instruction_node *new = new_inst(opcode,rs,rt,immed,ic);
-	
-	if(instruction_head == NULL)
-	{
-		instruction_head = new;
-		return;
-	}
-	
-	while(temp->next != NULL)
-		temp = temp->next;
-	
-	temp->next = new;
-	return;
-}
-
-void to_inst_j(int opcode,int reg,int address,int *ic)
-{
-	instruction_node *temp = instruction_head;
-	instruction_node *new = new_inst(opcode,reg,address,ic);
+	instruction_node *new = new_inst(int opcode, int rs, int rt, int rd, int funct,int immed,int reg,int address,int *ic);
 	
 	if(instruction_head == NULL)
 	{
