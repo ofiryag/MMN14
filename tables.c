@@ -125,7 +125,7 @@ void to_symbol(char *symbol, int address,int ext_flag, int data_flag,int code_fl
 void to_inst(int opcode, int rs, int rt, int rd, int funct,int immed,int reg,int address,int *ic)
 {
 	instruction_node *temp = instruction_head;
-	instruction_node *new = new_inst(int opcode, int rs, int rt, int rd, int funct,int immed,int reg,int address,int *ic);
+	instruction_node *new = new_inst(opcode, rs,rt, rd, funct,immed,reg,address,*ic);
 	
 	if(instruction_head == NULL)
 	{
