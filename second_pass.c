@@ -145,29 +145,26 @@ void read_line2(char *line, FILE *ob_file, FILE *ent_file, FILE *ext_file, int *
 	/* checks if it is instruction sentence */
 	if(is_inst(line) >= MOV_INST)
 	{
-		int opcode = is_inst(line);
+		int instindex = is_inst(line);
 		int addressing1 = 0, addressing2 = 0;
 		int i, data = 0, reg_src = 0, reg_dst = 0;
 		char label[MAX_LABEL_LEN];
-		
 		line = next_word(line);
-		
-		/* if the instruction is Stop */
-		if(opcode > JSR_INST)
-		{
-			to_inst_j(opcode, addressing1, addressing2,ic);
-			(*ic)++;
-			return;
+		int insttype=check_inst_type(instindex);
+
+		/* checks if it is R_ARITHMETHIC instruction */
+		if(insttype == R_ARITHMETHIC){
+			to_inst()
 		}
 		
 		/* if the instruction needs two operands */
-		else if(opcode < NOT_INST || opcode == LEA_INST)
+		else if(instindex < NOT_INST || instindex == LEA_INST)
 		{
 			addressing1 = check_addressing(line, error);
 			addressing2 = check_addressing(to_comma(line), error);
-			to_inst(INST_TYPE, opcode, addressing1, addressing2, data, ABSOLUTE, ic);
+			to_inst(INST_TYPE, instindex
+, addressing1, addressing2, data, ABSOLUTE, ic);
 			(*ic)++;
-			
 
 			/* if first operand is immidiate number */
 			if(addressing1 == IMM_ADDRESS)
@@ -176,35 +173,6 @@ void read_line2(char *line, FILE *ob_file, FILE *ent_file, FILE *ext_file, int *
 				char key[MAX_MACRO_LEN];
 				int i = 0;
 				line++;
-			
-				/*checks if macro */
-				while(line[i] != '\0' && line[i] != '\n' && line[i] != ' ' && line[i] != ',')
-				{
-					key[i] = line[i];
-					i++;
-				}
-				key[i]='\0';
-
-				if((node = search_sym(key))!= NULL)
-				{
-					*line=node-> address +'0';
-					line++;
-					*line ='\0';
-					line--;
-				}
-		
-				for(i=0;*line!=',';i++)
-				{
-					label[i] = *line;
-					line++;
-				}
-
-				label[i] = '\0';
-				data = atoi(label);
-				to_inst(DATA_TYPE, opcode, addressing1, addressing2, data, ABSOLUTE, ic);
-				(*ic)++;		
-				
-			}
 			
 			/* if first operand is a label */
 			if(addressing1 == LABEL_ADDRESS)
@@ -228,13 +196,15 @@ void read_line2(char *line, FILE *ob_file, FILE *ent_file, FILE *ext_file, int *
 				else if(symbol->ext_flag == TRUE)
 				{
 					to_ent_ext(label, *ic, symbol->ext_flag);
-					to_inst(LABEL_TYPE, opcode, addressing1, addressing2, FALSE, EXTERNAL, ic);
+					to_inst(LABEL_TYPE, instindex
+		, addressing1, addressing2, FALSE, EXTERNAL, ic);
 					(*ic)++;
 				}
 				
 				else
 				{
-					to_inst(LABEL_TYPE, opcode, addressing1, addressing2, symbol->address, RELOCATABLE, ic);
+					to_inst(LABEL_TYPE, instindex
+		, addressing1, addressing2, symbol->address, RELOCATABLE, ic);
 					(*ic)++;
 				}
 			}
@@ -277,19 +247,22 @@ void read_line2(char *line, FILE *ob_file, FILE *ent_file, FILE *ext_file, int *
 			else if(symbol->ext_flag == TRUE)
 			{
 				to_ent_ext(label, *ic, symbol->ext_flag);
-				to_inst(LABEL_TYPE, opcode, addressing1, addressing2, FALSE, EXTERNAL, ic);
+				to_inst(LABEL_TYPE, instindex
+	, addressing1, addressing2, FALSE, EXTERNAL, ic);
 				(*ic)++;
 			}
 			else
 			{
-				to_inst(LABEL_TYPE, opcode, addressing1, addressing2, symbol->address, RELOCATABLE, ic);
+				to_inst(LABEL_TYPE, instindex
+	, addressing1, addressing2, symbol->address, RELOCATABLE, ic);
 				(*ic)++;
 			}
 			line++;
 
 			data = *line - '0';
 			
-			to_inst(DATA_TYPE, opcode, reg_src, reg_dst, data, ABSOLUTE, ic);
+			to_inst(DATA_TYPE, instindex
+, reg_src, reg_dst, data, ABSOLUTE, ic);
 			(*ic)++;
 			}
 
@@ -300,7 +273,8 @@ void read_line2(char *line, FILE *ob_file, FILE *ent_file, FILE *ext_file, int *
 				reg_src = *(line+1) - '0';
 				if(addressing2 != REG_ADDRESS)
 				{
-					to_inst(REG_TYPE, opcode, reg_src, reg_dst, data, ABSOLUTE, ic);
+					to_inst(REG_TYPE, instindex
+		, reg_src, reg_dst, data, ABSOLUTE, ic);
 					(*ic)++;
 				}
 			}
@@ -312,7 +286,8 @@ void read_line2(char *line, FILE *ob_file, FILE *ent_file, FILE *ext_file, int *
 		else
 		{
 			addressing2 = check_addressing(line, error);
-			to_inst(INST_TYPE, opcode, addressing1, addressing2, data, ABSOLUTE, ic);
+			to_inst(INST_TYPE, instindex
+, addressing1, addressing2, data, ABSOLUTE, ic);
 			(*ic)++;
 		}
 		/* if second operand is immidiate number */
@@ -346,13 +321,15 @@ void read_line2(char *line, FILE *ob_file, FILE *ent_file, FILE *ext_file, int *
 			else if(symbol->ext_flag == TRUE)
 			{
 				to_ent_ext(label, *ic, symbol->ext_flag);
-				to_inst(LABEL_TYPE, opcode, addressing1, addressing2, FALSE, EXTERNAL, ic);
+				to_inst(LABEL_TYPE, instindex
+	, addressing1, addressing2, FALSE, EXTERNAL, ic);
 				(*ic)++;
 			}
 			
 			else
 			{
-				to_inst(LABEL_TYPE, opcode, addressing1, addressing2, symbol->address, RELOCATABLE, ic);
+				to_inst(LABEL_TYPE, instindex
+	, addressing1, addressing2, symbol->address, RELOCATABLE, ic);
 				(*ic)++;
 			}
 		}
@@ -393,18 +370,20 @@ void read_line2(char *line, FILE *ob_file, FILE *ent_file, FILE *ext_file, int *
 		/* if the label is external */
 		else if(symbol->ext_flag == TRUE)
 		{
-			to_inst(LABEL_TYPE, opcode, addressing1, addressing2, FALSE, EXTERNAL, ic);
+			to_inst(LABEL_TYPE, instindex
+, addressing1, addressing2, FALSE, EXTERNAL, ic);
 			(*ic)++;
 		}
 		else
 		{
-			to_inst(LABEL_TYPE, opcode, addressing1, addressing2, symbol->address, RELOCATABLE, ic);
+			to_inst(LABEL_TYPE, instindex
+, addressing1, addressing2, symbol->address, RELOCATABLE, ic);
 			(*ic)++;
 		}
 		line ++;
 		data = *line - '0';
 
-		to_inst(DATA_TYPE, opcode, reg_src, reg_dst, data, ABSOLUTE, ic);
+		to_inst(DATA_TYPE, instindex, reg_src, reg_dst, data, ABSOLUTE, ic);
 		(*ic)++;
 		}
 		
@@ -412,7 +391,8 @@ void read_line2(char *line, FILE *ob_file, FILE *ent_file, FILE *ext_file, int *
 		if(addressing2 == REG_ADDRESS)
 		{
 			reg_dst = *(line+1) - '0';
-			to_inst(REG_TYPE, opcode, reg_src, reg_dst, data, ABSOLUTE, ic);
+			to_inst(REG_TYPE, instindex
+, reg_src, reg_dst, data, ABSOLUTE, ic);
 			(*ic)++;
 		}
 	}

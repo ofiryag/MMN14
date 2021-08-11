@@ -21,6 +21,7 @@ int is_dir(char *, int *);
 
 /* checks if the word is a instruction and returns it's number */
 int is_inst(char *);
+int check_inst_type(int);
 
 /* checks the validation of the directive sentence */
 int check_dir(char *, int,  int *, int *);
