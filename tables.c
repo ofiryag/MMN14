@@ -172,13 +172,14 @@ void print_to_files(FILE *ob_file, FILE *ent_file, FILE *ext_file, int* ic, int*
 	data_node *temp_data = data_head;
 	ent_ext_node *temp_ent_ext = ent_ext_head;
 	char base4_chars[4] = {'*', '#', '%', '!'};
-	char one_byte[4];
-	char data[32]; 
-	char era;
+	char one_byte[5];
+	char one_byte_as_hex[5];
+	char data_as_binary[32]; 
 	int mask = MASK_2BIT, i, j;
 	int line;
 	char* unused_bits = "**";
-	char data_as_hex [32];
+	char data_as_hex [13];
+
 	
 	fprintf(ob_file, "\t%d\t%d\n\n", (*ic) - 100, *dc);
 	line = 100;
@@ -192,19 +193,20 @@ void print_to_files(FILE *ob_file, FILE *ent_file, FILE *ext_file, int* ic, int*
 			char binary_rt[7] = convert_decimal_to_binary(temp_inst->instruction_details->inst_r->type->inst->rt,5);
 			char binary_rd[7] = convert_decimal_to_binary(temp_inst->instruction_details->inst_r->type->inst->rd,5);
 			char binary_funct[7] = convert_decimal_to_binary(temp_inst->instruction_details->inst_r->type.inst->funct,5);
-			strcat(data, binary_Opcode);
-			strcat(data, binary_rs);
-			strcat(data, binary_rt);
-			strcat(data, binary_rd);
-			strcat(data, binary_funct);
-			strcat(data, "00000"); //unused
-			for (i = 0; i < sizeof(data); i+4)
+			strcat(data_as_binary, binary_Opcode);
+			strcat(data_as_binary, binary_rs);
+			strcat(data_as_binary, binary_rt);
+			strcat(data_as_binary, binary_rd);
+			strcat(data_as_binary, binary_funct);
+			strcat(data_as_binary, "00000"); //unused
+			for (i = 0; i < sizeof(data_as_binary); i+4)
 			{
 				for (int j = 0; j<4; i++)
 				{
-					one_byte[j] = data[i+j];
+					one_byte[j] = data_as_binary[i+j];
 				}
-				
+				convert_binary_to_hexadecimal(one_byte,data_as_hex);
+				strcat(data_as_hex,data_as_hex);
 			}
 			
 		}
@@ -251,6 +253,40 @@ char * convert_decimal_to_binary(int decimal,int bitSize)
       data[bitSize]="0";
   }
   return data;
+}
+
+void * convert_binary_to_hexadecimal(char * one_byte,char * byte_as_hex)
+{
+	char *a = one_byte;
+	int num = 0;
+	do {
+    int b = *a=='1'?1:0;
+    num = (num<<1)|b;
+    a++;
+	} while (*a);
+	sprintf(byte_as_hex, "%x", num);
+}
+
+// Function to create map between binary
+// number and its equivalent hexadecimal
+void createMap(unordered_map<string, char> *um)
+{
+    (*um)["0000"] = '0';
+    (*um)["0001"] = '1';
+    (*um)["0010"] = '2';
+    (*um)["0011"] = '3';
+    (*um)["0100"] = '4';
+    (*um)["0101"] = '5';
+    (*um)["0110"] = '6';
+    (*um)["0111"] = '7';
+    (*um)["1000"] = '8';
+    (*um)["1001"] = '9';
+    (*um)["1010"] = 'A';
+    (*um)["1011"] = 'B';
+    (*um)["1100"] = 'C';
+    (*um)["1101"] = 'D';
+    (*um)["1110"] = 'E';
+    (*um)["1111"] = 'F';
 }
 
 /* updates the addressess of the directive data table */
