@@ -173,7 +173,7 @@ void print_to_files(FILE *ob_file, FILE *ent_file, FILE *ext_file, int* ic, int*
 	ent_ext_node *temp_ent_ext = ent_ext_head;
 	char base4_chars[4] = {'*', '#', '%', '!'};
 	char one_byte[5];
-	char one_byte_as_hex[5];
+	char one_byte_as_hex[2];
 	char data_as_binary[32]; 
 	int mask = MASK_2BIT, i, j;
 	int line;
@@ -188,25 +188,30 @@ void print_to_files(FILE *ob_file, FILE *ent_file, FILE *ext_file, int* ic, int*
 		
 		if(temp_inst->instructiontype == R)
 		{
+			//Get data as binary
 			char binary_Opcode[7] = convert_decimal_to_binary(temp_inst->instruction_details->inst_r->type->inst->opcode,6);
-			char binary_rs[7] = convert_decimal_to_binary(temp_inst->instruction_details->inst_r->type->inst->rs,5);
-			char binary_rt[7] = convert_decimal_to_binary(temp_inst->instruction_details->inst_r->type->inst->rt,5);
-			char binary_rd[7] = convert_decimal_to_binary(temp_inst->instruction_details->inst_r->type->inst->rd,5);
-			char binary_funct[7] = convert_decimal_to_binary(temp_inst->instruction_details->inst_r->type.inst->funct,5);
+			char binary_rs[6] = convert_decimal_to_binary(temp_inst->instruction_details->inst_r->type->inst->rs,5);
+			char binary_rt[6] = convert_decimal_to_binary(temp_inst->instruction_details->inst_r->type->inst->rt,5);
+			char binary_rd[6] = convert_decimal_to_binary(temp_inst->instruction_details->inst_r->type->inst->rd,5);
+			char binary_funct[6] = convert_decimal_to_binary(temp_inst->instruction_details->inst_r->type.inst->funct,5);
+
+			//Build data as binary string
 			strcat(data_as_binary, binary_Opcode);
 			strcat(data_as_binary, binary_rs);
 			strcat(data_as_binary, binary_rt);
 			strcat(data_as_binary, binary_rd);
 			strcat(data_as_binary, binary_funct);
 			strcat(data_as_binary, "00000"); //unused
+
+			//Build data as hex string
 			for (i = 0; i < sizeof(data_as_binary); i+4)
 			{
 				for (int j = 0; j<4; i++)
 				{
 					one_byte[j] = data_as_binary[i+j];
 				}
-				convert_binary_to_hexadecimal(one_byte,data_as_hex);
-				strcat(data_as_hex,data_as_hex);
+				convert_binary_to_hexadecimal(one_byte,one_byte_as_hex);
+				strcat(data_as_hex,one_byte_as_hex);
 			}
 			
 		}
