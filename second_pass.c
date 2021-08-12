@@ -142,258 +142,237 @@ void read_line2(char *line, FILE *ob_file, FILE *ent_file, FILE *ext_file, int *
 			return;
 	}
 	
-	/* checks if it is instruction sentence */
+	/* checks if its an instruction sentence */
 	if(is_inst(line) >= MOV_INST)
 	{
 		int instindex = is_inst(line);
-		int addressing1 = 0, addressing2 = 0;
-		int i, data = 0, reg_src = 0, reg_dst = 0;
+		int addressing1 = 0, addressing2 = 0, addressing3 = 0;
+		int i, data = 0, reg_src = 0, reg_dst = 0,immed=0;
 		char label[MAX_LABEL_LEN];
 		line = next_word(line);
-		int insttype=check_inst_type(instindex);
+		char instname = check_inst_name(check_inst_type(instindex));
 
-		/* checks if it is R_ARITHMETHIC instruction */
-		if(insttype == R_ARITHMETHIC){
-			to_inst()
-		}
-		
-		/* if the instruction needs two operands */
-		else if(instindex < NOT_INST || instindex == LEA_INST)
-		{
+		switch(instname){
+			case 'add':
 			addressing1 = check_addressing(line, error);
 			addressing2 = check_addressing(to_comma(line), error);
-			to_inst(INST_TYPE, instindex
-, addressing1, addressing2, data, ABSOLUTE, ic);
-			(*ic)++;
+			addressing3 = check_addressing(to_comma(to_comma(line,error),error));
+			to_inst(0,addressing1,addressing2,addressing3,1,IRELEVANT,IRELEVANT,ic);
+			(*ic++);
+			break;
 
-			/* if first operand is immidiate number */
-			if(addressing1 == IMM_ADDRESS)
-			{
-				symbol_node * node;
-				char key[MAX_MACRO_LEN];
-				int i = 0;
-				line++;
+			case 'sub':
+			addressing1 = check_addressing(line, error);
+			addressing2 = check_addressing(to_comma(line), error);
+			addressing3 = check_addressing(to_comma(to_comma(line,error),error));
+			to_inst(0,addressing1,addressing2,addressing3,2,IRELEVANT,IRELEVANT,ic);
+			(*ic++);
+			break;
+
+			case 'and':
+			addressing1 = check_addressing(line, error);
+			addressing2 = check_addressing(to_comma(line), error);
+			addressing3 = check_addressing(to_comma(to_comma(line,error),error));
+			to_inst(0,addressing1,addressing2,addressing3,3,IRELEVANT,IRELEVANT,ic);
+			(*ic++);
+			break;
+
+			case 'or':
+			addressing1 = check_addressing(line, error);
+			addressing2 = check_addressing(to_comma(line), error);
+			addressing3 = check_addressing(to_comma(to_comma(line,error),error));
+			to_inst(0,addressing1,addressing2,addressing3,4,IRELEVANT,IRELEVANT,ic);
+			(*ic++);
+			break;
+
+			case 'nor':
+			addressing1 = check_addressing(line, error);
+			addressing2 = check_addressing(to_comma(line), error);
+			addressing3 = check_addressing(to_comma(to_comma(line,error),error));
+			to_inst(0,addressing1,addressing2,addressing3,5,IRELEVANT,IRELEVANT,ic);
+			(*ic++);
+			break;
+
+			case 'move':
+			addressing1 = check_addressing(line, error);
+			addressing2 = check_addressing(to_comma(line), error);
+			to_inst(1,addressing1,0,addressing3,1,IRELEVANT,IRELEVANT,ic);
+			(*ic++);
+			break;
+
+			case 'mvhi':
+			addressing1 = check_addressing(line, error);
+			addressing2 = check_addressing(to_comma(line), error);
+			to_inst(1,addressing1,0,addressing3,2,IRELEVANT,IRELEVANT,ic);
+			(*ic++);
+			break;
+
+			case 'mvlo':
+			addressing1 = check_addressing(line, error);
+			addressing2 = check_addressing(to_comma(line), error);
+			to_inst(1,addressing1,IRELEVANT,addressing3,3,IRELEVANT,IRELEVANT,ic);
+			(*ic++);
+			break;
+
+			case 'addi':
+			addressing1 = check_addressing(line, error);
+			immed = (int)(to_comma(line));
+			addressing3 = check_addressing(to_comma(to_comma(line,error),error));
+			to_inst(10,addressing1,IRELEVANT,addressing3,immed,IRELEVANT,IRELEVANT,ic);
+			(*ic++);
+			break;
+
+			case 'subi':
+			addressing1 = check_addressing(line, error);
+			immed = (int)(to_comma(line));
+			addressing3 = check_addressing(to_comma(to_comma(line,error),error));
+			to_inst(11,addressing1,IRELEVANT,addressing3,immed,IRELEVANT,IRELEVANT,ic);
+			(*ic++);
+			break;
+
+			case 'andi':
+			addressing1 = check_addressing(line, error);
+			immed = (int)(to_comma(line));
+			addressing3 = check_addressing(to_comma(to_comma(line,error),error));
+			to_inst(12,addressing1,IRELEVANT,addressing3,immed,IRELEVANT,IRELEVANT,ic);
+			(*ic++);
+			break;
+
+			case 'ori':
+			addressing1 = check_addressing(line, error);
+			immed = (int)(to_comma(line));
+			addressing3 = check_addressing(to_comma(to_comma(line,error),error));
+			to_inst(13,addressing1,IRELEVANT,addressing3,immed,IRELEVANT,IRELEVANT,ic);
+			(*ic++);
+			break;
+
+			case 'nori':
+			addressing1 = check_addressing(line, error);
+			immed = (int)(to_comma(line));
+			addressing3 = check_addressing(to_comma(to_comma(line,error),error));
+			to_inst(14,addressing1,IRELEVANT,addressing3,immed,IRELEVANT,IRELEVANT,ic);
+			(*ic++);
+			break;
 			
-			/* if first operand is a label */
-			if(addressing1 == LABEL_ADDRESS)
-			{
-				for(i=0;*line!=',';i++)
-				{
-					label[i] = *line;
-					line++;
-				}
-				
-				label[i] = '\0';
-				symbol = search_sym(label);
-				
-				if(symbol == NULL)
-				{
-					*error = NDEF_LABEL_ERROR;
-					return;
-				}
-				
-				/* if the label is external */
-				else if(symbol->ext_flag == TRUE)
-				{
-					to_ent_ext(label, *ic, symbol->ext_flag);
-					to_inst(LABEL_TYPE, instindex
-		, addressing1, addressing2, FALSE, EXTERNAL, ic);
-					(*ic)++;
-				}
-				
+			case 'bne':
+			addressing1 = check_addressing(line, error);
+			addressing2 = check_addressing(to_comma(line), error);
+			addressing3 = check_addressing(to_comma(to_comma(line,error),error));
+			to_inst(15,addressing1,addressing2,addressing3,IRELEVANT,IRELEVANT,IRELEVANT,ic);
+			(*ic++);
+			break;
+
+			case 'beq':
+			addressing1 = check_addressing(line, error);
+			addressing2 = check_addressing(to_comma(line), error);
+			addressing3 = check_addressing(to_comma(to_comma(line,error),error));
+			to_inst(16,addressing1,addressing2,addressing3,IRELEVANT,IRELEVANT,IRELEVANT,ic);
+			(*ic++);
+			break;
+
+			case 'blt':
+			addressing1 = check_addressing(line, error);
+			addressing2 = check_addressing(to_comma(line), error);
+			addressing3 = check_addressing(to_comma(to_comma(line,error),error));
+			to_inst(17,addressing1,addressing2,addressing3,IRELEVANT,IRELEVANT,IRELEVANT,ic);
+			(*ic++);
+			break;
+
+			case 'bgt':
+			addressing1 = check_addressing(line, error);
+			addressing2 = check_addressing(to_comma(line), error);
+			addressing3 = check_addressing(to_comma(to_comma(line,error),error));
+			to_inst(18,addressing1,addressing2,addressing3,IRELEVANT,IRELEVANT,IRELEVANT,ic);
+			(*ic++);
+			break;
+
+			case 'lb':
+			addressing1 = check_addressing(line, error);
+			immed = check_addressing(to_comma(line), error);
+			addressing2 = check_addressing(to_comma(to_comma(line,error),error));
+			to_inst(19,addressing1,addressing2,IRELEVANT,immed,IRELEVANT,IRELEVANT,ic);
+			(*ic++);
+			break;
+
+			case 'sb':
+			addressing1 = check_addressing(line, error);
+			immed = check_addressing(to_comma(line), error);
+			addressing2 = check_addressing(to_comma(to_comma(line,error),error));
+			to_inst(20,addressing1,addressing2,IRELEVANT,immed,IRELEVANT,IRELEVANT,ic);
+			(*ic++);
+			break;
+
+			case 'lw':
+			addressing1 = check_addressing(line, error);
+			immed = check_addressing(to_comma(line), error);
+			addressing2 = check_addressing(to_comma(to_comma(line,error),error));
+			to_inst(21,addressing1,addressing2,IRELEVANT,immed,IRELEVANT,IRELEVANT,ic);
+			(*ic++);
+			break;
+
+			case 'sw':
+			addressing1 = check_addressing(line, error);
+			immed = check_addressing(to_comma(line), error);
+			addressing2 = check_addressing(to_comma(to_comma(line,error),error));
+			to_inst(22,addressing1,addressing2,IRELEVANT,immed,IRELEVANT,IRELEVANT,ic);
+			(*ic++);
+			break;
+
+			case 'lh':
+			addressing1 = check_addressing(line, error);
+			immed = check_addressing(to_comma(line), error);
+			addressing2 = check_addressing(to_comma(to_comma(line,error),error));
+			to_inst(23,addressing1,addressing2,IRELEVANT,immed,IRELEVANT,IRELEVANT,ic);
+			(*ic++);
+			break;
+
+			case 'sh':
+			addressing1 = check_addressing(line, error);
+			immed = check_addressing(to_comma(line), error);
+			addressing2 = check_addressing(to_comma(to_comma(line,error),error));
+			to_inst(24,addressing1,addressing2,IRELEVANT,immed,IRELEVANT,IRELEVANT,ic);
+			(*ic++);
+			break;
+
+			case 'jmp':
+			addressing1 = check_addressing(next_word(line), error);
+			if(is_label(next_word(line)))
+				if(is_dir(next_word(line)) == "entry")
+					to_inst(30,IRELEVANT,IRELEVANT,IRELEVANT,IRELEVANT,IRELEVANT,addressing1,ic);
 				else
-				{
-					to_inst(LABEL_TYPE, instindex
-		, addressing1, addressing2, symbol->address, RELOCATABLE, ic);
-					(*ic)++;
-				}
-			}
-			
-			/* if first operand is an index */
-			if(addressing1 == INDEX_ADDRESS)
-			{
-				/*check if macro */
-				char key[MAX_MACRO_LEN];
-				int j=1;
-				symbol_node * node;
-
-				for(i=0;*line!='[';i++)
-				{
-					label[i] = *line;
-					line++;
-				}
-				label[i] = '\0';
-
-				symbol = search_sym(label);
-				while(line[j] != ']' && line[j] != '\0')
-				{
-					key[j-1] = line[j];
-					j++;
-				}
-				key[j-1] = '\0';
-
-				if((node = search_sym(key)) != NULL)
-				{
-					*(line+1) = node->address + '0';
-				}
-
-				if(symbol == NULL)
-				{
-					*error = NDEF_LABEL_ERROR;
-					return;
-				}
-
-			/* if the index is external */
-			else if(symbol->ext_flag == TRUE)
-			{
-				to_ent_ext(label, *ic, symbol->ext_flag);
-				to_inst(LABEL_TYPE, instindex
-	, addressing1, addressing2, FALSE, EXTERNAL, ic);
-				(*ic)++;
-			}
+					to_inst(30,IRELEVANT,IRELEVANT,IRELEVANT,IRELEVANT,IRELEVANT,IRELEVANT,ic);
 			else
-			{
-				to_inst(LABEL_TYPE, instindex
-	, addressing1, addressing2, symbol->address, RELOCATABLE, ic);
-				(*ic)++;
-			}
-			line++;
+				to_inst(30,IRELEVANT,IRELEVANT,IRELEVANT,IRELEVANT,REG_ADDRESS,addressing1,ic);
+			(*ic++);
+			break;
 
-			data = *line - '0';
-			
-			to_inst(DATA_TYPE, instindex
-, reg_src, reg_dst, data, ABSOLUTE, ic);
-			(*ic)++;
-			}
+			case 'la':
+			addressing1 = check_addressing(next_word(line), error);
+			if(is_dir(next_word(line)) == "entry")
+				to_inst(31,IRELEVANT,IRELEVANT,IRELEVANT,IRELEVANT,IRELEVANT,addressing1,ic);
+			else
+				to_inst(31,IRELEVANT,IRELEVANT,IRELEVANT,IRELEVANT,REG_ADDRESS,0,ic);
+			(*ic++);
+			break;
 
-			
-			/* if first operand is  a register */
-			if(addressing1 == REG_ADDRESS)
-			{
-				reg_src = *(line+1) - '0';
-				if(addressing2 != REG_ADDRESS)
-				{
-					to_inst(REG_TYPE, instindex
-		, reg_src, reg_dst, data, ABSOLUTE, ic);
-					(*ic)++;
-				}
-			}
-			
+			case 'call':
+			addressing1 = check_addressing(next_word(line), error);
+			immed = check_addressing(to_comma(line), error);
+			if(is_dir(next_word(line)) == "entry")
+				to_inst(32,IRELEVANT,IRELEVANT,IRELEVANT,IRELEVANT,IRELEVANT,addressing1,ic);
+			else
+				to_inst(32,IRELEVANT,IRELEVANT,IRELEVANT,IRELEVANT,IRELEVANT,IRELEVANT,ic);
+			(*ic++);
+			break;
+
+			case 'stop':
+			to_inst(63,IRELEVANT,IRELEVANT,IRELEVANT,IRELEVANT,IRELEVANT,IRELEVANT,IRELEVANT);
+			(*ic++);
+			break;
+
+		}
 			line = to_comma(line);
 		}
 		
-		/* if the instruction needs one operands */
-		else
-		{
-			addressing2 = check_addressing(line, error);
-			to_inst(INST_TYPE, instindex
-, addressing1, addressing2, data, ABSOLUTE, ic);
-			(*ic)++;
-		}
-		/* if second operand is immidiate number */
-
-		if(addressing2 == IMM_ADDRESS)
-		{
-			symbol_node * node;
-			char key[MAX_MACRO_LEN];
-			int i = 0;
-			line++;
-			
-		/* if second operand is label */
-		if(addressing2 == LABEL_ADDRESS)
-		{
-			for(i=0;!isspace(*line) && *line!='\0';i++)
-			{
-				label[i] = *line;
-				line++;
-			}
-			
-			label[i] = '\0';
-			symbol = search_sym(label);
-
-			if(symbol == NULL)
-			{
-				*error = NDEF_LABEL_ERROR;
-				return;
-			}
-			
-			/* if the label is external */
-			else if(symbol->ext_flag == TRUE)
-			{
-				to_ent_ext(label, *ic, symbol->ext_flag);
-				to_inst(LABEL_TYPE, instindex
-	, addressing1, addressing2, FALSE, EXTERNAL, ic);
-				(*ic)++;
-			}
-			
-			else
-			{
-				to_inst(LABEL_TYPE, instindex
-	, addressing1, addressing2, symbol->address, RELOCATABLE, ic);
-				(*ic)++;
-			}
-		}
-		
-		/* if second operand is index */
-
-		if(addressing2 == INDEX_ADDRESS)
-		{
-			/*check if macro */
-			char key[MAX_MACRO_LEN];
-			int j=1;
-			symbol_node * node;
-			for(i=0;*line!='[';i++)
-			{
-				label[i] = *line;
-				line++;
-			}
-			label[i] = '\0';
-			symbol = search_sym(label);
-			while(line[j] != ']' && line[j] != '\0')
-			{
-				key[j-1] = line[j];
-				j++;
-			}
-			key[j-1] = '\0';
-			if((node = search_sym(key)) != NULL)
-			{
-				*(line+1) = node->address + '0';
-			}
-
-			if(symbol == NULL)
-			{
-				*error = NDEF_LABEL_ERROR;
-				return;
-			}
-
-
-		/* if the label is external */
-		else if(symbol->ext_flag == TRUE)
-		{
-			to_inst(LABEL_TYPE, instindex
-, addressing1, addressing2, FALSE, EXTERNAL, ic);
-			(*ic)++;
-		}
-		else
-		{
-			to_inst(LABEL_TYPE, instindex
-, addressing1, addressing2, symbol->address, RELOCATABLE, ic);
-			(*ic)++;
-		}
-		line ++;
-		data = *line - '0';
-
-		to_inst(DATA_TYPE, instindex, reg_src, reg_dst, data, ABSOLUTE, ic);
-		(*ic)++;
-		}
-		
-		/* if second operand is a register */
-		if(addressing2 == REG_ADDRESS)
-		{
-			reg_dst = *(line+1) - '0';
-			to_inst(REG_TYPE, instindex
-, reg_src, reg_dst, data, ABSOLUTE, ic);
-			(*ic)++;
-		}
 	}
 }

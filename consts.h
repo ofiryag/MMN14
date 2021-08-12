@@ -60,6 +60,8 @@
 #define J_MAX_OPCODE 24
 #define STOP_OPCODE 63
 
+#define IRELEVANT 0
+
 
 
 /*Error Types*/
