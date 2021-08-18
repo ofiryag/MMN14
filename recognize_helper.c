@@ -227,17 +227,23 @@ int check_inst_type(int instructionIndex)
 	if(instructionIndex>=17 && instructionIndex<=22)
     	return I_STORAGE;
 
-    if(instructionIndex=23)
+    if(instructionIndex==23)
     	return J_JMP; 
 
-	if(instructionIndex=24)
+	if(instructionIndex==24)
     	return J_LA; 
 
-	if(instructionIndex=25)
+	if(instructionIndex==25)
     	return J_CALL; 
 
-	if(instructionIndex=26)
+	if(instructionIndex==26)
     	return J_STOP; 
+}
+
+/* return the instruction name */
+
+char * check_inst_name(int instructionIndex){
+	return instructions[instructionIndex];
 }
 
 /* checks the validation of the directive sentence */ 
