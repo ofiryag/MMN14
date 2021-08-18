@@ -30,84 +30,36 @@ typedef struct instruction_node
 	int instructiontype;
 	int address : 32;
 	struct instruction_node *next;
-	union {
-		struct instruction_node_r *inst_r;
-		struct instruction_node_i *inst_i;
-		struct instruction_node_j *inst_j;
-
-		struct data
-		{
-			int value : 32;
-		 } data;
-
-		struct label
-		{
-			unsigned int address : 32;
-		} label;
-	}
+	union instruction_details
+	{
+		struct instruction_node_r inst_r;
+		struct instruction_node_i inst_i;
+		struct instruction_node_j inst_j;
+	} instruction_details
 } instruction_node;
 
-struct instruction_node_j
+typedef struct instruction_node_j
 {
-	union type
-	{
-		struct inst
-		{
-			unsigned int opcode : 6;
-			unsigned int reg : 1;
-			unsigned int address : 25;
-		} inst;
-		
-		struct reg
-		{
-			unsigned int rt : 6;
-		} reg;
-		
-	} type;
+	unsigned int opcode : 6;
+	unsigned int reg : 1;
+	unsigned int address : 25;
 } instruction_node_j;
 
-struct instruction_node_r{
-	union type
-	{
-		struct inst
-		{
-				unsigned int opcode : 6;
-				unsigned int rs : 5;
-				unsigned int rd : 5;
-				unsigned int rt : 5;
-				unsigned int funct : 5;
-		} inst;
-
-		struct reg
-		{
-				unsigned int rs : 5;
-				unsigned int rd : 5;
-				unsigned int rt : 5;
-		} reg;
-	} type;
-
-	} instruction_node_r;
-
-struct instruction_node_i
+typedef struct instruction_node_r
 {
+	unsigned int opcode : 6;
+	unsigned int rs : 5;
+	unsigned int rd : 5;
+	unsigned int rt : 5;
+	unsigned int funct : 5;
+} instruction_node_r;
 
-	union type
-	{
-		struct inst
-		{
-			unsigned int opcode : 6;
-			unsigned int rs : 5;
-			unsigned int rt : 5;
-			unsigned int immed : 16;
-		} inst;
-		
-		struct reg
-		{
-			unsigned int rs : 5;
-			unsigned int immed : 16;
-			unsigned int rt : 5;
-		} reg;
-	} type;
+typedef struct instruction_node_i
+{
+	unsigned int opcode : 6;
+	unsigned int rs : 5;
+	unsigned int rt : 5;
+	unsigned int immed : 16;
 } instruction_node_i;
 
 typedef struct ent_ext_node

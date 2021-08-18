@@ -114,7 +114,6 @@ int is_label(char *line, int* ic, int* dc, int* ec,int *ln, int *error)
 					return TRUE;
 				}
 				data_flag = TRUE;
-				check_errors(ln, error, ec);
 			}
 				
 			/* if the label points to instruction then the symbol addres is the ic */
@@ -130,8 +129,8 @@ int is_label(char *line, int* ic, int* dc, int* ec,int *ln, int *error)
 				*error = DEF_LABEL_ERROR;
 				return FALSE;
 			}
-			
-			to_symbol(label, address, ext_flag, inst_flag,inst_data);
+			check_errors(ln, error, ec);
+			to_symbol(label, address, ext_flag, data_flag, code_flag, entry_flag));
 			return TRUE;
 		}
 		else

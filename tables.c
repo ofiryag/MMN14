@@ -41,30 +41,35 @@ instruction_node *new_inst(int opcode, int rs, int rt, int rd, int funct,int imm
 	/* if R instruction */
 	if(opcode==R_MIN_OPCODE || opcode==R_MAX_OPCODE)
 	{
-		new->type.inst.opcode = opcode;
-		new->type.inst.rs = rs;
-		new->type.inst.rd = rd;
-		new->type.inst.rt = rt;
-		new->type.inst.funct = funct;
+		new->instructiontype = R;
+		new->instruction_details.inst_r.opcode = opcode;
+		new->instruction_details.inst_r->rs = rs;
+		new->instruction_details.inst_r->rd = rd;
+		new->instruction_details.inst_r->rt = rt;
+		new->instruction_details.inst_r->funct = funct;
 	}
 	/* if I instruction */
 	else if(opcode >= I_MIN_OPCODE && opcode <= I_MAX_OPCODE){
-		new->type.inst.opcode = opcode;
-		new->type.inst.rs = rs;
-		new->type.inst.rt = rt;
-		new->type.inst.immed = immed;
+		new->instructiontype = I;
+		new->instruction_details.inst_i.opcode = opcode;
+		new->instruction_details.inst_i.rs = rs;
+		new->instruction_details.inst_i.rt = rt;
+		new->instruction_details.inst_i.immed = immed;
 	}
 	/* if J instruction */
 	else if(opcode >= J_MIN_OPCODE && opcode <= J_MAX_OPCODE){
-		new->type.inst.opcode = opcode;
-		new->type.inst.reg = reg;
-		new->type.inst.address = address;
+		new->instruction_details.inst_j.opcode = opcode;
+		new->instruction_details.inst_j.reg = reg;
+		new->instruction_details.inst_j.address = address;
+		new->instructiontype = J;
+
 	}
 	/* if Stop instruction */
 		else if(opcode==STOP_OPCODE){
-		new->type.inst.opcode = opcode;
-		new->type.inst.reg = 0;
-		new->type.inst.address = 0;
+		new->instruction_details.inst_j.opcode = opcode;
+		new->instruction_details.inst_j.reg = 0;
+		new->instruction_details.inst_j.address = 0;
+		new->instructiontype = J;
 	}
 	
 	return new;
@@ -166,89 +171,29 @@ void print_to_files(FILE *ob_file, FILE *ent_file, FILE *ext_file, int* ic, int*
 	instruction_node *temp_inst = instruction_head;
 	data_node *temp_data = data_head;
 	ent_ext_node *temp_ent_ext = ent_ext_head;
-	char base4_chars[4] = {'*', '#', '%', '!'};
-	char data[8]; 
-	char era;
+	char one_byte[5];
+	char one_byte_as_hex[2];
+	char data_as_binary[32]; 
 	int mask = MASK_2BIT, i, j;
-	int line;
-	char* unused_bits = "**";
 	
-	fprintf(ob_file, "\t%d\t%d\n\n", (*ic) - 100, *dc);
-
-	line = 100;
+	fprintf(ob_file, "\t%d\t%d\n", (*ic) - 100, *dc);
 	while(temp_inst != NULL)
 	{
-		era = base4_chars[temp_inst->era];
-		
-		if(temp_inst->insttype == INST_TYPE)
+		switch (temp_inst->instructiontype)
 		{
-			char opcode[3];
-			char rs;
-			char rd;
-			
-			for(i=0,j=2;i<2;i++,j-=2)
-				opcode[i] = base4_chars[(temp_inst->type.inst.opcode >> j) & mask];
-			opcode[2] = '\0';
-			
-			rs = base4_chars[temp_inst->type.inst.rs];
-			rd = base4_chars[temp_inst->type.inst.rd];
-			
-			fprintf(ob_file, "\t%04d\t%s%s%c%c%c\n", line,unused_bits, opcode, rs, rd, era);
-		
-		}
-		else if(temp_inst->insttype == REG_TYPE)
-		{
-			char print[4];
-			int rsnrd = 0;
-			char* temp_unusedbits = "***";
-			rsnrd = (temp_inst->type.reg.rs << 3) | temp_inst->type.reg.rd;
-			
-			for(i=0, j=4;i<4;i++,j-=2)
-			{
-				print[i] = base4_chars[(rsnrd >> j) & mask];
-			}
-			print[3] = '\0';
-			
-
-		
-			fprintf(ob_file, "\t%04d\t%s%s%c\n", line,temp_unusedbits, print, era);
-		}
-		
-		else if(temp_inst->insttype == DATA_TYPE)
-		{
-			char value[7];
-			for(i=0,j=10;i<7;i++,j-=2)
-				value[i] = base4_chars[(temp_inst->type.data.value >> j) & mask];
-			value[6] = '\0';
-			fprintf(ob_file, "\t%04d\t%s%c\n", line,value, era);
-		}
-	
-		else if(temp_inst->insttype == LABEL_TYPE)
-		{
-			char label[5];
-			
-			for(i=0,j=6;i<4;i++,j-=2)
-				label[i] = base4_chars[(temp_inst->type.label.address >> j) & mask];
-			label[4] = '\0';
-			
-			fprintf(ob_file, "\t%04d\t%s%s%c\n", line, unused_bits,label, era);
-		}
-			
-		line++;
+		case R:	build_inst_r_data_as_binary(temp_inst,data_as_binary);
+			break;
+		case I:	build_inst_i_data_as_binary(temp_inst,data_as_binary);
+			break;
+		case J:	build_inst_j_data_as_binary(temp_inst,data_as_binary);
+			break;
+		default:
+			break;
+		}	
+		print_output_line(data_as_binary,ob_file,temp_inst);
 		temp_inst = temp_inst->next;
 	}
 
-	while(temp_data != NULL)
-	{
-		for(i=0,j=12;i<7;i++,j-=2)
-			data[i] = base4_chars[(temp_data->data >> j) & mask];
-		data[7] = '\0';
-		
-		fprintf(ob_file, "\t%04d\t%s\n", line, data);
-		temp_data = temp_data->next;
-		line++;
-	}
-	
 	while(temp_ent_ext != NULL)
 	{	
 		if(temp_ent_ext->ext_flag == 1)
@@ -259,7 +204,113 @@ void print_to_files(FILE *ob_file, FILE *ent_file, FILE *ext_file, int* ic, int*
 		}
 		temp_ent_ext = temp_ent_ext->next;
 	}
+}
 
+/*this function will build R instruction node's data to binary string*/
+void build_inst_r_data_as_binary(instruction_node * temp_inst, char* data_as_binary)
+{
+			char binary_Opcode[7] = convert_decimal_to_binary(temp_inst->instruction_details->inst_r.opcode,6);
+			char binary_rs[6] = convert_decimal_to_binary(temp_inst->instruction_details->inst_r.rs,5);
+			char binary_rt[6] = convert_decimal_to_binary(temp_inst->instruction_details->inst_r.rt,5);
+			char binary_rd[6] = convert_decimal_to_binary(temp_inst->instruction_details->inst_r.rd,5);
+			char binary_funct[6] = convert_decimal_to_binary(temp_inst->instruction_details->inst_r.funct,5);
+
+			//Build data as binary string
+			strcat(data_as_binary, binary_Opcode);
+			strcat(data_as_binary, binary_rs);
+			strcat(data_as_binary, binary_rt);
+			strcat(data_as_binary, binary_rd);
+			strcat(data_as_binary, binary_funct);
+			strcat(data_as_binary, "00000"); //unused
+}
+
+/*this function will build I instruction node's data to binary string*/
+void build_inst_i_data_as_binary(instruction_node * temp_inst, char* data_as_binary)
+{
+			char binary_Opcode[7] = convert_decimal_to_binary(temp_inst->instruction_details.inst_i.opcode,6);
+			char binary_rs[6] = convert_decimal_to_binary(temp_inst->instruction_details.inst_i.rs,5);
+			char binary_rt[6] = convert_decimal_to_binary(temp_inst->instruction_details.inst_i.rt,5);
+			char binary_immed[17] = convert_decimal_to_binary(temp_inst->instruction_details.inst_i.immed,16);
+
+			//Build data as binary string
+			strcat(data_as_binary, binary_Opcode);
+			strcat(data_as_binary, binary_rs);
+			strcat(data_as_binary, binary_rt);
+			strcat(data_as_binary, binary_immed);
+}
+
+/*this function will build J instruction node's data to binary string*/
+void build_inst_j_data_as_binary(instruction_node * temp_inst, char* data_as_binary)
+{
+			//Get data as binary
+			char binary_Opcode[7] = convert_decimal_to_binary(temp_inst->instruction_details.inst_j.opcode,6);
+			char binary_reg[6] = convert_decimal_to_binary(temp_inst->instruction_details.inst_j.reg,1);
+			char binary_address[25] = convert_decimal_to_binary(temp_inst->instruction_details.inst_j.immed,24);
+
+			//Build data as binary string
+			strcat(data_as_binary, binary_Opcode);
+			strcat(data_as_binary, binary_reg);
+			strcat(data_as_binary, binary_address);
+}
+
+
+char * convert_decimal_to_binary(int decimal,int bitSize)
+{
+	int decimal, c, k;
+	char data[bitSize+1];
+  for (c = bitSize; c >= 0; c--)
+  {
+    k = decimal >> c;
+
+    if (k & 1)
+      data[bitSize]="1";
+    else
+      data[bitSize]="0";
+  }
+  return data;
+}
+
+void convert_binary_to_hexadecimal(char * one_byte,char * byte_as_hex)
+{
+	char *a = one_byte;
+	int num = 0;
+	do {
+    int b = *a=='1'?1:0;
+    num = (num<<1)|b;
+    a++;
+	} while (*a);
+	sprintf(byte_as_hex, "%x", num);
+}
+
+/*this function is converting the line from binary to hexadecimal and print it according to the required format for example:
+0104	FB	FF	22	35
+*/
+void print_output_line(char * data_as_binary,FILE *ob_file,instruction_node *temp_inst)
+{
+	if(temp_inst->address<1000)
+	{
+		fprintf(ob_file, "\t%s%d\t",'0',temp_inst->address); // print address - IC
+	}
+	else
+	{
+		fprintf(ob_file, "\t%d\t",temp_inst->address); // print address - IC
+	}
+
+	for (i = 0; i < sizeof(data_as_binary); i+4)
+	{
+		for (int j = 0; j<4; j++)
+		{
+			one_byte[j] = data_as_binary[i+j];
+		}
+		convert_binary_to_hexadecimal(one_byte,one_byte_as_hex);
+		fprintf(ob_file, "\t%s", one_byte_as_hex);
+		for (int j = 4; j<8; j++)
+		{
+			one_byte[j] = data_as_binary[i+j];
+		}
+		fprintf(ob_file, "%s\t", one_byte_as_hex);
+	}
+	fprintf(ob_file, "\n");
 }
 
 /* updates the addressess of the directive data table */
