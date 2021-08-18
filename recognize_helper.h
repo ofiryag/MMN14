@@ -21,6 +21,8 @@ int is_dir(char *, int *);
 
 /* checks if the word is a instruction and returns it's number */
 int is_inst(char *);
+
+/* checks the instruction type, and returns the index */
 int check_inst_type(int);
 
 /* checks the validation of the directive sentence */
@@ -31,5 +33,8 @@ int check_inst(char *, int *, int *);
 
 /* checks operand addressing */
 int check_addressing(char *, int *);
+
+/* checks the instruction name from the index of the instruction, and returns the name*/
+char check_inst_name(int);
 
 #endif

@@ -241,6 +241,12 @@ int check_inst_type(int instructionIndex)
     	return J_STOP; 
 }
 
+/* return the instruction name */
+
+char * check_inst_name(int instructionIndex){
+	return instructions[instructionIndex];
+}
+
 /* checks the validation of the directive sentence */ 
 int check_dir(char *line, int dirtype, int *dc, int *error)
 {	
