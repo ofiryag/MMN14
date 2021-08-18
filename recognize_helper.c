@@ -28,7 +28,7 @@ keywords instructions[] =
 
 keywords directives[] = 
 {
-  {".dh"},{".dw"}.{".db"},{"asciz"},{"extern"},{"entry"}
+  {".dh"},{".dw"},{".db"},{"asciz"},{"extern"},{"entry"}
 };
 
 
@@ -39,7 +39,7 @@ int is_label(char *line, int* ic, int* dc, int* ec,int *ln, int *error)
 	char label[MAX_LABEL_LEN];
 	char *p = line;
 	
-	int  i = 0, c = 0, address = 0, ext_flag = FALSE, ext_flag,  data_flag, code_flag, entry_flag;
+	int  i = 0, c = 0, address = 0, ext_flag = FALSE, data_flag, code_flag, entry_flag;
 	while (*p != '\0') 
 	{
 		/* if it is label */
@@ -85,7 +85,7 @@ int is_label(char *line, int* ic, int* dc, int* ec,int *ln, int *error)
 			}
 
             /* check if the label is one of the saved words - directives */
-			if(is_dir(label) > NA)
+			if(is_dir(label,error) > NA)
 			{
 				*error = DIR_ERROR;
 				return FALSE;
@@ -130,7 +130,7 @@ int is_label(char *line, int* ic, int* dc, int* ec,int *ln, int *error)
 				return FALSE;
 			}
 			check_errors(ln, error, ec);
-			to_symbol(label, address, ext_flag, data_flag, code_flag, entry_flag));
+			to_symbol(label, address, ext_flag, data_flag, code_flag, entry_flag);
 			return TRUE;
 		}
 		else
