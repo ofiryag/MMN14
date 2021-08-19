@@ -30,6 +30,7 @@ typedef struct instruction_node
 	int instructiontype;
 	int address : 32;
 	struct instruction_node *next;
+	union instruction_details *instruction_details;
 
 } instruction_node;
 

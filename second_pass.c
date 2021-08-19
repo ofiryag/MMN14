@@ -133,7 +133,7 @@ void read_line2(char *line, FILE *ob_file, FILE *ent_file, FILE *ext_file, int *
 			}	
 			else
 			{
-				to_ent_ext(label, symbol->address, symbol->ext_flag);
+				to_ent_ext(label, symbol->address, symbol->external_flag);
 				return;
 			}
 		}
@@ -143,7 +143,7 @@ void read_line2(char *line, FILE *ob_file, FILE *ent_file, FILE *ext_file, int *
 	}
 	
 	/* checks if its an instruction sentence */
-	if(is_inst(line) >= MOV_INST)
+	if(is_inst(line) >= NA)
 	{
 		int instindex = is_inst(line);
 		int addressing1 = 0, addressing2 = 0, addressing3 = 0;
@@ -151,14 +151,13 @@ void read_line2(char *line, FILE *ob_file, FILE *ent_file, FILE *ext_file, int *
 		char label[MAX_LABEL_LEN];
 		line = next_word(line);
 		char instname = check_inst_name(check_inst_type(instindex));
+		addressing1 = check_addressing(line, error);
+		addressing2 = check_addressing(to_comma(line), error);
+		addressing3 = check_addressing(to_comma(to_comma(line)),error);
 
 		switch(instname){
 			case "add":
-			addressing1 = check_addressing(line, error);
-			addressing2 = check_addressing(to_comma(line), error);
-			addressing3 = check_addressing(to_comma(to_comma(line,error),error));
 			to_inst(0,addressing1,addressing2,addressing3,1,IRELEVANT,IRELEVANT,ic);
-			(*ic+=4);
 			break;
 
 			case "sub":
@@ -265,7 +264,7 @@ void read_line2(char *line, FILE *ob_file, FILE *ent_file, FILE *ext_file, int *
 			case "beq":
 			addressing1 = check_addressing(line, error);
 			addressing2 = check_addressing(to_comma(line), error);
-			addressing3 = check_addressing(to_comma(to_comma(line,error),error));
+			addressing3 = check_addressing(to_comma(to_comma(line)),error);
 			to_inst(16,addressing1,addressing2,addressing3,IRELEVANT,IRELEVANT,IRELEVANT,ic);
 			(*ic+=4);
 			break;
@@ -369,6 +368,7 @@ void read_line2(char *line, FILE *ob_file, FILE *ent_file, FILE *ext_file, int *
 			to_inst(63,IRELEVANT,IRELEVANT,IRELEVANT,IRELEVANT,IRELEVANT,IRELEVANT,IRELEVANT);
 			(*ic+=4);
 			break;
+			(*ic+=4);
 
 		}
 

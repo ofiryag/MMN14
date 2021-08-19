@@ -8,7 +8,7 @@
 #include "errors.h"
 #include "read_line.h"
 #include "tables.h"
-#include "validation.h"
+#include "recognize_helper.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
