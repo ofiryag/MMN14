@@ -174,8 +174,7 @@ void print_to_files(FILE *ob_file, FILE *ent_file, FILE *ext_file, int* ic, int*
 	char one_byte[5];
 	char one_byte_as_hex[2];
 	char data_as_binary[32]; 
-	int mask = MASK_2BIT, i, j;
-	
+
 	fprintf(ob_file, "\t%d\t%d\n", (*ic) - 100, *dc);
 	while(temp_inst != NULL)
 	{
