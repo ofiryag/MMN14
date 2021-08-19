@@ -38,9 +38,9 @@ void first_pass(char *file)
 		check_errors(&lineCounter, &error, &errorCounter);
 	}
 
-    //update DC
+    /*update DC*/
 
-    //if there are errors, print total amount of errors
+    /*if there are errors, print total amount of errors*/
 
-    //else - if there are no errors go to second_pass
+    /*else - if there are no errors go to second_pass*/
 }

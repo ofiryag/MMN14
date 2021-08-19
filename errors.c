@@ -50,9 +50,6 @@ int check_errors(int *ln, int *error, int *ec)
 			case NO_ARG_ERROR:
 				printf("Line %d: Error: expecting argument...\n",*ln);
 				break;
-			case MACRO_ERROR:
-				printf("Line %d: Error: macro error \n",*ln);
-				break;
 		}
 		*error = NO_ERROR;
 		return TRUE;
