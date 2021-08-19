@@ -146,234 +146,175 @@ void read_line2(char *line, FILE *ob_file, FILE *ent_file, FILE *ext_file, int *
 	if(is_inst(line) >= NA)
 	{
 		int instindex = is_inst(line);
-		int addressing1 = 0, addressing2 = 0, addressing3 = 0;
-		int i, data = 0, reg_src = 0, reg_dst = 0,immed=0;
+		int insttype = check_inst_type(instindex);
+		int rs = IRELEVANT, rt = IRELEVANT, rd = IRELEVANT;
+		int reg = IRELEVANT,immed=IRELEVANT,address = IRELEVANT,funct = IRELEVANT;
 		char label[MAX_LABEL_LEN];
 		line = next_word(line);
-		char instname = check_inst_name(check_inst_type(instindex));
-		addressing1 = check_addressing(line, error);
-		addressing2 = check_addressing(to_comma(line), error);
-		addressing3 = check_addressing(to_comma(to_comma(line)),error);
 
-		switch(instname){
-			case "add":
-			to_inst(0,addressing1,addressing2,addressing3,1,IRELEVANT,IRELEVANT,ic);
+		if(insttype == R_ARITHMETHIC){
+			rs = check_addressing(line, error);
+			rt = check_addressing(to_comma(line), error);
+			rd = check_addressing(to_comma(to_comma(line)),error);
+		}
+		else if(insttype == R_COPY){
+				rs = check_addressing(line, error);
+				rt = check_addressing(to_comma(line), error);
+		}
+		else if(insttype == I_ARITHMETIC){
+				rs = check_addressing(line, error);
+				immed = (int)(to_comma(line));
+				rd = check_addressing(to_comma(to_comma(line,error),error));
+		}
+		else if(insttype == I_CONDITIONAL_BRANCHING){
+				rs = check_addressing(line, error);
+				rt = check_addressing(to_comma(line), error);
+				rd = check_addressing(to_comma(to_comma(line,error),error));
+		}
+		else if(insttype == I_STORAGE){
+				rs = check_addressing(line, error);
+				immed = check_addressing(to_comma(line), error);
+				rt = check_addressing(to_comma(to_comma(line,error),error));
+		}
+		else if(insttype == J_JMP || insttype == J_LA){
+				address = check_addressing(next_word(line), error);
+
+		}
+		else if(insttype == J_CALL){
+				address = check_addressing(next_word(line), error);
+				immed = check_addressing(to_comma(line), error);
+
+		}
+
+		switch(instindex){
+			case add:
+			to_inst(0,rs,rt,rd,1,immed,reg,address,ic);
 			break;
 
-			case "sub":
-			addressing1 = check_addressing(line, error);
-			addressing2 = check_addressing(to_comma(line), error);
-			addressing3 = check_addressing(to_comma(to_comma(line,error),error));
-			to_inst(0,addressing1,addressing2,addressing3,2,IRELEVANT,IRELEVANT,ic);
-			(*ic+=4);
+			case sub:
+			to_inst(0,rs,rt,rd,2,immed,reg,address,ic);
 			break;
 
-			case "and":
-			addressing1 = check_addressing(line, error);
-			addressing2 = check_addressing(to_comma(line), error);
-			addressing3 = check_addressing(to_comma(to_comma(line,error),error));
-			to_inst(0,addressing1,addressing2,addressing3,3,IRELEVANT,IRELEVANT,ic);
-			(*ic+=4);
+			case and:
+			to_inst(0,rs,rt,rd,3,immed,reg,address,ic);
 			break;
 
-			case "or":
-			addressing1 = check_addressing(line, error);
-			addressing2 = check_addressing(to_comma(line), error);
-			addressing3 = check_addressing(to_comma(to_comma(line,error),error));
-			to_inst(0,addressing1,addressing2,addressing3,4,IRELEVANT,IRELEVANT,ic);
-			(*ic+=4);
+			case or:
+			to_inst(0,rs,rt,rd,4,immed,reg,address,ic);
 			break;
 
-			case "nor":
-			addressing1 = check_addressing(line, error);
-			addressing2 = check_addressing(to_comma(line), error);
-			addressing3 = check_addressing(to_comma(to_comma(line,error),error));
-			to_inst(0,addressing1,addressing2,addressing3,5,IRELEVANT,IRELEVANT,ic);
-			(*ic+=4);
+			case nor:
+			to_inst(0,rs,rt,rd,5,immed,reg,address,ic);
 			break;
 
-			case "move":
-			addressing1 = check_addressing(line, error);
-			addressing2 = check_addressing(to_comma(line), error);
-			to_inst(1,addressing1,0,addressing3,1,IRELEVANT,IRELEVANT,ic);
-			(*ic+=4);
+			case move:
+			to_inst(1,rs,rt,rd,1,immed,reg,address,ic);
 			break;
 
-			case "mvhi":
-			addressing1 = check_addressing(line, error);
-			addressing2 = check_addressing(to_comma(line), error);
-			to_inst(1,addressing1,0,addressing3,2,IRELEVANT,IRELEVANT,ic);
-			(*ic+=4);
+			case mvhi:
+			to_inst(1,rs,rt,rd,2,immed,reg,address,ic);
 			break;
 
-			case "mvlo":
-			addressing1 = check_addressing(line, error);
-			addressing2 = check_addressing(to_comma(line), error);
-			to_inst(1,addressing1,IRELEVANT,addressing3,3,IRELEVANT,IRELEVANT,ic);
-			(*ic+=4);
+			case mvlo:
+			to_inst(1,rs,rt,rd,3,immed,reg,address,ic);
 			break;
 
-			case "addi":
-			addressing1 = check_addressing(line, error);
-			immed = (int)(to_comma(line));
-			addressing3 = check_addressing(to_comma(to_comma(line,error),error));
-			to_inst(10,addressing1,IRELEVANT,addressing3,immed,IRELEVANT,IRELEVANT,ic);
-			(*ic+=4);
+			case addi:
+			to_inst(10,rs,rt,rd,funct,immed,reg,address,ic);
 			break;
 
-			case "subi":
-			addressing1 = check_addressing(line, error);
-			immed = (int)(to_comma(line));
-			addressing3 = check_addressing(to_comma(to_comma(line,error),error));
-			to_inst(11,addressing1,IRELEVANT,addressing3,immed,IRELEVANT,IRELEVANT,ic);
-			(*ic+=4);
+			case subi:
+			to_inst(11,rs,rd,rd,funct,immed,reg,address,ic);
 			break;
 
-			case "andi":
-			addressing1 = check_addressing(line, error);
-			immed = (int)(to_comma(line));
-			addressing3 = check_addressing(to_comma(to_comma(line,error),error));
-			to_inst(12,addressing1,IRELEVANT,addressing3,immed,IRELEVANT,IRELEVANT,ic);
-			(*ic+=4);
+			case andi:
+			to_inst(12,rs,rd,rd,funct,immed,reg,address,ic);
 			break;
 
-			case "ori":
-			addressing1 = check_addressing(line, error);
-			immed = (int)(to_comma(line));
-			addressing3 = check_addressing(to_comma(to_comma(line,error),error));
-			to_inst(13,addressing1,IRELEVANT,addressing3,immed,IRELEVANT,IRELEVANT,ic);
-			(*ic+=4);
+			case ori:
+			to_inst(13,rs,rd,rd,funct,immed,reg,address,ic);
 			break;
 
-			case "nori":
-			addressing1 = check_addressing(line, error);
-			immed = (int)(to_comma(line));
-			addressing3 = check_addressing(to_comma(to_comma(line,error),error));
-			to_inst(14,addressing1,IRELEVANT,addressing3,immed,IRELEVANT,IRELEVANT,ic);
-			(*ic+=4);
+			case nori:
+			to_inst(14,rs,rd,rd,funct,immed,reg,address,ic);
 			break;
 			
-			case "bne":
-			addressing1 = check_addressing(line, error);
-			addressing2 = check_addressing(to_comma(line), error);
-			addressing3 = check_addressing(to_comma(to_comma(line,error),error));
-			to_inst(15,addressing1,addressing2,addressing3,IRELEVANT,IRELEVANT,IRELEVANT,ic);
-			(*ic+=4);
+			case bne:
+			to_inst(15,rs,rt,rd,funct,immed,reg,address,ic);
 			break;
 
-			case "beq":
-			addressing1 = check_addressing(line, error);
-			addressing2 = check_addressing(to_comma(line), error);
-			addressing3 = check_addressing(to_comma(to_comma(line)),error);
-			to_inst(16,addressing1,addressing2,addressing3,IRELEVANT,IRELEVANT,IRELEVANT,ic);
-			(*ic+=4);
+			case beq:
+			to_inst(16,rs,rt,rd,funct,immed,reg,address,ic);
 			break;
 
-			case "blt":
-			addressing1 = check_addressing(line, error);
-			addressing2 = check_addressing(to_comma(line), error);
-			addressing3 = check_addressing(to_comma(to_comma(line,error),error));
-			to_inst(17,addressing1,addressing2,addressing3,IRELEVANT,IRELEVANT,IRELEVANT,ic);
-			(*ic+=4);
+			case blt:
+			to_inst(17,rs,rt,rd,funct,immed,reg,address,ic);
 			break;
 
-			case "bgt":
-			addressing1 = check_addressing(line, error);
-			addressing2 = check_addressing(to_comma(line), error);
-			addressing3 = check_addressing(to_comma(to_comma(line,error),error));
-			to_inst(18,addressing1,addressing2,addressing3,IRELEVANT,IRELEVANT,IRELEVANT,ic);
-			(*ic+=4);
+			case bgt:
+			to_inst(18,rs,rt,rd,funct,immed,reg,address,ic);
 			break;
 
-			case "lb":
-			addressing1 = check_addressing(line, error);
-			immed = check_addressing(to_comma(line), error);
-			addressing2 = check_addressing(to_comma(to_comma(line,error),error));
-			to_inst(19,addressing1,addressing2,IRELEVANT,immed,IRELEVANT,IRELEVANT,ic);
-			(*ic+=4);
+			case lb:
+			to_inst(19,rs,rt,rd,funct,immed,reg,address,ic);
 			break;
 
-			case "sb":
-			addressing1 = check_addressing(line, error);
-			immed = check_addressing(to_comma(line), error);
-			addressing2 = check_addressing(to_comma(to_comma(line,error),error));
-			to_inst(20,addressing1,addressing2,IRELEVANT,immed,IRELEVANT,IRELEVANT,ic);
-			(*ic+=4);
+			case sb:
+			to_inst(20,rs,rt,rd,funct,immed,reg,address,ic);
 			break;
 
-			case "lw":
-			addressing1 = check_addressing(line, error);
-			immed = check_addressing(to_comma(line), error);
-			addressing2 = check_addressing(to_comma(to_comma(line,error),error));
-			to_inst(21,addressing1,addressing2,IRELEVANT,immed,IRELEVANT,IRELEVANT,ic);
-			(*ic+=4);
+			case lw:
+			to_inst(21,rs,rt,rd,funct,immed,reg,address,ic);
 			break;
 
-			case "sw":
-			addressing1 = check_addressing(line, error);
-			immed = check_addressing(to_comma(line), error);
-			addressing2 = check_addressing(to_comma(to_comma(line,error),error));
-			to_inst(22,addressing1,addressing2,IRELEVANT,immed,IRELEVANT,IRELEVANT,ic);
-			(*ic+=4);
+			case sw:
+			to_inst(22,rs,rt,rd,funct,immed,reg,address,ic);
 			break;
 
-			case "lh":
-			addressing1 = check_addressing(line, error);
-			immed = check_addressing(to_comma(line), error);
-			addressing2 = check_addressing(to_comma(to_comma(line,error),error));
-			to_inst(23,addressing1,addressing2,IRELEVANT,immed,IRELEVANT,IRELEVANT,ic);
-			(*ic+=4);
+			case lh:
+			to_inst(23,rs,rt,rd,funct,immed,reg,address,ic);
 			break;
 
-			case "sh":
-			addressing1 = check_addressing(line, error);
-			immed = check_addressing(to_comma(line), error);
-			addressing2 = check_addressing(to_comma(to_comma(line,error),error));
-			to_inst(24,addressing1,addressing2,IRELEVANT,immed,IRELEVANT,IRELEVANT,ic);
-			(*ic+=4);
+			case sh:
+			to_inst(24,rs,rt,rd,funct,immed,reg,address,ic);
 			break;
 
-			case "jmp":
-			addressing1 = check_addressing(next_word(line), error);
+			case jmp:
 			if(is_label(next_word(line)))
-				if(is_dir(next_word(line)) == "entry")
-					to_inst(30,IRELEVANT,IRELEVANT,IRELEVANT,IRELEVANT,IRELEVANT,addressing1,ic);
+				/* is the next word entry */
+				if(is_dir(next_word(line)) == 6)
+					to_inst(30,rs,rt,rd,funct,immed,reg,address,ic);
 				else
-					to_inst(30,IRELEVANT,IRELEVANT,IRELEVANT,IRELEVANT,IRELEVANT,IRELEVANT,ic);
+					to_inst(30,rs,rt,rd,funct,immed,reg,address,ic);
 			else
-				to_inst(30,IRELEVANT,IRELEVANT,IRELEVANT,IRELEVANT,REG_ADDRESS,addressing1,ic);
-			(*ic+=4);
+				to_inst(30,rs,rt,rd,funct,immed,1,address,ic);
 			break;
 
-			case "la":
-			addressing1 = check_addressing(next_word(line), error);
-			if(is_dir(next_word(line)) == "entry")
-				to_inst(31,IRELEVANT,IRELEVANT,IRELEVANT,IRELEVANT,IRELEVANT,addressing1,ic);
+			case la:
+			/* is the next word entry */
+			if(is_dir(next_word(line)) == 6)
+				to_inst(31,rs,rt,rd,funct,immed,reg,address,ic);
 			else
-				to_inst(31,IRELEVANT,IRELEVANT,IRELEVANT,IRELEVANT,REG_ADDRESS,0,ic);
-			(*ic+=4);
+				to_inst(31,rs,rt,rd,funct,immed,1,0,ic);
 			break;
 
-			case "call":
-			addressing1 = check_addressing(next_word(line), error);
-			immed = check_addressing(to_comma(line), error);
-			if(is_dir(next_word(line)) == "entry")
-				to_inst(32,IRELEVANT,IRELEVANT,IRELEVANT,IRELEVANT,IRELEVANT,addressing1,ic);
+			case call:
+			/* is the next word entry */
+			if(is_dir(next_word(line)) == 6)
+				to_inst(32,rs,rt,rd,funct,immed,reg,address,ic);
 			else
-				to_inst(32,IRELEVANT,IRELEVANT,IRELEVANT,IRELEVANT,IRELEVANT,IRELEVANT,ic);
-			(*ic+=4);
+				to_inst(32,rs,rt,rd,funct,immed,reg,0,ic);;
 			break;
 
-			case "stop":
-			to_inst(63,IRELEVANT,IRELEVANT,IRELEVANT,IRELEVANT,IRELEVANT,IRELEVANT,IRELEVANT);
-			(*ic+=4);
+			case stop:
+			to_inst(63,rs,rt,rd,funct,immed,reg,address,ic);
 			break;
 			(*ic+=4);
 
 		}
 
 		/* if first operand is a label */
-			if(addressing1 == LABEL_ADDRESS)
+			if(rs == LABEL_ADDRESS)
 			{
 				for(i=0;*line!=',';i++)
 				{
