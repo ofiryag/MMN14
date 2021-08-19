@@ -84,6 +84,8 @@ enum{R_ARITHMETHIC,R_COPY,I_ARITHMETIC,I_CONDITIONAL_BRANCHING,I_STORAGE,J_JMP,J
 /*Address types*/
 enum{LABEL_ADDRESS, REG_ADDRESS};
 
+enum{add,sub,and,or,nor,move,mvhi,mvlo,addi,subi,andi,ori,nori,bne,beq,blt,bgt,lb,sb,lw,sw,lh,sh,jmp,la,call,stop};
+
 
 
 #endif
