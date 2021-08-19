@@ -822,7 +822,7 @@ int validate_label_operand(char *line,char * error) /* validate is contains digi
 			return FALSE;
 	}
 
-	while(isdigit(p)||isalpha)
+	while(isdigit(p)||isalpha(p))
 	{
 		p=p+1;
 	}

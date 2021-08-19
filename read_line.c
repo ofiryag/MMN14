@@ -138,3 +138,21 @@ char *to_comma(char *line)
 	return line;
 }
 
+char *to_dollar(char *line)
+{
+    if(line == NULL)
+        return NULL;
+
+    while(*line != '$' && !isspace(*line))
+    {
+        if(*line == '\0')
+            return NULL;
+
+        line++;
+    }
+
+    line++;
+    line = skip_space(line);
+    return line;
+}
+

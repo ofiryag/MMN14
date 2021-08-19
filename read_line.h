@@ -5,7 +5,6 @@
 
 #include <stdio.h>
 #include <string.h>
-#include <ctype.h>
 #include "consts.h"
 #include "recognize_helper.h"
 #include "errors.h"
@@ -26,5 +25,9 @@ char *next_word(char *);
 
 /* jumps to the word after the comma */
 char *to_comma(char *);
+
+/*jumps to the number after the dollar*/
+char *to_dollar(char *);
+
 
 #endif

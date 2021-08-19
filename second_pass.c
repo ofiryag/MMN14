@@ -4,7 +4,7 @@ convert each instruction to four base counting and print it to the correct files
 #include "second_pass.h"
 
 /* the second pass of the project */
-void second_pass(FILE *fp, char *file, int* ic,int* ec,int* ln, int* error, int* dc)
+void second_pass(FILE *fp, char *file, int* ic, int* errorCounter, int* lineNumber, int* error, int* dc)
 {
 	char ob_name[FILE_NAME_LEN], ent_name[FILE_NAME_LEN], ext_name[FILE_NAME_LEN];
 	FILE *ob_file;
@@ -25,16 +25,16 @@ void second_pass(FILE *fp, char *file, int* ic,int* ec,int* ln, int* error, int*
 	
 	/* initializing the variables */
 	*ic = IC_START;
-	*ec = NO_ERROR;
-	*ln = 0;
+	*errorCounter = NO_ERROR;
+	*lineNumber = 0;
 	*error = NO_ERROR;
 	
 	/* reads each line of the file */
 	while(fgets(line,BUFF_SIZE,fp) != NULL)
 	{
-		(*ln)++;
-		read_line2(line, ob_file, ent_file, ext_file, ic, error); 
-		check_errors(ln, error, ec);
+		(*lineNumber)++;
+		read_line2(line, ob_file, ent_file, ext_file, ic, error,dc,errorCounter,lineNumber);
+		check_errors(lineNumber, error, errorCounter);
 	}
 	
 	/* prints the incoded data to the files */
@@ -66,9 +66,9 @@ void second_pass(FILE *fp, char *file, int* ic,int* ec,int* ln, int* error, int*
 	fclose(ext_file);
 	
 	/* check if there was errors */
-	if(*ec > FALSE)
+	if(*errorCounter > FALSE)
 	{
-		printf("\n%s contains %d errors.\n",file ,*ec);
+		printf("\n%s contains %d errors.\n",file ,*errorCounter);
 		remove(ob_name);
 		remove(ent_name);
 		remove(ext_name);
@@ -76,8 +76,8 @@ void second_pass(FILE *fp, char *file, int* ic,int* ec,int* ln, int* error, int*
 	}	
 }
 
-/* the function reads each line, checks its validation and incoding it */
-void read_line2(char *line, FILE *ob_file, FILE *ent_file, FILE *ext_file, int *ic, int * error)
+/* the function reads each line, checks its validation and encoding it */
+void read_line2(char *line, FILE *ob_file, FILE *ent_file, FILE *ext_file, int *ic, int * error,int *dc,int* errorCounter, int* lineNumber)
 {
 	char *p = line;
 	symbol_node *symbol;
@@ -147,42 +147,43 @@ void read_line2(char *line, FILE *ob_file, FILE *ent_file, FILE *ext_file, int *
 	{
 		int instindex = is_inst(line);
 		int insttype = check_inst_type(instindex);
-		int rs = IRELEVANT, rt = IRELEVANT, rd = IRELEVANT;
-		int reg = IRELEVANT,immed=IRELEVANT,address = IRELEVANT,funct = IRELEVANT;
+		int rs = IRRELEVANT, rt = IRRELEVANT, rd = IRRELEVANT;
+		int reg = IRRELEVANT,immed=IRRELEVANT,address = IRRELEVANT,funct = IRRELEVANT;
 		char label[MAX_LABEL_LEN];
 		line = next_word(line);
 
 		if(insttype == R_ARITHMETHIC){
-			rs = check_addressing(line, error);
-			rt = check_addressing(to_comma(line), error);
-			rd = check_addressing(to_comma(to_comma(line)),error);
+
+		    rs = get_number_from_string(to_dollar(line),3,error);
+		    rt = get_number_from_string(to_dollar(line),3,error);
+		    rd = get_number_from_string(to_dollar(line),3,error);
 		}
 		else if(insttype == R_COPY){
-				rs = check_addressing(line, error);
-				rt = check_addressing(to_comma(line), error);
+		    rs = get_number_from_string(to_dollar(line),3,error);
+		    rt = get_number_from_string(to_dollar(to_comma(line)), 3,error);
 		}
 		else if(insttype == I_ARITHMETIC){
-				rs = check_addressing(line, error);
-				immed = (int)(to_comma(line));
-				rd = check_addressing(to_comma(to_comma(line,error),error));
+		        rs = get_number_from_string(to_dollar(line),3,error);
+				immed = get_number_from_string(to_comma(line),6,error);
+				rd = get_number_from_string(to_dollar(to_comma(to_comma(line))), 3,error);
 		}
 		else if(insttype == I_CONDITIONAL_BRANCHING){
-				rs = check_addressing(line, error);
-				rt = check_addressing(to_comma(line), error);
-				rd = check_addressing(to_comma(to_comma(line,error),error));
+		    rs = get_number_from_string(to_dollar(line),3,error);
+		    rt = get_number_from_string(to_dollar(to_comma(line)), 3,error);
+		    rd = get_number_from_string(to_dollar(to_comma(to_comma(line))), 3,error);
 		}
 		else if(insttype == I_STORAGE){
-				rs = check_addressing(line, error);
-				immed = check_addressing(to_comma(line), error);
-				rt = check_addressing(to_comma(to_comma(line,error),error));
+		    rs = get_number_from_string(to_dollar(line),3,error);
+		    immed = get_number_from_string(to_comma(line),6, error);
+		    rt = get_number_from_string(to_dollar(to_comma(to_comma(line))), 3,error);
 		}
 		else if(insttype == J_JMP || insttype == J_LA){
-				address = check_addressing(next_word(line), error);
+		    address = get_number_from_string(to_dollar(line),3,error);
 
 		}
 		else if(insttype == J_CALL){
-				address = check_addressing(next_word(line), error);
-				immed = check_addressing(to_comma(line), error);
+		    address = get_number_from_string(next_word(line),3,error);
+		    get_number_from_string(to_dollar(line),3,error);
 
 		}
 
@@ -280,9 +281,9 @@ void read_line2(char *line, FILE *ob_file, FILE *ent_file, FILE *ext_file, int *
 			break;
 
 			case jmp:
-			if(is_label(next_word(line)))
+			    if(is_label(next_word(line), ic, dc, errorCounter, lineNumber,  error))
 				/* is the next word entry */
-				if(is_dir(next_word(line)) == 6)
+				if(is_dir(next_word(line),error) == 6)
 					to_inst(30,rs,rt,rd,funct,immed,reg,address,ic);
 				else
 					to_inst(30,rs,rt,rd,funct,immed,reg,address,ic);
@@ -292,7 +293,7 @@ void read_line2(char *line, FILE *ob_file, FILE *ent_file, FILE *ext_file, int *
 
 			case la:
 			/* is the next word entry */
-			if(is_dir(next_word(line)) == 6)
+			if(is_dir(next_word(line),error) == 6)
 				to_inst(31,rs,rt,rd,funct,immed,reg,address,ic);
 			else
 				to_inst(31,rs,rt,rd,funct,immed,1,0,ic);
@@ -300,7 +301,7 @@ void read_line2(char *line, FILE *ob_file, FILE *ent_file, FILE *ext_file, int *
 
 			case call:
 			/* is the next word entry */
-			if(is_dir(next_word(line)) == 6)
+			if(is_dir(next_word(line),error) == 6)
 				to_inst(32,rs,rt,rd,funct,immed,reg,address,ic);
 			else
 				to_inst(32,rs,rt,rd,funct,immed,reg,0,ic);;
@@ -316,15 +317,14 @@ void read_line2(char *line, FILE *ob_file, FILE *ent_file, FILE *ext_file, int *
 		/* if first operand is a label */
 			if(rs == LABEL_ADDRESS)
 			{
-				for(i=0;*line!=',';i++)
+				for(int i=0;*line!=',';i++)
 				{
 					label[i] = *line;
 					line++;
+
+					if(label[i] = '\0')
+					symbol = search_sym(label);
 				}
-				
-				label[i] = '\0';
-				symbol = search_sym(label);
-				
 				if(symbol == NULL)
 				{
 					*error = NDEF_LABEL_ERROR;
@@ -337,4 +337,21 @@ void read_line2(char *line, FILE *ob_file, FILE *ent_file, FILE *ext_file, int *
 		}
 		
 	}
+
+	/*this function will return decimal number from string to int*/
+int get_number_from_string(char * line, int maxSize, int* error)
+{
+    char decimalString[maxSize];
+    for (int i = 0; i < maxSize; ++i)
+    {
+        if(!isdigit(*line) && !isspace(*line))
+        {
+            *error = ADD_ERROR;
+            return NA;
+        }
+        decimalString[i]= *line;
+        line++;
+    }
+    return atoi(decimalString);
 }
+

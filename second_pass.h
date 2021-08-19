@@ -8,6 +8,7 @@
 #include "errors.h"
 #include "read_line.h"
 #include "tables.h"
+#include <ctype.h>
 #include "recognize_helper.h"
 #include <stdio.h>
 #include <stdlib.h>
@@ -16,7 +17,11 @@
 /* the second pass of the project */
 void second_pass(FILE *, char *, int* ,int* ,int* , int* , int*);
 
-/* the function reads each line, checks its validation and incoding it */
-void read_line2(char *,FILE *,FILE *,FILE *, int*, int*);
+/* the function reads each line, checks its validation and encoding it */
+void read_line2(char *, FILE *, FILE *, FILE *, int *, int * ,int *,int* , int* );
+
+
+/*this function will return decimal number from string to int*/
+int get_number_from_string(char * ,int ,int* );
 
 #endif
