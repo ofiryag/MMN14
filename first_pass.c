@@ -38,9 +38,22 @@ void first_pass(char *file)
 		check_errors(&lineCounter, &error, &errorCounter);
 	}
 
-    //update DC
+    /* updating the dc counting according the IC */
+    update_DC(&ic, &error);
+    check_errors(&lineCounter, &error, &errorCounter);
 
-    //if there are errors, print total amount of errors
+    /* prints the total amount of errors */
+    if(errorCounter > NO_ERROR)
+    {
+        printf("\n%s contains %d errors.\n",file_name,errorCounter);
+        return;
+    }
 
-    //else - if there are no errors go to second_pass
+    /* if there are no errors continue to second pass */
+    else
+    {
+        rewind(fp);
+        second_pass(fp, file, &ic, &errorCounter, &lineCounter, &error, &dc);
+        return;
+    }
 }

@@ -92,7 +92,7 @@ int is_label(char *line, int* ic, int* dc, int* ec,int *ln, int *error)
 			}
 			
 			/* check if the label is not a register */	
-			if(strlen(label) == REG_LEN && label[0] == '$' && label[1] >= '0' && label[1] <= '3' && label[2] <= '1') //32 registers
+			if(strlen(label) == REG_LEN && label[0] == '$' && label[1] >= '0' && label[1] <= '3' && label[2] <= '1') /*32 registers*/
 			{
 				*error = LABEL_REG_ERROR;
 				return FALSE;
@@ -558,7 +558,7 @@ int check_dir(char *line, int dirtype, int *dc, int *error)
 int check_inst(char *line, int *error, int *ic)
 
 {
-	int instruction = is_inst(line); //change to inst index
+	int instruction = is_inst(line); /*change to inst index*/
     int instType = check_inst_type(instruction);
 	line = next_word(line);
 	line = to_comma(line);
@@ -575,15 +575,17 @@ int check_inst(char *line, int *error, int *ic)
 			break;
 		case R_COPY:validate_inst_r_copy(line,error);
 			break;
-		case I_CONDITIONAL_BRANCHING || I_STORAGE:validate_inst_i_conditional_branching_or_storage(line,error);
-			break;
-		case I_ARITHMETIC:validate_inst_i_arithmetic_or_storage(line,error);
+			case I_CONDITIONAL_BRANCHING:validate_inst_i_conditional_branching_or_storage(line,error);
+            break;
+		case I_STORAGE:validate_inst_i_conditional_branching_or_storage(line,error);
 			break;
 		case I_ARITHMETIC:validate_inst_i_arithmetic_or_storage(line,error);
 			break;
 		case J_JMP:validate_inst_j_jmp(line,error);
 			break;
-		case J_CALL||J_LA:validate_inst_j_call_or_la(line,error);
+		case J_CALL:validate_inst_j_call_or_la(line,error);
+			break;
+			case J_LA:validate_inst_j_call_or_la(line,error);
 			break;
 		case J_STOP:validate_inst_j_stop(line,error);
 			break;
@@ -609,7 +611,7 @@ int check_addressing(char *line, int *error)
 	}
 	
 	operand[i] = '\0';
-	if(strlen(operand) == REG_LEN && operand[0] == '$' && operand[1] >= '0' && operand[1] <= '3' && operand[2] <= '1') //32 bits per register)
+	if(strlen(operand) == REG_LEN && operand[0] == '$' && operand[1] >= '0' && operand[1] <= '3' && operand[2] <= '1') /*32 bits per register*/
 		return REG_ADDRESS;
 	
 	/*checks if label */
@@ -655,7 +657,6 @@ int validate_inst_r_arithmetic(char *line, int *error)
 	}
 }
 /*validate that using R copy instruction is int the correct syntax, for example add $1, $2*/
-
 int validate_inst_r_copy(char *line, int *error)
 {
 	char *p = line;
@@ -780,11 +781,11 @@ int validate_inst_j_stop(char *line, int *error)
 }
 
 
-//validate that register operand doesn't contain invalid characters
+/*validate that register operand doesn't contain invalid characters*/
 int validate_register_operand(char *line,char * error)
 {
 	char *p = line;
-	if(p[0] != '$' || p[1] < '0' && p[1] > '3' || p[2] > '1') //migth cause error index out of range if p size is 2 chars
+	if(p[0] != '$' || p[1] < '0' && p[1] > '3' || p[2] > '1') /*might cause error index out of range if p size is 2 chars*/
 		{
 			*error = REG_IS_NOT_VALID;
 			return FALSE;
@@ -793,8 +794,8 @@ int validate_register_operand(char *line,char * error)
 	return TRUE;
 }
 
-//validate that immed doesn't contain invalid characters
-int validate_immed_operand(char *line,char * error) // validate is contains digits
+/*validate that immed doesn't contain invalid characters*/
+int validate_immed_operand(char *line,char * error) /* validate is contains digits*/
 {
 	char *p = line;
 	while(isdigit(p))
@@ -802,8 +803,8 @@ int validate_immed_operand(char *line,char * error) // validate is contains digi
 		p=p+1;
 	}
 
-	//check that the are no invalid characters between operands
-	if(*p =! ',' || *p =!isspace) 
+	/*check that the are no invalid characters between operands*/
+	if(*p =! ',' || !isspace(p))
 	{
 		*error = SYNTAX_ERROR;
 			return FALSE;
@@ -811,11 +812,11 @@ int validate_immed_operand(char *line,char * error) // validate is contains digi
 	return TRUE;
 }
 
-//validate that label doesn't contain invalid characters
-int validate_label_operand(char *line,char * error) // validate is contains digits
+/*validate that label doesn't contain invalid characters*/
+int validate_label_operand(char *line,char * error) /* validate is contains digits*/
 {
 	char *p = line;
-	if(isalpha(p[0]==FALSE)
+	if(isalpha(p[0]==FALSE))
 	{
 			*error = SYNTAX_ERROR;
 			return FALSE;
@@ -826,8 +827,8 @@ int validate_label_operand(char *line,char * error) // validate is contains digi
 		p=p+1;
 	}
 
-	//check that the are no invalid characters between operands
-	if(*p =! ',' || *p =!isspace) 
+	/*check that the are no invalid characters between operands*/
+	if(*p =! ',' || !isspace(p))
 	{
 		*error = SYNTAX_ERROR;
 			return FALSE;
@@ -835,7 +836,7 @@ int validate_label_operand(char *line,char * error) // validate is contains digi
 	return TRUE;
 }
 
-//validate that label doesn't contain invalid characters
+/*validate that label doesn't contain invalid characters*/
 int validate_label_exists_on_symbole_table(char *line,char * error) 
 {
 	char *p = line;
@@ -848,7 +849,7 @@ int validate_label_exists_on_symbole_table(char *line,char * error)
 			p++;
 			c++;
 		}
-	if(search_sym(label)==NULL) // label should be on symbole table
+	if(search_sym(label)==NULL) /* label should be on symbole table*/
 	{
 	 		*error = LABEL_DOESNT_EXIST;
 			return FALSE;

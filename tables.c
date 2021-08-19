@@ -174,8 +174,7 @@ void print_to_files(FILE *ob_file, FILE *ent_file, FILE *ext_file, int* ic, int*
 	char one_byte[5];
 	char one_byte_as_hex[2];
 	char data_as_binary[32]; 
-	int mask = MASK_2BIT, i, j;
-	
+
 	fprintf(ob_file, "\t%d\t%d\n", (*ic) - 100, *dc);
 	while(temp_inst != NULL)
 	{
@@ -226,7 +225,7 @@ void build_inst_r_data_as_binary(instruction_node * temp_inst, char* data_as_bin
 	strcat(data_as_binary, binary_rt);
 	strcat(data_as_binary, binary_rd);
 	strcat(data_as_binary, binary_funct);
-	strcat(data_as_binary, "00000"); //unused
+	strcat(data_as_binary, "00000"); /*unused*/
 }
 
 /*this function will build I instruction node's data to binary string*/
@@ -300,11 +299,11 @@ void print_output_line(char * data_as_binary,FILE *ob_file,instruction_node *tem
 {
 	if(temp_inst->address<1000)
 	{
-		fprintf(ob_file, "\t%s%d\t",'0',temp_inst->address); // print address - IC
+		fprintf(ob_file, "\t%s%d\t",'0',temp_inst->address); /* print address - IC*/
 	}
 	else
 	{
-		fprintf(ob_file, "\t%d\t",temp_inst->address); // print address - IC
+		fprintf(ob_file, "\t%d\t",temp_inst->address); /* print address - IC*/
 	}
 
 	for (int i = 0; i < sizeof(data_as_binary); i+4)
@@ -315,9 +314,9 @@ void print_output_line(char * data_as_binary,FILE *ob_file,instruction_node *tem
 		}
 		convert_binary_to_hexadecimal(one_byte,one_byte_as_hex);
 		fprintf(ob_file, "\t%s", one_byte_as_hex);
-		for (int j = 4; j<8; j++)
+		for (int k = 4; k<8; k++)
 		{
-			one_byte[j] = data_as_binary[i+j];
+			one_byte[k] = data_as_binary[i+k];
 		}
 		fprintf(ob_file, "%s\t", one_byte_as_hex);
 	}

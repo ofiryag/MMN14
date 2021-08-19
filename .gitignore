@@ -42,3 +42,6 @@ CMakeLists.txt
 .idea/modules.xml
 .idea/MMN14.iml
 .idea/misc.xml
+cmake-build-debug/CMakeFiles/Progress/5
+cmake-build-debug/CMakeFiles/MMN14.dir/recognize_helper.c.obj
+cmake-build-debug/CMakeFiles/MMN14.dir/errors.c.obj
