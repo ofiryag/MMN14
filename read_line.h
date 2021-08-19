@@ -8,9 +8,9 @@
 #include <ctype.h>
 #include "consts.h"
 #include "recognize_helper.h"
-/*#include "errors.h"
+#include "errors.h"
 #include "structs.h"
-#include "tables.h"*/
+#include "tables.h"
 
 /* reads each line and check its validation */
 void read_line(char *, int *, int *, int *, int *, int *);
