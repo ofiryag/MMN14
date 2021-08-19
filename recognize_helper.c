@@ -240,12 +240,6 @@ int check_inst_type(int instructionIndex)
     	return J_STOP; 
 }
 
-/* return the instruction name */
-
-char * check_inst_name(int instructionIndex){
-	return instructions[instructionIndex];
-}
-
 /* checks the validation of the directive sentence */ 
 int check_dir(char *line, int dirtype, int *dc, int *error)
 {	
@@ -467,8 +461,6 @@ int check_dir(char *line, int dirtype, int *dc, int *error)
 					}
 					
 					ch = 0;
-					to_data(ch, dc);
-					
 					if(skip_space(line+1) == NULL)
 						return TRUE;
 					
@@ -532,7 +524,7 @@ int check_dir(char *line, int dirtype, int *dc, int *error)
 				{
 					if(search_sym(label) == NULL)
 					{
-						to_symbol(label, FALSE, TRUE, FALSE,FALSE,FALSE,FALSE);
+						to_symbol(label, FALSE, TRUE, FALSE,FALSE,FALSE);
 						return TRUE;
 					}
 					

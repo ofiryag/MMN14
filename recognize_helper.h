@@ -33,8 +33,4 @@ int check_inst(char *, int *, int *);
 
 /* checks operand addressing */
 int check_addressing(char *, int *);
-
-/* checks the instruction name from the index of the instruction, and returns the name*/
-char check_inst_name(int);
-
 #endif

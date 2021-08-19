@@ -50,6 +50,9 @@ int check_errors(int *ln, int *error, int *ec)
 			case NO_ARG_ERROR:
 				printf("Line %d: Error: expecting argument...\n",*ln);
 				break;
+			case MACRO_ERROR:
+				printf("Line %d: Error: macro error \n",*ln);
+				break;
 			case LABEL_DOESNT_EXIST:
 				printf("Line %d: label was not found in the symbol table \n",*ln);
 			case REG_IS_NOT_VALID:
