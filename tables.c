@@ -297,6 +297,7 @@ void convert_binary_to_hexadecimal(char * one_byte,char * byte_as_hex)
 */
 void print_output_line(char * data_as_binary,FILE *ob_file,instruction_node *temp_inst, char* one_byte_as_hex ,char* one_byte)
 {
+    int i,j,k;
 	if(temp_inst->address<1000)
 	{
 		fprintf(ob_file, "\t%s%d\t",'0',temp_inst->address); /* print address - IC*/
@@ -306,15 +307,15 @@ void print_output_line(char * data_as_binary,FILE *ob_file,instruction_node *tem
 		fprintf(ob_file, "\t%d\t",temp_inst->address); /* print address - IC*/
 	}
 
-	for (int i = 0; i < sizeof(data_as_binary); i+4)
+	for ( i = 0; i < sizeof(data_as_binary); i+4)
 	{
-		for (int j = 0; j<4; j++)
+		for ( j = 0; j<4; j++)
 		{
 			one_byte[j] = data_as_binary[i+j];
 		}
 		convert_binary_to_hexadecimal(one_byte,one_byte_as_hex);
 		fprintf(ob_file, "\t%s", one_byte_as_hex);
-		for (int k = 4; k<8; k++)
+		for ( k = 4; k<8; k++)
 		{
 			one_byte[k] = data_as_binary[i+k];
 		}

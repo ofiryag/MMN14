@@ -317,7 +317,8 @@ void read_line2(char *line, FILE *ob_file, FILE *ent_file, FILE *ext_file, int *
 		/* if first operand is a label */
 			if(rs == LABEL_ADDRESS)
 			{
-				for(int i=0;*line!=',';i++)
+			    int i;
+				for( i=0;*line!=',';i++)
 				{
 					label[i] = *line;
 					line++;
@@ -341,8 +342,9 @@ void read_line2(char *line, FILE *ob_file, FILE *ent_file, FILE *ext_file, int *
 	/*this function will return decimal number from string to int*/
 int get_number_from_string(char * line, int maxSize, int* error)
 {
+    int i;
     char decimalString[maxSize];
-    for (int i = 0; i < maxSize; ++i)
+    for (i = 0; i < maxSize; ++i)
     {
         if(!isdigit(*line) && !isspace(*line))
         {
