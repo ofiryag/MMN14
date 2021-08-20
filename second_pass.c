@@ -19,10 +19,10 @@ void second_pass(FILE *fp, char *file, int* ic, int* errorCounter, int* lineNumb
 	strcat(ob_name,".ob");
 	strcat(ent_name,".ent");
 	strcat(ext_name,".ext");
-	ob_file = fopen(ob_name, "w");
-	ent_file = fopen(ent_name, "w");
-	ext_file = fopen(ext_name, "w");
-	
+	ob_file = fopen(ob_name, "r+");
+	ent_file = fopen(ent_name, "r+");
+	ext_file = fopen(ext_name, "r+");
+
 	/* initializing the variables */
 	*ic = IC_START;
 	*errorCounter = NO_ERROR;
@@ -37,8 +37,8 @@ void second_pass(FILE *fp, char *file, int* ic, int* errorCounter, int* lineNumb
 		check_errors(lineNumber, error, errorCounter);
 	}
 	
-	/* prints the incoded data to the files */
-	print_to_files(ob_file, ent_file, ext_file, ic, dc);
+	/* prints the encoded data to the files */
+	print_to_files(ob_file, ent_file, ext_file, ic, dc,ob_name);
 	
 	/* if one of the files is empty its delete it */
 	if(ftell(ob_file) == FALSE)

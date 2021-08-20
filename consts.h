@@ -62,6 +62,8 @@
 
 #define IRRELEVANT 0
 
+#define TOUPPERCASE 32
+
 
 
 /*Error Types*/
