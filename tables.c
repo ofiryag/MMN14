@@ -206,14 +206,14 @@ void print_to_files(FILE *ob_file, FILE *ent_file, FILE *ext_file, int* ic, int*
 /*this function will build R instruction node's data to binary string*/
 char * build_inst_r_data_as_binary(instruction_node * temp_inst)
 {
-    char * binary=(char*)malloc(32);
+    char * binary=(char*)malloc(33);
 
-    char* binary_opcode = convert_decimal_to_binary(temp_inst->instruction_details.instruction_node_r.opcode, 6);
-    char* binary_rs =  convert_decimal_to_binary(temp_inst->instruction_details.instruction_node_r.rs, 5);
-    char* binary_rt = convert_decimal_to_binary(temp_inst->instruction_details.instruction_node_r.rt, 5);
-    char* binary_rd = convert_decimal_to_binary(temp_inst->instruction_details.instruction_node_r.rd, 5);
-    char* binary_funct = convert_decimal_to_binary(temp_inst->instruction_details.instruction_node_r.funct, 5);
-    char* binary_unused = "00000";
+    char* binary_opcode = convert_decimal_to_binary(temp_inst->instruction_details.instruction_node_r.opcode, 5);
+    char* binary_rs =  convert_decimal_to_binary(temp_inst->instruction_details.instruction_node_r.rs, 4);
+    char* binary_rt = convert_decimal_to_binary(temp_inst->instruction_details.instruction_node_r.rt, 4);
+    char* binary_rd = convert_decimal_to_binary(temp_inst->instruction_details.instruction_node_r.rd, 4);
+    char* binary_funct = convert_decimal_to_binary(temp_inst->instruction_details.instruction_node_r.funct, 4);
+    char* binary_unused = "000000";
 
     strcpy(binary,binary_opcode);
     strcat(binary,binary_rs);
@@ -303,7 +303,7 @@ char * convert_binary_to_hexadecimal(char * one_byte)
     num = (num<<1)|b;
     a++;
 	} while (*a);
-	sprintf(byte_as_hex, "%x", num);
+	sprintf(byte_as_hex, "%02x", num);
 	return byte_as_hex;
 }
 
@@ -313,27 +313,22 @@ char * convert_binary_to_hexadecimal(char * one_byte)
 void print_output_line(char * data_as_binary,FILE *ob_file,instruction_node *temp_inst)
 {
     int i=0,j=0,k=0;
-    char one_byte[5];
+    char one_byte[9];
+    char * hexadecimal_line = (char *)malloc(sizeof (char)*9) ;
+    strcpy(hexadecimal_line,"");
     fprintf(ob_file, "\t%04d\t",temp_inst->address); /* print address - IC*/
-	for ( i = 0; i < 32; i+=4)
+	for ( i = 0; i < 32; i+=8)
 	{
 
-		for ( j = 0; j<5; j++)
+		for ( j = 0; j<9; j++)
 		{
 			one_byte[j] = data_as_binary[i+j];
 		}
-		char * hex = convert_binary_to_hexadecimal(one_byte);
-		fprintf(ob_file, "\t%s", hex);
-		j=0;
-
-		for ( k = 4; k<8; k++)
-		{
-			one_byte[j] = data_as_binary[i+k];
-			j++;
-		}
-		hex = convert_binary_to_hexadecimal(one_byte);
-		fprintf(ob_file, "%s\t", hex);
+		strcat(hexadecimal_line, strcat(convert_binary_to_hexadecimal(one_byte),"\t"));
 	}
+	fprintf(ob_file,"%s",hexadecimal_line);
+    free(hexadecimal_line);
+
 
 	fprintf(ob_file, "\n"); /*end of line*/
 }
