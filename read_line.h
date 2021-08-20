@@ -10,6 +10,8 @@
 #include "errors.h"
 #include "structs.h"
 #include "tables.h"
+#include "ctype.h"
+
 
 /* reads each line and check its validation */
 void read_line(char *, int *, int *, int *, int *, int *);

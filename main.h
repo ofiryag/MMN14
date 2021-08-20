@@ -3,5 +3,5 @@
 #ifndef MAIN_H_
 #define MAIN_H_
 #include "first_pass.h"
-/*#include "tables.h"*/
+#include "tables.h"
 #endif

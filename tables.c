@@ -42,33 +42,34 @@ instruction_node *new_inst(int opcode, int rs, int rt, int rd, int funct,int imm
 	if(opcode==R_MIN_OPCODE || opcode==R_MAX_OPCODE)
 	{
 		new->instructiontype = R;
-		new->instruction_details->inst_r.opcode = opcode;
-		new->instruction_details->inst_r.rs = rs;
-		new->instruction_details->inst_r.rd = rd;
-		new->instruction_details->inst_r.rt = rt;
-		new->instruction_details->inst_r.funct = funct;
+		new->instruction_details.instruction_node_r.rd = rd;
+		new->instruction_details.instruction_node_r.rs = rs;
+		new->instruction_details.instruction_node_r.rt = rt;
+		new->instruction_details.instruction_node_r.funct = funct;
+		new->instruction_details.instruction_node_r.opcode = opcode;
 	}
+
 	/* if I instruction */
 	else if(opcode >= I_MIN_OPCODE && opcode <= I_MAX_OPCODE){
 		new->instructiontype = I;
-		new->instruction_details->inst_i.opcode = opcode;
-		new->instruction_details->inst_i.rs = rs;
-		new->instruction_details->inst_i.rt = rt;
-		new->instruction_details->inst_i.immed = immed;
+		new->instruction_details.instruction_node_i.opcode = opcode;
+		new->instruction_details.instruction_node_i.rs = rs;
+		new->instruction_details.instruction_node_i.rt = rt;
+		new->instruction_details.instruction_node_i.immed = immed;
 	}
 	/* if J instruction */
 	else if(opcode >= J_MIN_OPCODE && opcode <= J_MAX_OPCODE){
-		new->instruction_details->inst_j.opcode = opcode;
-		new->instruction_details->inst_j.reg = reg;
-		new->instruction_details->inst_j.address = address;
+		new->instruction_details.instruction_node_j.opcode = opcode;
+		new->instruction_details.instruction_node_j.reg = reg;
+		new->instruction_details.instruction_node_j.address = address;
 		new->instructiontype = J;
 
 	}
 	/* if Stop instruction */
 		else if(opcode==STOP_OPCODE){
-		new->instruction_details->inst_j.opcode = opcode;
-		new->instruction_details->inst_j.reg = 0;
-		new->instruction_details->inst_j.address = 0;
+		    new->instruction_details.instruction_node_j.opcode = opcode;
+		    new->instruction_details.instruction_node_j.reg = 0;
+		    new->instruction_details.instruction_node_j.address = 0;
 		new->instructiontype = J;
 	}
 	
@@ -130,7 +131,7 @@ void to_symbol(char *symbol, int address,int ext_flag, int data_flag,int code_fl
 void to_inst(int opcode, int rs, int rt, int rd, int funct,int immed,int reg,int address,int *ic)
 {
 	instruction_node *temp = instruction_head;
-	instruction_node *new = new_inst(opcode, rs,rt, rd, funct,immed,reg,address,*ic);
+	instruction_node *new = new_inst(opcode, rs,rt, rd, funct,immed,reg,address,ic);
 	
 	if(instruction_head == NULL)
 	{
@@ -213,11 +214,11 @@ void build_inst_r_data_as_binary(instruction_node * temp_inst, char* data_as_bin
     char binary_rt[6];
     char binary_rd[6];
     char binary_funct[6];
-    convert_decimal_to_binary(temp_inst->instruction_details->inst_r.opcode, 6, binary_Opcode);
-    convert_decimal_to_binary(temp_inst->instruction_details->inst_r.rs, 5,binary_rs);
-    convert_decimal_to_binary(temp_inst->instruction_details->inst_r.rt, 5,binary_rt);
-    convert_decimal_to_binary(temp_inst->instruction_details->inst_r.rd, 5,binary_rd);
-    convert_decimal_to_binary(temp_inst->instruction_details->inst_r.funct, 5,binary_funct);
+    convert_decimal_to_binary(temp_inst->instruction_details.instruction_node_r.opcode, 6, binary_Opcode);
+    convert_decimal_to_binary(temp_inst->instruction_details.instruction_node_r.rs, 5,binary_rs);
+    convert_decimal_to_binary(temp_inst->instruction_details.instruction_node_r.rt, 5,binary_rt);
+    convert_decimal_to_binary(temp_inst->instruction_details.instruction_node_r.rd, 5,binary_rd);
+    convert_decimal_to_binary(temp_inst->instruction_details.instruction_node_r.funct, 5,binary_funct);
 
     /*Build data as binary string*/
 	strcat(data_as_binary, binary_Opcode);
@@ -235,10 +236,10 @@ void build_inst_i_data_as_binary(instruction_node * temp_inst, char* data_as_bin
     char binary_rs[6];
     char binary_rt[6];
     char binary_immed[17];
-    convert_decimal_to_binary(temp_inst->instruction_details->inst_i.opcode, 6,binary_Opcode);
-    convert_decimal_to_binary(temp_inst->instruction_details->inst_i.rs, 5,binary_rs);
-    convert_decimal_to_binary(temp_inst->instruction_details->inst_i.rt, 5,binary_rt);
-    convert_decimal_to_binary(temp_inst->instruction_details->inst_i.immed,16,binary_immed);
+    convert_decimal_to_binary(temp_inst->instruction_details.instruction_node_i.opcode, 6,binary_Opcode);
+    convert_decimal_to_binary(temp_inst->instruction_details.instruction_node_i.rs, 5,binary_rs);
+    convert_decimal_to_binary(temp_inst->instruction_details.instruction_node_i.rt, 5,binary_rt);
+    convert_decimal_to_binary(temp_inst->instruction_details.instruction_node_i.immed,16,binary_immed);
 
     /*Build data as binary string*/
     strcat(data_as_binary, binary_Opcode);
@@ -254,9 +255,9 @@ void build_inst_j_data_as_binary(instruction_node * temp_inst, char* data_as_bin
     char binary_Opcode[7];
     char binary_reg[6];
     char binary_address[25];
-    convert_decimal_to_binary(temp_inst->instruction_details->inst_j.opcode, 6,binary_Opcode);
-    convert_decimal_to_binary(temp_inst->instruction_details->inst_j.reg, 1,binary_reg);
-    convert_decimal_to_binary(temp_inst->instruction_details->inst_j.address, 24,binary_address);
+    convert_decimal_to_binary(temp_inst->instruction_details.instruction_node_j.opcode, 6,binary_Opcode);
+    convert_decimal_to_binary(temp_inst->instruction_details.instruction_node_j.reg, 1,binary_reg);
+    convert_decimal_to_binary(temp_inst->instruction_details.instruction_node_j.address, 24,binary_address);
 
     /*Build data as binary string*/
      strcat(data_as_binary, binary_Opcode);
@@ -264,20 +265,28 @@ void build_inst_j_data_as_binary(instruction_node * temp_inst, char* data_as_bin
      strcat(data_as_binary, binary_address);
 }
 
-/*this function will convert a decimal number into binary*/
-void convert_decimal_to_binary(int decimal,int bitSize,char * string)
+void convert_decimal_to_binary(int n,int bitAmount,char * binary)
 {
-	int c, k;
-  for (c = bitSize; c >= 0; c--)
-  {
-    k = decimal >> c;
+    int c, d, t;
 
-    if (k & 1)
-      string[bitSize]="1";
-    else
-      string[bitSize]="0";
-  }
-  return;
+    t = 0;
+    if (binary == NULL)
+        exit(EXIT_FAILURE);
+
+    for (c = bitAmount ; c >= 0 ; c--)
+    {
+        d = n >> c;
+
+        if (d & 1)
+            *(binary+t) = 1 + '0';
+        else
+            *(binary+t) = 0 + '0';
+
+        t++;
+    }
+    *(binary+t) = '\0';
+
+    return;
 }
 
 void convert_binary_to_hexadecimal(char * one_byte,char * byte_as_hex)

@@ -179,7 +179,6 @@ int is_dir(char *line, int *error)
 			return i;
 		}
 	}
-	*error = DIR_ERROR;
 	return NA;
 }
 /* checks if the word is an instruction and returns it's index */
@@ -561,7 +560,7 @@ int check_inst(char *line, int *error, int *ic)
 	int instruction = is_inst(line); /*change to inst index*/
     int instType = check_inst_type(instruction);
 	line = next_word(line);
-	line = to_comma(line);
+/*	line = to_comma(line);*/
 	/* if first operand isn't immidiate number */
 	if(line == NULL)
 	{
@@ -782,7 +781,7 @@ int validate_inst_j_stop(char *line, int *error)
 
 
 /*validate that register operand doesn't contain invalid characters*/
-int validate_register_operand(char *line,char * error)
+int validate_register_operand(char *line,int * error)
 {
 	char *p = line;
 	if(p[0] != '$' || p[1] < '0' && p[1] > '3' || p[2] > '1') /*might cause error index out of range if p size is 2 chars*/
@@ -795,16 +794,16 @@ int validate_register_operand(char *line,char * error)
 }
 
 /*validate that immed doesn't contain invalid characters*/
-int validate_immed_operand(char *line,char * error) /* validate is contains digits*/
+int validate_immed_operand(char *line,int * error) /* validate is contains digits*/
 {
 	char *p = line;
-	while(isdigit(p))
+	while(isdigit(*p))
 	{
 		p=p+1;
 	}
 
 	/*check that the are no invalid characters between operands*/
-	if(*p =! ',' || !isspace(p))
+	if(*p =! ',' || !isspace(*p))
 	{
 		*error = SYNTAX_ERROR;
 			return FALSE;
@@ -813,7 +812,7 @@ int validate_immed_operand(char *line,char * error) /* validate is contains digi
 }
 
 /*validate that label doesn't contain invalid characters*/
-int validate_label_operand(char *line,char * error) /* validate is contains digits*/
+int validate_label_operand(char *line,int * error) /* validate is contains digits*/
 {
 	char *p = line;
 	if(isalpha(p[0]==FALSE))
@@ -822,13 +821,13 @@ int validate_label_operand(char *line,char * error) /* validate is contains digi
 			return FALSE;
 	}
 
-	while(isdigit(p)||isalpha(p))
+	while(isdigit(*p)||isalpha(*p))
 	{
 		p=p+1;
 	}
 
 	/*check that the are no invalid characters between operands*/
-	if(*p =! ',' || !isspace(p))
+	if(*p =! ',' || !isspace(*p))
 	{
 		*error = SYNTAX_ERROR;
 			return FALSE;
