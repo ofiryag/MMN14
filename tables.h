@@ -8,6 +8,7 @@
 #include <string.h>
 #include "structs.h"
 #include "consts.h"
+#include <stdarg.h>
 
 /* creates new node for directive data table and initializing it */
 data_node *new_data(int, int *);
@@ -43,13 +44,13 @@ void update_DC(int *, int *);
 symbol_node *search_sym(char *);
 
 /*this function will build R instruction node's data to binary string*/
-void build_inst_r_data_as_binary(instruction_node * , char* );
+char * build_inst_r_data_as_binary(instruction_node * );
 
 /*this function will build I instruction node's data to binary string*/
-void build_inst_i_data_as_binary(instruction_node * , char* );
+char * build_inst_i_data_as_binary(instruction_node * );
 
 /*this function will build J instruction node's data to binary string*/
-void build_inst_j_data_as_binary(instruction_node * , char* );
+char * build_inst_j_data_as_binary(instruction_node * temp_inst);
 
 /*this function will convert a decimal number into binary*/
 void convert_decimal_to_binary(int ,int ,char * );
@@ -58,6 +59,9 @@ void convert_decimal_to_binary(int ,int ,char * );
 0104	FB	FF	22	35
 */
 void print_output_line(char * ,FILE *,instruction_node *,char *,char*);
+
+/*This function concatenate any number of strings, for example concat(2,"a","b"); ->> str = "ab" */
+char* concat(int count, ...);
 
 /* free all tables */
 void free_tables();

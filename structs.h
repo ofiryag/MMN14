@@ -55,7 +55,7 @@ typedef struct instruction_node
 	        unsigned int rt : 5;
 	        unsigned int immed : 16;
 	    } instruction_node_i;
-    }instruction_details
+    }instruction_details;
 	/*union instruction_details * instruction_details;*/
 } instruction_node;
 
