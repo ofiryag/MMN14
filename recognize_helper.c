@@ -746,7 +746,7 @@ int validate_inst_i_conditional_branching_or_storage(char *line, int *error)
 int validate_inst_j_jmp(char *line, int *error)
 {
 	char *p = line;
-	if (validate_register_operand(line,error) == FALSE && validate_label_operand(line,error))
+	if (validate_register_operand(p,error) == FALSE && validate_label_operand(p,error))
 	{
 		*error = SYNTAX_ERROR;
 			return FALSE;
