@@ -152,8 +152,8 @@ void read_line2(char *line, FILE *ob_file, FILE *ent_file, FILE *ext_file, int *
 		char label[MAX_LABEL_LEN];
 		line = next_word(line);
 
-		if(insttype == R_ARITHMETHIC){
-
+		if(insttype == R_ARITHMETHIC)
+		{
 		    rs = get_number_from_string(to_dollar(line),3,error);
 		    rt = get_number_from_string(to_dollar(to_dollar(line)),3,error);
 		    rd = get_number_from_string(to_dollar(to_dollar(to_dollar(line))),3,error);
