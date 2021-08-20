@@ -709,6 +709,7 @@ int validate_inst_i_arithmetic_or_storage(char *line, int *error)
 		*error = SYNTAX_ERROR;
 			return FALSE;
 	}
+	return TRUE;
 }
 
 /*validate that using I conditional branching or storage instruction is int the correct syntax, for example add $1, $2, label*/
@@ -740,6 +741,7 @@ int validate_inst_i_conditional_branching_or_storage(char *line, int *error)
 		*error = SYNTAX_ERROR;
 		return FALSE;
 	}
+	return TRUE;
 }
 
 /*validate that using j jmp instruction is in the correct syntax, for example jmp label OR jmp $reg*/
