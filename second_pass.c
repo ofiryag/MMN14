@@ -92,8 +92,10 @@ void read_line2(char *line, FILE *ob_file, FILE *ent_file, FILE *ext_file, int *
 	/* checks if there is a label */
 	while(*p != '\0')
 	{
-		if(*p == ':')
-			line = next_word(line);
+	    if(*p == ':'){
+	        line++;
+	        return;
+	    }
 		p++;
 	}
 	

@@ -41,7 +41,7 @@ int validate_inst_r_copy(char*, int*);
 int validate_inst_r_arithmetic(char *, int *);
 
 /*validate that using I conditional branching or storage instruction is int the correct syntax, for example add $1, $2, label*/
-int validate_inst_i_conditional_branching_or_storage(char *, int *);
+int validate_inst_i_conditional_branching(char *, int *);
 
 /*validate that using j jmp instruction is in the correct syntax, for example jmp label OR jmp $reg*/
 int validate_inst_j_jmp(char *, int *);

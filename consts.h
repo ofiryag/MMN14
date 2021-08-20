@@ -22,7 +22,7 @@
 #define NA -1
 
 #define INST_AMOUNT 26
-#define DIR_SIZE 4
+#define DIR_SIZE 5
 
 #define INST_SIZE 4
 
