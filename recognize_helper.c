@@ -28,7 +28,7 @@ keywords instructions[] =
 
 keywords directives[] = 
 {
-  {".dh"},{".dw"},{".db"},{"asciz"},{"extern"},{"entry"}
+  {"dh"},{"dw"},{"db"},{"asciz"},{"extern"},{"entry"}
 };
 
 
@@ -165,7 +165,7 @@ int is_dir(char *line, int *error)
 	
 	dir[c] = '\0';
 	
-	for(i=0;i<DIR_SIZE;i++)
+	for(i=0;i<=DIR_SIZE;i++)
 	{
 
 		if (!strcmp(directives[i].word, dir))
@@ -559,7 +559,6 @@ int check_inst(char *line, int *error, int *ic)
 {
 	int instruction = is_inst(line); /*change to inst index*/
     int instType = check_inst_type(instruction);
-	line = next_word(line);
 /*	line = to_comma(line);*/
 	/* if first operand isn't immidiate number */
 	if(line == NULL)
@@ -570,27 +569,30 @@ int check_inst(char *line, int *error, int *ic)
 
 	switch (instType)
 	{
-		case R_ARITHMETHIC:validate_inst_r_arithmetic(line,error);
+	    case R_ARITHMETHIC:validate_inst_r_arithmetic(next_word(line),error);
 			break;
-		case R_COPY:validate_inst_r_copy(line,error);
+			case R_COPY:validate_inst_r_copy(next_word(line),error);
 			break;
-			case I_CONDITIONAL_BRANCHING:validate_inst_i_conditional_branching_or_storage(line,error);
+			case I_CONDITIONAL_BRANCHING:
+			    validate_inst_i_conditional_branching(next_word(line), error);
             break;
-		case I_STORAGE:validate_inst_i_conditional_branching_or_storage(line,error);
+		case I_STORAGE:
+		    validate_inst_i_arithmetic_or_storage(next_word(line), error);
 			break;
-		case I_ARITHMETIC:validate_inst_i_arithmetic_or_storage(line,error);
+			case I_ARITHMETIC:validate_inst_i_arithmetic_or_storage(next_word(line),error);
 			break;
-		case J_JMP:validate_inst_j_jmp(line,error);
+			case J_JMP:validate_inst_j_jmp(next_word(line),error);
 			break;
-		case J_CALL:validate_inst_j_call_or_la(line,error);
+			case J_CALL:validate_inst_j_call_or_la(next_word(line),error);
 			break;
-			case J_LA:validate_inst_j_call_or_la(line,error);
+			case J_LA:validate_inst_j_call_or_la(next_word(line),error);
 			break;
 		case J_STOP:validate_inst_j_stop(line,error);
 			break;
 		default:
 			break;
 	}
+	line = next_word(line);
 	(*ic)+=INST_SIZE;
 
 }
@@ -690,19 +692,19 @@ int validate_inst_i_arithmetic_or_storage(char *line, int *error)
 			return FALSE;
 	}
 	validate_register_operand(line,error);
-	line = to_comma(line);
 	if(line==NULL)
 	{
 		*error = SYNTAX_ERROR;
 		return FALSE;
 	}
+	line = to_comma(line);
 	validate_immed_operand(line,error);
-	line = to_comma(line);
 	if(line==NULL)
 	{
 		*error = SYNTAX_ERROR;
 		return FALSE;
 	}
+	line = to_comma(line);
 	validate_register_operand(line,error);
 	if(next_word(line)!=NULL)
 	{
@@ -713,7 +715,7 @@ int validate_inst_i_arithmetic_or_storage(char *line, int *error)
 }
 
 /*validate that using I conditional branching or storage instruction is int the correct syntax, for example add $1, $2, label*/
-int validate_inst_i_conditional_branching_or_storage(char *line, int *error)
+int validate_inst_i_conditional_branching(char *line, int *error)
 {
 	char *p = line;
 	if(*p !='$')
@@ -748,9 +750,9 @@ int validate_inst_i_conditional_branching_or_storage(char *line, int *error)
 int validate_inst_j_jmp(char *line, int *error)
 {
 	char *p = line;
-	if (validate_register_operand(p,error) == FALSE && validate_label_operand(p,error))
+	if (validate_register_operand(p,error) == FALSE && validate_label_operand(p,error) == FALSE)
 	{
-		*error = SYNTAX_ERROR;
+	    *error = SYNTAX_ERROR;
 			return FALSE;
 	}
 	return TRUE;
@@ -773,7 +775,7 @@ int validate_inst_j_stop(char *line, int *error)
 {
 	char *p = line;
 	to_comma(p);
-	if(p!=NULL)
+	if(next_word(p)!=NULL)
 	{
 		*error = SYNTAX_ERROR;
 			return FALSE;
@@ -788,7 +790,6 @@ int validate_register_operand(char *line,int * error)
 	char *p = line;
 	if(p[0] != '$' || p[1] < '0' && p[1] > '3' || p[2] > '1') /*might cause error index out of range if p size is 2 chars*/
 		{
-			*error = REG_IS_NOT_VALID;
 			return FALSE;
 		}
 	else
@@ -799,17 +800,19 @@ int validate_register_operand(char *line,int * error)
 int validate_immed_operand(char *line,int * error) /* validate is contains digits*/
 {
 	char *p = line;
-	while(isdigit(*p))
+	while(isdigit(*p) || *p=='-')
 	{
 		p=p+1;
 	}
 
-	/*check that the are no invalid characters between operands*/
-	if(*p =! ',' || !isspace(*p))
+	/* for some reason this make line miss a parameter and p equals to ""
+	check that the are no invalid characters between operands
+	if(*p =! ',' && *p!='\0')
 	{
 		*error = SYNTAX_ERROR;
 			return FALSE;
 	}
+	*/
 	return TRUE;
 }
 
