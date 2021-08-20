@@ -35,7 +35,7 @@ void to_inst(int , int , int , int , int ,int ,int ,int ,int *);
 void to_ent_ext(char *,int,int);
 
 /* prints all the tables to the correct files */
-void print_to_files(FILE *,FILE *,FILE *, int *,int *,char*);
+void print_to_files(FILE *ob_file, FILE *ent_file, FILE *ext_file, int* ic, int* dc);
 
 /* updates the addressess of the directive data table */
 void update_DC(int *, int *);
@@ -44,16 +44,16 @@ void update_DC(int *, int *);
 symbol_node *search_sym(char *);
 
 /*this function will build R instruction node's data to binary string*/
-char *  build_inst_r_data_as_binary(instruction_node * ,char*);
+char *  build_inst_r_data_as_binary(instruction_node *);
 
 /*this function will build I instruction node's data to binary string*/
-char *  build_inst_i_data_as_binary(instruction_node * ,char*);
+char *  build_inst_i_data_as_binary(instruction_node * );
 
 /*this function will build J instruction node's data to binary string*/
-char *  build_inst_j_data_as_binary(instruction_node * ,char*);
+char *  build_inst_j_data_as_binary(instruction_node * );
 
 /*this function will convert a decimal number into binary*/
-void convert_decimal_to_binary(int ,int ,char * );
+char * convert_decimal_to_binary(int ,int  );
 
 /*this function will convert data from binary string into hexadecimal*/
 char * convert_binary_to_hexadecimal(char * );
@@ -61,10 +61,8 @@ char * convert_binary_to_hexadecimal(char * );
 /*this function is converting the line from binary to hexadecimal and print it according to the required format for example:
 0104	FB	FF	22	35
 */
-void print_output_line(char * ,FILE *,instruction_node * ,char* ,char* );
+void print_output_line(char * ,FILE *,instruction_node *);
 
-/*This function concatenate any number of strings, for example concat(2,"a","b"); ->> str = "ab" */
-char* concat(int count, ...);
 
 /* free all tables */
 void free_tables();

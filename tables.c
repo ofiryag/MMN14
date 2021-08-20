@@ -167,30 +167,27 @@ void to_ent_ext(char *label, int  address, int ext_flag)
 }
 
 /* prints all the tables to the correct files */
-void print_to_files(FILE *ob_file, FILE *ent_file, FILE *ext_file, int* ic, int* dc,char * ob_name)
+void print_to_files(FILE *ob_file, FILE *ent_file, FILE *ext_file, int* ic, int* dc)
 {
 	instruction_node *temp_inst = instruction_head;
 	data_node *temp_data = data_head;
 	ent_ext_node *temp_ent_ext = ent_ext_head;
-	char one_byte[5];
 	char * data_as_binary;
-
 	fprintf(ob_file, "\t%d\t%d\n", (*ic) - 100, *dc);
 	while(temp_inst != NULL)
 	{
 		switch (temp_inst->instructiontype)
 		{
-		    case R:data_as_binary = build_inst_r_data_as_binary(temp_inst,data_as_binary);
+        case R:data_as_binary=build_inst_r_data_as_binary(temp_inst);
 			break;
-			case I:build_inst_i_data_as_binary(temp_inst,data_as_binary);
+        case I:data_as_binary=build_inst_i_data_as_binary(temp_inst);
 			break;
-			case J:build_inst_j_data_as_binary(temp_inst,data_as_binary);
+        case J:data_as_binary=build_inst_j_data_as_binary(temp_inst);
 			break;
 		default:
 			break;
 		}	
-		print_output_line(data_as_binary,ob_file,instruction_head,one_byte,ob_name);
-		free(data_as_binary);
+		print_output_line(data_as_binary,ob_file,temp_inst);
 		temp_inst = temp_inst->next;
 	}
 
@@ -207,95 +204,76 @@ void print_to_files(FILE *ob_file, FILE *ent_file, FILE *ext_file, int* ic, int*
 }
 
 /*this function will build R instruction node's data to binary string*/
-char * build_inst_r_data_as_binary(instruction_node * temp_inst,char * binary)
+char * build_inst_r_data_as_binary(instruction_node * temp_inst)
 {
-    char binary_Opcode[7];
-    char binary_rs[6];
-    char binary_rt[6];
-    char binary_rd[6];
-    char binary_funct[6];
+    char * binary=(char*)malloc(32);
 
-    convert_decimal_to_binary(temp_inst->instruction_details.instruction_node_r.opcode, 6, binary_Opcode);
-    convert_decimal_to_binary(temp_inst->instruction_details.instruction_node_r.rs, 5,binary_rs);
-    convert_decimal_to_binary(temp_inst->instruction_details.instruction_node_r.rt, 5,binary_rt);
-    convert_decimal_to_binary(temp_inst->instruction_details.instruction_node_r.rd, 5,binary_rd);
-    convert_decimal_to_binary(temp_inst->instruction_details.instruction_node_r.funct, 5,binary_funct);
+    char* binary_opcode = convert_decimal_to_binary(temp_inst->instruction_details.instruction_node_r.opcode, 6);
+    char* binary_rs =  convert_decimal_to_binary(temp_inst->instruction_details.instruction_node_r.rs, 5);
+    char* binary_rt = convert_decimal_to_binary(temp_inst->instruction_details.instruction_node_r.rt, 5);
+    char* binary_rd = convert_decimal_to_binary(temp_inst->instruction_details.instruction_node_r.rd, 5);
+    char* binary_funct = convert_decimal_to_binary(temp_inst->instruction_details.instruction_node_r.funct, 5);
+    char* binary_unused = "00000";
 
+    strcpy(binary,binary_opcode);
+    strcat(binary,binary_rs);
+    strcat(binary,binary_rt);
+    strcat(binary,binary_rd);
+    strcat(binary,binary_funct);
+    strcat(binary,binary_unused);
 
     /*Build data as binary string*/
-    binary = concat(6,binary_Opcode+1,binary_rs+1,binary_rt+1,binary_rd+1,binary_funct+1,"00000");
     return binary;
 }
 
 /*this function will build I instruction node's data to binary string*/
-char * build_inst_i_data_as_binary(instruction_node * temp_inst,char * binary)
+char * build_inst_i_data_as_binary(instruction_node * temp_inst)
 {
-    char binary_Opcode[7];
-    char binary_rs[6];
-    char binary_rt[6];
-    char binary_immed[17];
-    convert_decimal_to_binary(temp_inst->instruction_details.instruction_node_i.opcode, 6,binary_Opcode);
-    convert_decimal_to_binary(temp_inst->instruction_details.instruction_node_i.rs, 5,binary_rs);
-    convert_decimal_to_binary(temp_inst->instruction_details.instruction_node_i.rt, 5,binary_rt);
-    convert_decimal_to_binary(temp_inst->instruction_details.instruction_node_i.immed,16,binary_immed);
-    /*Build data as binary string*/
-    binary = concat(4,binary_Opcode+1,binary_rs+1,binary_rt+1,binary_immed+1);
+    char * binary=(char*)malloc(32);
+
+    char* binary_opcode = convert_decimal_to_binary(temp_inst->instruction_details.instruction_node_i.opcode, 6);
+    char* binary_rs =convert_decimal_to_binary(temp_inst->instruction_details.instruction_node_i.rs, 5);
+    char* binary_rt =convert_decimal_to_binary(temp_inst->instruction_details.instruction_node_i.rt, 5);
+    char* binary_immed =convert_decimal_to_binary(temp_inst->instruction_details.instruction_node_i.immed,16);
+
+    strcpy(binary,binary_opcode);
+    strcat(binary,binary_rs);
+    strcat(binary,binary_rt);
+    strcat(binary,binary_immed);
+
     return binary;
+    /*Build data as binary string*/
 }
 
 
 
 /*this function will build J instruction node's data to binary string*/
-char * build_inst_j_data_as_binary(instruction_node * temp_inst , char* binary)
+char * build_inst_j_data_as_binary(instruction_node * temp_inst)
 {
+    char * binary=(char*)malloc(32);
     /*Get data as binary*/
-    char binary_Opcode[7];
-    char binary_reg[6];
-    char binary_address[25];
-    convert_decimal_to_binary(temp_inst->instruction_details.instruction_node_j.opcode, 6,binary_Opcode);
-    convert_decimal_to_binary(temp_inst->instruction_details.instruction_node_j.reg, 1,binary_reg);
-    convert_decimal_to_binary(temp_inst->instruction_details.instruction_node_j.address, 24,binary_address);
+    char* binary_opcode = convert_decimal_to_binary(temp_inst->instruction_details.instruction_node_j.opcode, 6);
+    char* binary_reg = convert_decimal_to_binary(temp_inst->instruction_details.instruction_node_j.reg, 1);
+    char* binary_address = convert_decimal_to_binary(temp_inst->instruction_details.instruction_node_j.address, 24);
+
+    strcpy(binary,binary_opcode);
+    strcat(binary,binary_reg);
+    strcat(binary,binary_address);
 
     /*Build data as binary string*/
-     binary = concat(3,binary_Opcode+1,binary_reg+1,binary_address+1);
-return binary;
+    return binary;
+   /* return concat(3,binary_opcode+1,binary_reg+1,binary_address+1);*/
 }
 
-/*This function concatenate any number of strings, for example concat(2,"a","b"); ->> str = "ab" */
-char* concat(int count, ...)
-{
-    va_list ap;
-    int i;
-
-    /* Find required length to store merged string*/
-    int len = 1; /* room for NULL*/
-    va_start(ap, count);
-    for(i=0 ; i<count ; i++)
-        len += strlen(va_arg(ap, char*));
-    va_end(ap);
-
-    /* Allocate memory to concat strings*/
-    char *merged = calloc(sizeof(char),len);
-    int null_pos = 0;
-
-    /* Actually concatenate strings*/
-    va_start(ap, count);
-    for(i=0 ; i<count ; i++)
-    {
-        char *s = va_arg(ap, char*);
-        strcpy(merged+null_pos, s);
-        null_pos += strlen(s);
-    }
-    va_end(ap);
-    return merged;
-}
-
-void convert_decimal_to_binary(int n,int bitAmount,char * binary)
+char* convert_decimal_to_binary(int n,int bitAmount)
 {
     int c, d, t;
+    char * p;
 
     t = 0;
-    if (binary == NULL)
+    p = (char*)malloc(bitAmount+1);
+
+    if (p == NULL)
         exit(EXIT_FAILURE);
 
     for (c = bitAmount ; c >= 0 ; c--)
@@ -303,20 +281,21 @@ void convert_decimal_to_binary(int n,int bitAmount,char * binary)
         d = n >> c;
 
         if (d & 1)
-            *(binary+t) = 1 + '0';
+            *(p+t) = 1 + '0';
         else
-            *(binary+t) = 0 + '0';
+            *(p+t) = 0 + '0';
 
         t++;
     }
-    *(binary+t) = '\0';
-    return;
+    *(p+t) = '\0';
+
+    return  p;
 }
 
 /*this function will convert data from binary string into hexadecimal*/
 char * convert_binary_to_hexadecimal(char * one_byte)
 {
-    char  byte_as_hex[3];
+    char *byte_as_hex = (char *)malloc(3*sizeof(char));
 	char *a = one_byte;
 	int num = 0;
 	do {
@@ -325,16 +304,16 @@ char * convert_binary_to_hexadecimal(char * one_byte)
     a++;
 	} while (*a);
 	sprintf(byte_as_hex, "%x", num);
-	return strupr(byte_as_hex);
+	return byte_as_hex;
 }
 
 /*this function is converting the line from binary to hexadecimal and print it according to the required format for example:
 0104	FB	FF	22	35
 */
-void print_output_line(char * data_as_binary,FILE *ob_file,instruction_node *temp_inst ,char* one_byte,char* ob_name)
+void print_output_line(char * data_as_binary,FILE *ob_file,instruction_node *temp_inst)
 {
     int i=0,j=0,k=0;
-    ob_file = fopen("Input4","r+");
+    char one_byte[5];
     fprintf(ob_file, "\t%04d\t",temp_inst->address); /* print address - IC*/
 	for ( i = 0; i < 32; i+=4)
 	{
@@ -343,7 +322,8 @@ void print_output_line(char * data_as_binary,FILE *ob_file,instruction_node *tem
 		{
 			one_byte[j] = data_as_binary[i+j];
 		}
-		fprintf(ob_file, "\t%s", convert_binary_to_hexadecimal(one_byte));
+		char * hex = convert_binary_to_hexadecimal(one_byte);
+		fprintf(ob_file, "\t%s", hex);
 		j=0;
 
 		for ( k = 4; k<8; k++)
@@ -351,7 +331,8 @@ void print_output_line(char * data_as_binary,FILE *ob_file,instruction_node *tem
 			one_byte[j] = data_as_binary[i+k];
 			j++;
 		}
-		fprintf(ob_file, "%s\t", convert_binary_to_hexadecimal(one_byte));
+		hex = convert_binary_to_hexadecimal(one_byte);
+		fprintf(ob_file, "%s\t", hex);
 	}
 
 	fprintf(ob_file, "\n"); /*end of line*/
