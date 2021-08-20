@@ -39,7 +39,7 @@ int is_label(char *line, int* ic, int* dc, int* ec,int *ln, int *error)
 	char label[MAX_LABEL_LEN];
 	char *p = line;
 	
-	int  i = 0, c = 0, address = 0, ext_flag = FALSE, data_flag, code_flag, entry_flag;
+	int  i = 0, c = 0, address = 0, ext_flag = FALSE, data_flag=FALSE, code_flag=FALSE, entry_flag=FALSE;
 	while (*p != '\0') 
 	{
 		/* if it is label */
@@ -111,9 +111,8 @@ int is_label(char *line, int* ic, int* dc, int* ec,int *ln, int *error)
 				int i=1;
 				if(is_dir(next_word(line)+1, error) <= EXTERN_DIR)
 				{
-					return TRUE;
+				    data_flag = TRUE;
 				}
-				data_flag = TRUE;
 			}
 				
 			/* if the label points to instruction then the symbol addres is the ic */

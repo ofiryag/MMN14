@@ -351,7 +351,7 @@ void update_DC(int *ic, int *error)
 	}
 	while(sym_temp != NULL)
 	{
-		if(!sym_temp->external_flag && !sym_temp->data_flag)
+		if(sym_temp->data_flag)
 			sym_temp->address += (*ic);
 		sym_temp = sym_temp->next;
 	}
