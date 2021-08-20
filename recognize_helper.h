@@ -6,11 +6,12 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <ctype.h>
 #include "read_line.h"
 #include "consts.h"
 #include "structs.h"
 #include "tables.h"
-/*#include "errors.h"*/
+#include "errors.h"
 
 /* checks if the word is a valid label and put it in symbol table */
 int is_label(char *, int *, int *, int *, int *, int *);
@@ -46,19 +47,19 @@ int validate_inst_i_conditional_branching_or_storage(char *, int *);
 int validate_inst_j_jmp(char *, int *);
 
 /*validate that label doesn't contain invalid characters*/
-int validate_label_operand(char *,char * );
+int validate_label_operand(char *,int * );
 
 /*validate that using I arithmetic instruction is int the correct syntax, for example add $1, -35, $2*/
 int validate_inst_i_arithmetic_or_storage(char *, int *);
 
 /*validate that immed doesn't contain invalid characters*/
-int validate_immed_operand(char *,char * );
+int validate_immed_operand(char *,int * );
 
 /*validate that using j call or la instructions is in the correct syntax, for example call label || la label*/
 int validate_inst_j_call_or_la(char *, int *);
 
 /*validate that register operand doesn't contain invalid characters*/
-int validate_register_operand(char *,char * );
+int validate_register_operand(char *,int * );
 
 /*validate that using j stop instructions is in the correct syntax, for example stop    */
 int validate_inst_j_stop(char *, int *);

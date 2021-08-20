@@ -155,8 +155,8 @@ void read_line2(char *line, FILE *ob_file, FILE *ent_file, FILE *ext_file, int *
 		if(insttype == R_ARITHMETHIC){
 
 		    rs = get_number_from_string(to_dollar(line),3,error);
-		    rt = get_number_from_string(to_dollar(line),3,error);
-		    rd = get_number_from_string(to_dollar(line),3,error);
+		    rt = get_number_from_string(to_dollar(to_dollar(line)),3,error);
+		    rd = get_number_from_string(to_dollar(to_dollar(to_dollar(line))),3,error);
 		}
 		else if(insttype == R_COPY){
 		    rs = get_number_from_string(to_dollar(line),3,error);
@@ -334,7 +334,6 @@ void read_line2(char *line, FILE *ob_file, FILE *ent_file, FILE *ext_file, int *
 				
 			}
 
-			line = to_comma(line);
 		}
 		
 	}
@@ -342,17 +341,14 @@ void read_line2(char *line, FILE *ob_file, FILE *ent_file, FILE *ext_file, int *
 	/*this function will return decimal number from string to int*/
 int get_number_from_string(char * line, int maxSize, int* error)
 {
-    int i;
+    char *p = line;
+    int i=0;
     char decimalString[maxSize];
-    for (i = 0; i < maxSize; ++i)
+    while(!isspace(*p) && *p!=',' && i<=maxSize)
     {
-        if(!isdigit(*line) && !isspace(*line))
-        {
-            *error = ADD_ERROR;
-            return NA;
-        }
-        decimalString[i]= *line;
-        line++;
+        decimalString[i]= *p;
+        p++;
+        i++;
     }
     return atoi(decimalString);
 }
