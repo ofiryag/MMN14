@@ -8,12 +8,14 @@ instruction_node *instruction_head = NULL;
 ent_ext_node *ent_ext_head = NULL;
 
 /* creates new node for directive data table and initializing it */
-data_node *new_data(int data, int* dc,char * label_name)
+data_node *new_data(char * data, int* dc,char * label_name,int * dir_type)
 {
 	data_node *new = (data_node *)malloc(sizeof(data_node));
 	new->address = *dc;
-	new->data = data;
+	new->data = malloc(strlen(data));
+	strcpy(new->data,data);
 	new->next = NULL;
+	new->dir_type = *dir_type;
 	new->symbol = malloc(strlen(label_name));
 	strcpy(new->symbol,label_name);
 	return new;
@@ -91,10 +93,10 @@ ent_ext_node *new_ent_ext(char *label, int address, int ext_flag)
 }
 
 /* adds data to directive data table */
-void to_data(int data, int *dc,char * label_name)
+void to_data(char* data, int *dc,char * label_name,int* dir_type)
 {
 	data_node *temp = data_head;
-	data_node *new = new_data(data, dc,label_name);
+	data_node *new = new_data(data, dc,label_name,dir_type);
 
 	if(data_head == NULL)
 	{
