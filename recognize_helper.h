@@ -14,7 +14,7 @@
 #include "errors.h"
 
 /* checks if the word is a valid label and put it in symbol table */
-int is_label(char *, int *, int *, int *, int *, int *);
+int is_label(char *, int *, int *, int *, int *, int *, char*);
 
 /* checks if the word is a directive and returns it's number */
 int is_dir(char *, int *);
@@ -26,7 +26,7 @@ int is_inst(char *);
 int check_inst_type(int);
 
 /* checks the validation of the directive sentence */
-int check_dir(char *, int,  int *, int *);
+int check_dir(char *, int,  int *, int *,char *);
 
 /* checks the validation of the instruction sentence */
 int check_inst(char *, int *, int *);
