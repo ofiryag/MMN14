@@ -56,8 +56,8 @@
 #define R_MAX_OPCODE 1
 #define I_MIN_OPCODE 10
 #define I_MAX_OPCODE 24
-#define J_MIN_OPCODE 10
-#define J_MAX_OPCODE 24
+#define J_MIN_OPCODE 30
+#define J_MAX_OPCODE 32
 #define STOP_OPCODE 63
 
 #define IRRELEVANT 0

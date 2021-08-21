@@ -23,5 +23,6 @@ void read_line2(char *, FILE *, FILE *, FILE *, int *, int * ,int *,int* , int* 
 
 /*this function will return decimal number from string to int*/
 int get_number_from_string(char * ,int ,int* );
-
+/*this function will return the label's name if it's the next word*/
+char * get_label_name(char* );
 #endif

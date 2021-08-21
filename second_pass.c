@@ -147,6 +147,7 @@ void read_line2(char *line, FILE *ob_file, FILE *ent_file, FILE *ext_file, int *
 	/* checks if its an instruction sentence */
 	if(is_inst(line) >= NA)
 	{
+	    symbol_node * temp_sym;
 		int instindex = is_inst(line);
 		int insttype = check_inst_type(instindex);
 		int rs = IRRELEVANT, rt = IRRELEVANT, rd = IRRELEVANT;
@@ -172,11 +173,12 @@ void read_line2(char *line, FILE *ob_file, FILE *ent_file, FILE *ext_file, int *
 		else if(insttype == I_CONDITIONAL_BRANCHING){
 		    rs = get_number_from_string(to_dollar(line),3,error);
 		    rt = get_number_from_string(to_dollar(to_dollar(line)), 3,error);
-		    int firstaddress = get_number_from_string(to_dollar(to_dollar(to_dollar(line))), 3,error);
-		    if(firstaddress < *ic)
-		        immed = *ic - firstaddress;
-		    else
-		        immed = firstaddress - *ic;
+		    char label_name [MAX_LABEL_LEN];
+		    char * x = line;
+		    strcpy(label_name,get_label_name(to_comma(to_comma(x))));
+		    temp_sym = search_sym(label_name);
+
+		    immed = temp_sym->address -(*ic);
 		}
 		else if(insttype == I_STORAGE){
 		    rs = get_number_from_string(to_dollar(line),3,error);
@@ -185,28 +187,45 @@ void read_line2(char *line, FILE *ob_file, FILE *ent_file, FILE *ext_file, int *
 		}
 
 		else if(insttype == J_JMP){
-		    if(next_word(line)[0] == '$'){
+		    if(line[0] == '$'){
 		        reg=1;
-		        address= (get_number_from_string(to_dollar(next_word(line)),3,error);
+		        address= get_number_from_string(to_dollar(line),3,error);
 		    }
-		        int isentry = search_sym(line)->entry_flag;
+		    else
+		    {
+		        char label_name [MAX_LABEL_LEN];
+		        char * x = line;
+		        strcpy(label_name,get_label_name(to_comma(to_comma(x))));
+		        temp_sym = search_sym(label_name);
+		        int isentry = temp_sym->entry_flag;
 		        if(isentry == 1)
-                    address = check_addressing(line,error);
+		            address = check_addressing(line,error);
 		        else
 		            address = 0;
+		    }
 		}
 
-		else if(insttype == J_LA){
-		    int isentry = search_sym(next_word(line))->entry_flag;
+		else if(insttype == J_LA)
+		{
+		    char label_name [MAX_LABEL_LEN];
+		    char * x = line;
+		    strcpy(label_name,get_label_name(to_comma(to_comma(x))));
+		    temp_sym = search_sym(label_name);
+		    int isentry = temp_sym->entry_flag;
 		    if(isentry == 1)
-		     address = check_addressing(next_word(line),error);
+		     address = check_addressing(line,error);
 		    else
 		      address = 0;
 		}
+
 		else if(insttype == J_CALL){
-		    int isentry = search_sym(next_word(line))->entry_flag;
+		    char label_name [MAX_LABEL_LEN];
+		    char * x = line;
+		    strcpy(label_name,get_label_name(to_comma(to_comma(x))));
+		    temp_sym = search_sym(label_name);
+		    int isentry = temp_sym->entry_flag;
 		    if(isentry == 1)
-		        address = check_addressing(next_word(line),error);
+		        address = check_addressing(line,error);
 		    else
 		        address = 0;
 
@@ -316,19 +335,17 @@ void read_line2(char *line, FILE *ob_file, FILE *ent_file, FILE *ext_file, int *
 			case stop:
 			to_inst(63,rs,rt,rd,funct,immed,reg,address,ic);
 			break;
-			(*ic+=4);
-
 		}
+		(*ic+=4);
 
 		/* if first operand is a label */
-			if(rs == LABEL_ADDRESS)
+			/*if(rs == LABEL_ADDRESS)
 			{
 			    int i;
 				for( i=0;*line!=',';i++)
 				{
 					label[i] = *line;
 					line++;
-
 					if(label[i] = '\0')
 					symbol = search_sym(label);
 				}
@@ -338,7 +355,7 @@ void read_line2(char *line, FILE *ob_file, FILE *ent_file, FILE *ext_file, int *
 					return;
 				}
 				
-			}
+			}*/
 
 		}
 		
@@ -357,5 +374,26 @@ int get_number_from_string(char * line, int maxSize, int* error)
         i++;
     }
     return atoi(decimalString);
+}
+
+
+/*this function will return the label's name if it's the next word*/
+char *get_label_name(char *line) {
+    int i=0,c=0;
+    char* p= line;
+    char * label_name = (char*) malloc(strlen(line));
+    while(*line!='\0' && !isspace(*line))
+    {
+        label_name[c] = *line;
+        line++;
+        i++;
+    }
+    for(c=0;c<i;c++)
+    {
+        label_name[c] =*p;
+        p++;
+    }
+    label_name[c] ='\0';
+    return label_name;
 }
 

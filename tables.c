@@ -192,6 +192,11 @@ void print_to_files(FILE *ob_file, FILE *ent_file, FILE *ext_file, int* ic, int*
 		temp_inst = temp_inst->next;
 	}
 
+	/*print data into ob_file*/
+	/*if dir type = asciz -> foreach char write a line that is translated to binary string*/
+	/*if db dh dw each item that is seperated by comma should be printed - which means do a while loop until data is \0*/
+
+
 	while(temp_ent_ext != NULL)
 	{	
 		if(temp_ent_ext->ext_flag == 1)

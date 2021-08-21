@@ -10,8 +10,9 @@ typedef struct keywords
 typedef struct data_node /*addresses of the symbols*/
 {
 	int address;
-	char *symbol;
-	int data : 10;
+	int dir_type;
+	char * symbol;
+	char * data;
 	struct data_node *next;
 } data_node;
 
@@ -32,32 +33,31 @@ typedef struct instruction_node
 	int address : 32;
 	struct instruction_node *next;
 	union
+        {
+	        struct instruction_node_r
 	        {
-	     struct instruction_node_r
-	    {
 	        unsigned int opcode : 6;
 	        unsigned int rs : 5;
 	        unsigned int rd : 5;
 	        unsigned int rt : 5;
 	        unsigned int funct : 5;
-	    } instruction_node_r;
+	        } instruction_node_r;
 
-	      struct instruction_node_j
-	     {
+	        struct instruction_node_j
+	        {
 	         unsigned int opcode : 6;
 	         unsigned int reg : 1;
 	         unsigned int address : 25;
-	     } instruction_node_j;
+	        } instruction_node_j;
 
-	     struct instruction_node_i
-	    {
+	        struct instruction_node_i
+	        {
 	        unsigned int opcode : 6;
 	        unsigned int rs : 5;
 	        unsigned int rt : 5;
 	        unsigned int immed : 16;
-	    } instruction_node_i;
-    }instruction_details;
-	/*union instruction_details * instruction_details;*/
+	        } instruction_node_i;
+        }instruction_details;
 } instruction_node;
 
 /*typedef struct instruction_node_j
