@@ -34,6 +34,7 @@
 #define DW_SIZE 4
 #define DH_SIZE 2
 #define DB_SIZE 1
+#define ASCIZ_SIZE 13
 
 #define MAX_DATA_INT 511
 #define MIN_DATA_INT -512
@@ -51,6 +52,7 @@
 #define MAX_DB_INT_LENGTH 4
 
 #define CHAR_SIZE 1
+#define CHAR_BIT_SIZE 8
 
 #define R_MIN_OPCODE 0
 #define R_MAX_OPCODE 1
