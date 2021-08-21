@@ -9,6 +9,7 @@
 #include "structs.h"
 #include "consts.h"
 #include <stdarg.h>
+#include "read_line.h"
 
 /* creates new node for directive data table and initializing it */
 data_node *new_data(char * , int* ,char * ,int * );
@@ -37,6 +38,7 @@ void to_ent_ext(char *,int,int);
 /* prints all the tables to the correct files */
 void print_to_files(FILE *ob_file, FILE *ent_file, FILE *ext_file, int* ic, int* dc);
 
+
 /* returns node from data table with the given label */
 data_node *search_data(char *);
 /* updates the addressess of the directive data table */
@@ -60,10 +62,15 @@ char * convert_decimal_to_binary(int ,int  );
 /*this function will convert data from binary string into hexadecimal*/
 char * convert_binary_to_hexadecimal(char * );
 
-/*this function is converting the line from binary to hexadecimal and print it according to the required format for example:
+/*this function is converting the line(from the instruction node) from binary to hexadecimal and print it according to the required format for example:
 0104	FB	FF	22	35
 */
-void print_output_line(char * ,FILE *,instruction_node *);
+void print_output_line_inst_node(char *data_as_binary, FILE *ob_file, instruction_node *temp_inst);
+
+/*this function is converting the line(from the data node) from binary to hexadecimal and print it according to the required format for example:
+0104	FB	FF	22	35
+*/
+void print_output_line_data(char * data_as_binary, FILE *ob_file, data_node *temp_data);
 
 
 /* free all tables */
