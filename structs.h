@@ -10,6 +10,7 @@ typedef struct keywords
 typedef struct data_node /*addresses of the symbols*/
 {
 	int address;
+	char *symbol;
 	int data : 10;
 	struct data_node *next;
 } data_node;

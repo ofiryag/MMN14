@@ -32,9 +32,8 @@ keywords directives[] =
 };
 
 
-/*TODO - Implement functions below*/
 /* checks if the word is a valid label and put it in symbol table */
-int is_label(char *line, int* ic, int* dc, int* ec,int *ln, int *error)
+int is_label(char *line, int* ic, int* dc, int* ec,int *ln, int *error,char * label_name)
 {
 	char label[MAX_LABEL_LEN];
 	char *p = line;
@@ -63,6 +62,7 @@ int is_label(char *line, int* ic, int* dc, int* ec,int *ln, int *error)
 			/* label characters can be only letters or digits */
 			for(c=0;c<i;c++)
 			{
+			    label_name[c] =*p;
 				label[c] = *p;
 				
 				/* label characters can be only letters or digits */
@@ -76,7 +76,7 @@ int is_label(char *line, int* ic, int* dc, int* ec,int *ln, int *error)
 			}
 			
 			label[c] = '\0';
-			
+            label_name[c] ='\0';
 			/* check if the label is one of the saved words - instructions */
 			if(is_inst(label) > NA)
 			{
@@ -123,14 +123,25 @@ int is_label(char *line, int* ic, int* dc, int* ec,int *ln, int *error)
 			}
 
 			/* label cannot be declared twice */
-			if(search_sym(label))
+			symbol_node * temp = search_sym(label);
+			if(temp!=NULL)
 			{
-				*error = DEF_LABEL_ERROR;
-				return FALSE;
+			    temp->address = address;
+			        if(code_flag==TRUE)
+			        {
+			            temp->code_flag = code_flag;
+			        }
+			    if(data_flag==TRUE)
+			        temp->data_flag = data_flag;
+                check_errors(ln, error, ec);
+                return TRUE;
 			}
-			check_errors(ln, error, ec);
-			to_symbol(label, address, ext_flag, data_flag, code_flag, entry_flag);
-			return TRUE;
+			else
+			{
+			    check_errors(ln, error, ec);
+			    to_symbol(label, address, ext_flag, data_flag, code_flag, entry_flag);
+			}
+			    return TRUE;
 		}
 		else
 		{
@@ -239,8 +250,9 @@ int check_inst_type(int instructionIndex)
 }
 
 /* checks the validation of the directive sentence */ 
-int check_dir(char *line, int dirtype, int *dc, int *error)
-{	
+int check_dir(char *line, int dirtype, int *dc, int *error,char* label_name)
+{
+    int dcf=0;
 	switch(dirtype)
 	{
 	case DW_DIR:
@@ -248,8 +260,6 @@ int check_dir(char *line, int dirtype, int *dc, int *error)
 			{
 				char data[MAX_DW_INT_LENGTH];
 				int integer, i;
-				symbol_node * node;
-				
 				while(TRUE)
 				{
 					if(*line == '-' || *line == '+' || isdigit(*line))
@@ -268,7 +278,7 @@ int check_dir(char *line, int dirtype, int *dc, int *error)
 						
 						/* checks if the  integer fits 32 bits */
 						if(integer >= MIN_DW_INT && integer <= MAX_DW_INT)
-							to_data(integer, dc,DW_SIZE); /*TODO - pass to "to_data" the type of the DIR, so it could extend DC accrodingly - DONE*/
+						    dcf+=DW_SIZE;
 						else
 						{
 							*error = BAD_ARG_ERROR;
@@ -278,7 +288,10 @@ int check_dir(char *line, int dirtype, int *dc, int *error)
 						line = skip_space(line);
 						
 						if(line == NULL)
-							return TRUE;
+						{
+						    to_data(integer, &dcf,label_name);
+						    return TRUE;
+						}
 						
 						if(*line != ',')
 						{
@@ -332,7 +345,7 @@ int check_dir(char *line, int dirtype, int *dc, int *error)
 						
 						/* checks if the  integer fits 16 bits */
 						if(integer >= MIN_DH_INT && integer <= MAX_DH_INT)
-							to_data(integer, dc,DH_SIZE); /*TODO - pass to "to_data" the type of the DIR, so it could extend DC accrodingly*/
+						    dcf+=DH_SIZE;
 						else
 						{
 							*error = BAD_ARG_ERROR;
@@ -342,7 +355,10 @@ int check_dir(char *line, int dirtype, int *dc, int *error)
 						line = skip_space(line);
 						
 						if(line == NULL)
-							return TRUE;
+						{
+						    to_data(integer, &dcf,label_name);
+						    return TRUE;
+						}
 						
 						if(*line != ',')
 						{
@@ -394,10 +410,10 @@ int check_dir(char *line, int dirtype, int *dc, int *error)
 						
 						data[i] = '\0';
 						integer = atoi(data);
-						
+
 						/* checks if the  integer fits 8 bits */
 						if(integer >= MIN_DB_INT && integer <= MAX_DB_INT)
-							to_data(integer, dc,DB_SIZE); /*TODO - pass to "to_data" the type of the DIR, so it could extend DC accrodingly*/
+						    dcf+=DB_SIZE;
 						else
 						{
 							*error = BAD_ARG_ERROR;
@@ -407,7 +423,10 @@ int check_dir(char *line, int dirtype, int *dc, int *error)
 						line = skip_space(line);
 						
 						if(line == NULL)
-							return TRUE;
+						{
+						    to_data(integer, &dcf,label_name);
+						    return TRUE;
+						}
 						
 						if(*line != ',')
 						{
@@ -430,6 +449,7 @@ int check_dir(char *line, int dirtype, int *dc, int *error)
 						return FALSE;
 					}
 				}
+
 			}
 			
 			else
@@ -454,10 +474,12 @@ int check_dir(char *line, int dirtype, int *dc, int *error)
 							return FALSE;
 						}
 						ch = (int)*line;
-						to_data(ch, dc,CHAR_SIZE);
+						dcf+=CHAR_SIZE;
+
 						line++;
 					}
-					
+					dcf+=CHAR_SIZE; /*increase string size by one because of \0*/
+					to_data(0, &dcf,label_name);
 					ch = 0;
 					if(skip_space(line+1) == NULL)
 						return TRUE;
@@ -475,17 +497,62 @@ int check_dir(char *line, int dirtype, int *dc, int *error)
 					return FALSE;
 				}
 			}
-			
+
 			else 
 			{
 				*error = SYNTAX_ERROR;
 				return FALSE;
 			}
-			
+
 			break;
 
 		/* if the directive is entry label */
 		case ENTRY_DIR :
+		{
+		    char label[MAX_LABEL_LEN];
+		    int  i=0;
+
+		    if (!isalpha(*line))
+		    {
+		        *error = FCHAR_LABEL_ERROR;
+		        return FALSE;
+		    }
+
+		    for(i=0;!isspace(*line);i++)
+		    {
+		        label[i] = *line;
+
+		        if(!isdigit(label[i]) && !isalpha(label[i]))
+		        {
+		            *error = SYNTAX_ERROR;
+		            return FALSE;
+		        }
+
+		        line++;
+		    }
+
+		    label[i] = '\0';
+
+		    if(skip_space(line) == NULL)
+		    {
+		        symbol_node* temp_sym = search_sym(label);
+		        if(temp_sym == NULL)
+		        {
+		            to_symbol(label, FALSE, FALSE, FALSE,FALSE,TRUE);
+		            return TRUE;
+		        }
+                else
+                {
+                    temp_sym->entry_flag = TRUE;
+                }
+		    }
+
+		    else
+		    {
+		        *error = SYNTAX_ERROR;
+		        return FALSE;
+		    }
+		}
 			return TRUE;
 			break;
 		

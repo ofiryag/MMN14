@@ -8,12 +8,14 @@ instruction_node *instruction_head = NULL;
 ent_ext_node *ent_ext_head = NULL;
 
 /* creates new node for directive data table and initializing it */
-data_node *new_data(int data, int* dc)
+data_node *new_data(int data, int* dc,char * label_name)
 {
 	data_node *new = (data_node *)malloc(sizeof(data_node));
 	new->address = *dc;
 	new->data = data;
 	new->next = NULL;
+	new->symbol = malloc(strlen(label_name));
+	strcpy(new->symbol,label_name);
 	return new;
 }
 
@@ -89,12 +91,11 @@ ent_ext_node *new_ent_ext(char *label, int address, int ext_flag)
 }
 
 /* adds data to directive data table */
-void to_data(int data, int *dc,int dataSize)
+void to_data(int data, int *dc,char * label_name)
 {
 	data_node *temp = data_head;
-	data_node *new = new_data(data, dc);
-	(*dc)+=dataSize;
-	
+	data_node *new = new_data(data, dc,label_name);
+
 	if(data_head == NULL)
 	{
 		data_head = new;
@@ -336,24 +337,37 @@ void print_output_line(char * data_as_binary,FILE *ob_file,instruction_node *tem
 /* updates the addressess of the directive data table */
 void update_DC(int *ic, int *error)
 {
+    int dc=0;
 	data_node *data_temp = data_head;
 	symbol_node *sym_temp = symbol_head;
 	
 	while(data_temp != NULL)
 	{
-		data_temp->address += (*ic);
+	    dc = data_temp->address;
+		data_temp->address = (*ic);
 		if(data_temp->address > MAX_FILE_LEN)
 		{
 			*error = SYNTAX_ERROR;
 			return;
 		}
+		(*ic)+=dc;
 		data_temp = data_temp->next;
 	}
+
 	while(sym_temp != NULL)
 	{
-		if(sym_temp->data_flag)
-			sym_temp->address += (*ic);
-		sym_temp = sym_temp->next;
+	    if(sym_temp->data_flag)
+	    {
+	        data_temp = search_data(sym_temp->symbol);
+	        if(data_temp!=NULL)
+	        {
+	            if(sym_temp!=NULL)
+	            {
+	                sym_temp->address = data_temp->address;
+	            }
+	        }
+	    }
+	    sym_temp = sym_temp->next;
 	}
 	
 }
@@ -371,6 +385,22 @@ symbol_node *search_sym(char *symbol)
 		temp = temp->next;
 	}
 	
+	return NULL;
+}
+
+/* returns node from data table with the given label */
+data_node *search_data(char *symbol)
+{
+	data_node *temp = data_head;
+
+	while(temp != NULL)
+	{
+		if(strcmp(temp->symbol, symbol) == FALSE)
+			return temp;
+
+		temp = temp->next;
+	}
+
 	return NULL;
 }
 

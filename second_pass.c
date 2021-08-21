@@ -283,7 +283,7 @@ void read_line2(char *line, FILE *ob_file, FILE *ent_file, FILE *ext_file, int *
 			break;
 
 			case jmp:
-			    if(is_label(next_word(line), ic, dc, errorCounter, lineNumber,  error))
+			    if(is_label(next_word(line), ic, dc, errorCounter, lineNumber,  error,""))
 				/* is the next word entry */
 				if(is_dir(next_word(line),error) == 6)
 					to_inst(30,rs,rt,rd,funct,immed,reg,address,ic);
