@@ -200,71 +200,72 @@ void print_to_files(FILE *ob_file, FILE *ent_file, FILE *ext_file, int* ic, int*
 	char binary_data[33];
 	int address = 0;
 	int counter =0;
+	(*ic)+=4;
 	strcpy(data_as_binary,"");
 	while(temp_data!=NULL)
 	{
 	    strcpy(binary_data,"");
+	    strcpy(data_as_binary,"");
 	    char *data = temp_data->data;
 	    char * binary=(char*)malloc(33);
-	    strcpy(binary_data,"");
 	    strcpy(binary,"");
 	    if(temp_data->dir_type == ASCIZ_DIR)
 	    {
 	        data_as_binary = binary;
 	        while (*data!='\0')
 	        {
+	            if(counter==0)
+	                fprintf(ob_file, "\t%04d\t",*ic); /* print address - IC*/
 	            strcpy(binary_data,"");
+	            strcpy(binary,"");
 	            int x = data[0];
 	            strcat(binary_data,convert_decimal_to_binary(x,7)); /*8 bits -> char is 1 byte*/
                 strcat(binary,binary_data+1);
-	            binary = binary+8;
+                print_byte_data(binary_data,ob_file,*ic);
 	            data++;
 	            counter+=8;
-	            if(counter==32)
+	            if(counter>=32)
 	            {
+	                fprintf(ob_file, "%s", "\n");
 	                (*ic)+=4;
-	                print_output_line_data(data_as_binary,ob_file,*ic);
-	                if(strlen(data_as_binary)>32)
-	                {
-	                    data_as_binary+=32;
-	                }
-	                else
-	                    strcpy(data_as_binary,"");
-	                counter=0;
+	                counter-=32;
 	            }
 	            temp_data->address++;
 	        }
-	        strcat(data_as_binary,"00000000"); /*8 bits -> char is 1 byte*/
+	        if(counter==0)
+	        {
+	            fprintf(ob_file, "\t%04d\t",*ic); /* print address - IC*/
+	        }
+	        counter+=8;
+	        fprintf(ob_file, "%s", "00\t");
 	    }
-
 	    else if(temp_data->dir_type == DB_DIR)
 	    {
-
 	        char *p;
 	        while (data!=NULL)
 	        {
 	            strcpy(binary_data,"");
+	            strcpy(binary,"");
 	            p=data;
 	            if(to_comma(p)!=NULL)
 	            {
 	                char * x = get_data_until_comma(p);
-	                strcat(data_as_binary,convert_decimal_to_binary(atoi(x),DB_SIZE*8-1)); /*8 bits -> char is 1 byte*/
+	                strcat(binary_data,convert_decimal_to_binary(atoi(x),DB_SIZE*8-1)); /*8 bits -> char is 1 byte*/
 	            }
 	            else
 	            {
-	                strcat(data_as_binary,convert_decimal_to_binary(atoi(p),DB_SIZE*8-1)); /*8 bits -> char is 1 byte*/
+	                strcat(binary_data,convert_decimal_to_binary(atoi(p),DB_SIZE*8-1)); /*8 bits -> char is 1 byte*/
 	            }
+
+	            strcat(binary,binary_data);
+	            print_byte_data(binary,ob_file,*ic);
+	            data++;
 	            counter+=DB_SIZE*8;
 	            if(counter==32)
 	            {
+	                fprintf(ob_file, "%s", "\n");
 	                (*ic)+=4;
-	                print_output_line_data(data_as_binary,ob_file,*ic);
-	                if(strlen(data_as_binary)>32)
-	                {
-	                    data_as_binary+=32;
-	                }
-	                else
-	                    strcpy(data_as_binary,"");
+	                fprintf(ob_file, "\t%04d\t",*ic); /* print address - IC*/
 	                counter=0;
 	            }
 	            temp_data->address++;
@@ -275,35 +276,63 @@ void print_to_files(FILE *ob_file, FILE *ent_file, FILE *ext_file, int* ic, int*
 	        char *p;
 	        while (data!=NULL)
 	        {
-	            strcpy(binary_data,"");
+                strcpy(data_as_binary,"");
 	            p=data;
+	            if(counter==0)
+	                fprintf(ob_file, "\t%04d\t",*ic); /* print address - IC*/
 	            if(to_comma(p)!=NULL)
 	            {
 	                char * x = get_data_until_comma(p);
 	                strcat(data_as_binary,convert_decimal_to_binary(atoi(x),DW_SIZE*8-1)); /*8 bits -> char is 1 byte*/
+
 	            }
 	            else
 	            {
 	                strcat(data_as_binary,convert_decimal_to_binary(atoi(p),DW_SIZE*8-1)); /*8 bits -> char is 1 byte*/
+
 	            }
-	            counter+=DW_SIZE*8;
-	            if(counter==32)
+	            if(counter>=32)
 	            {
 	                (*ic)+=4;
-	                print_output_line_data(data_as_binary,ob_file,*ic);
-	                if(strlen(data_as_binary)>32)
-	                {
-	                    data_as_binary+=32;
-	                }
-	                else
-	                    strcpy(data_as_binary,"");
-	                counter=0;
+	                fprintf(ob_file, "%s", "\n");
+	                fprintf(ob_file, "\t%04d\t",*ic); /* print address - IC*/
+	                counter-=32;
 	            }
+	            counter+=8;
+	            print_byte_data(data_as_binary+24,ob_file,*ic);
+	            if(counter>=32)
+	            {
+	                (*ic)+=4;
+	                fprintf(ob_file, "%s", "\n");
+	                fprintf(ob_file, "\t%04d\t",*ic); /* print address - IC*/
+	                counter-=32;
+	            }
+	            counter+=8;
+	            print_byte_data(data_as_binary+16,ob_file,*ic);
+	            if(counter>=32)
+	            {
+	                (*ic)+=4;
+	                fprintf(ob_file, "%s", "\n");
+	                fprintf(ob_file, "\t%04d\t",*ic); /* print address - IC*/
+	                counter-=32;
+	            }
+	            counter+=8;
+	            print_byte_data(data_as_binary+8,ob_file,*ic);
+	            if(counter>=32)
+	            {
+	                (*ic)+=4;
+	                fprintf(ob_file, "%s", "\n");
+	                fprintf(ob_file, "\t%04d\t",*ic); /* print address - IC*/
+	                counter-=32;
+	            }
+	            counter+=8;
+	            print_byte_data(data_as_binary,ob_file,*ic);
 	            temp_data->address++;
 	            data= to_comma(data);
 	        }
 	    }
-	    else if(temp_data->dir_type == DH_DIR){
+	    else if(temp_data->dir_type == DH_DIR)
+	    {
 	        char *p;
 	        while (data!=NULL)
 	        {
@@ -313,23 +342,27 @@ void print_to_files(FILE *ob_file, FILE *ent_file, FILE *ext_file, int* ic, int*
 	            {
 	                char * x = get_data_until_comma(p);
 	                strcat(data_as_binary,convert_decimal_to_binary(atoi(x),DH_SIZE*8-1)); /*8 bits -> char is 1 byte*/
+
 	            }
 	            else
 	            {
 	                strcat(data_as_binary,convert_decimal_to_binary(atoi(p),DH_SIZE*8-1)); /*8 bits -> char is 1 byte*/
 	            }
 	            counter+=DH_SIZE*8;
-	            if(counter==32)
+	            print_byte_data(data_as_binary+8,ob_file,*ic);
+	            if(counter>=32)
 	            {
 	                (*ic)+=4;
-	                print_output_line_data(data_as_binary,ob_file,*ic);
-	                if(strlen(data_as_binary)>32)
-	                {
-	                    data_as_binary+=32;
-	                }
-	                else
-	                    strcpy(data_as_binary,"");
-	                counter=0;
+	                fprintf(ob_file, "%s", "\n");
+	                fprintf(ob_file, "\t%04d\t",*ic); /* print address - IC*/
+	                counter-=32;
+	            }
+	            print_byte_data(data_as_binary,ob_file,*ic);
+
+	            if(counter>=32)
+	            {
+	                fprintf(ob_file, "\t%04d\t",*ic); /* print address - IC*/
+	                counter-=32;
 	            }
 	            temp_data->address++;
 	            data= to_comma(data);
@@ -338,7 +371,6 @@ void print_to_files(FILE *ob_file, FILE *ent_file, FILE *ext_file, int* ic, int*
 	    address = temp_data->address;
 	    temp_data = temp_data->next;
 	}
-	print_output_line_data(data_as_binary,ob_file,address);
 
 	while(temp_ent_ext != NULL)
 	{	
@@ -570,6 +602,22 @@ void print_output_line_data(char * data_as_binary,FILE *ob_file,int address)
 
     fprintf(ob_file, "\n"); /*end of line*/
 }
+
+/*this function will translate one byte from binary to hexadecimal and print it*/
+void print_byte_data(char * one_byte,FILE *ob_file,int address)
+{
+    int i=0,j=0,k=0;
+    char * hexadecimal_line = (char *)malloc(sizeof (char)*9) ;
+    strcpy(hexadecimal_line,"");
+    char x[3];
+    memset(x, '\0', sizeof(x));
+    char * hex = convert_binary_to_hexadecimal(one_byte);
+    strncpy(x, hex ,2);
+    strcat(hexadecimal_line, strcat(x,"\t"));
+    fprintf(ob_file, "%s", hexadecimal_line);
+}
+
+
 /*upside down string data*/
 char * opposite_string(char * string)
 {
