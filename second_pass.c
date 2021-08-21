@@ -195,7 +195,7 @@ void read_line2(char *line, FILE *ob_file, FILE *ent_file, FILE *ext_file, int *
 		    {
 		        char label_name [MAX_LABEL_LEN];
 		        char * x = line;
-		        strcpy(label_name,get_label_name(to_comma(to_comma(x))));
+		        strcpy(label_name,get_label_name(x));
 		        temp_sym = search_sym(label_name);
 		        int isentry = temp_sym->entry_flag;
 		        if(isentry == 1)
@@ -209,7 +209,7 @@ void read_line2(char *line, FILE *ob_file, FILE *ent_file, FILE *ext_file, int *
 		{
 		    char label_name [MAX_LABEL_LEN];
 		    char * x = line;
-		    strcpy(label_name,get_label_name(to_comma(to_comma(x))));
+		    strcpy(label_name,get_label_name(x));
 		    temp_sym = search_sym(label_name);
 		    int isentry = temp_sym->entry_flag;
 		    if(isentry == 1)
@@ -221,7 +221,7 @@ void read_line2(char *line, FILE *ob_file, FILE *ent_file, FILE *ext_file, int *
 		else if(insttype == J_CALL){
 		    char label_name [MAX_LABEL_LEN];
 		    char * x = line;
-		    strcpy(label_name,get_label_name(to_comma(to_comma(x))));
+		    strcpy(label_name,get_label_name(x));
 		    temp_sym = search_sym(label_name);
 		    int isentry = temp_sym->entry_flag;
 		    if(isentry == 1)

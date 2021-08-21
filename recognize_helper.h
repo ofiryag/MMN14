@@ -27,6 +27,8 @@ int check_inst_type(int);
 
 /* checks the validation of the directive sentence */
 int check_dir(char *, int,  int *, int *,char *);
+/*this function will return the label's name if it's the next word*/
+char *get_next_word(char *);
 
 /* checks the validation of the instruction sentence */
 int check_inst(char *, int *, int *);

@@ -254,11 +254,14 @@ int check_inst_type(int instructionIndex)
 int check_dir(char *line, int dirtype, int *dc, int *error,char* label_name)
 {
     int dcf=0;
+    char dir_data [MAX_LINE_LEN];
 	switch(dirtype)
 	{
 	case DW_DIR:
 			if(line != NULL)
 			{
+			    char * data_p=line;
+			    strcpy(dir_data,get_next_word(data_p));
 				char data[MAX_DW_INT_LENGTH];
 				int integer, i;
 				while(TRUE)
@@ -290,7 +293,7 @@ int check_dir(char *line, int dirtype, int *dc, int *error,char* label_name)
 						
 						if(line == NULL)
 						{
-						    to_data(integer, &dcf,label_name);
+						    to_data(dir_data, &dcf,label_name,&dirtype);
 						    return TRUE;
 						}
 						
@@ -324,26 +327,26 @@ int check_dir(char *line, int dirtype, int *dc, int *error,char* label_name)
 		case DH_DIR:
 			if(line != NULL)
 			{
+			    char * data_p=line;
+			    strcpy(dir_data,get_next_word(data_p));
 				char data[MAX_DH_INT_LENGTH];
 				int integer, i;
-				symbol_node * node;
-				
 				while(TRUE)
 				{
 					if(*line == '-' || *line == '+' || isdigit(*line))
 					{
 						data[0] = *line;
 						line++;
-						
+
 						for(i=1;i<MAX_DH_INT_LENGTH && isdigit(*line);i++)
 						{
 							data[i] = *line;
 							line++;
 						}
-						
+
 						data[i] = '\0';
 						integer = atoi(data);
-						
+
 						/* checks if the  integer fits 16 bits */
 						if(integer >= MIN_DH_INT && integer <= MAX_DH_INT)
 						    dcf+=DH_SIZE;
@@ -352,38 +355,38 @@ int check_dir(char *line, int dirtype, int *dc, int *error,char* label_name)
 							*error = BAD_ARG_ERROR;
 							return FALSE;
 						}
-						
+
 						line = skip_space(line);
-						
+
 						if(line == NULL)
 						{
-						    to_data(integer, &dcf,label_name);
+						    to_data(dir_data, &dcf,label_name,&dirtype);
 						    return TRUE;
 						}
-						
+
 						if(*line != ',')
 						{
 							*error = SYNTAX_ERROR;
 							return FALSE;
 						}
-						
+
 						line = skip_space(line+1);
-						
+
 						if(line == NULL)
 						{
 							*error = SYNTAX_ERROR;
 							return FALSE;
 						}
 					}
-					
-					else 
+
+					else
 					{
 						*error = SYNTAX_ERROR;
 						return FALSE;
 					}
 				}
 			}
-			
+
 			else
 				return TRUE;
 			
@@ -392,10 +395,10 @@ int check_dir(char *line, int dirtype, int *dc, int *error,char* label_name)
 		case DB_DIR:
 			if(line != NULL)
 			{
+			    char * data_p=line;
+			    strcpy(dir_data,get_next_word(data_p));
 				char data[MAX_DB_INT_LENGTH];
 				int integer, i;
-				symbol_node * node;
-				
 				while(TRUE)
 				{
 					if(*line == '-' || *line == '+' || isdigit(*line))
@@ -422,13 +425,13 @@ int check_dir(char *line, int dirtype, int *dc, int *error,char* label_name)
 						}
 						
 						line = skip_space(line);
-						
-						if(line == NULL)
+
+						if(line != NULL)
 						{
-						    to_data(integer, &dcf,label_name);
+						    to_data(dir_data, &dcf,label_name,&dirtype);
 						    return TRUE;
 						}
-						
+
 						if(*line != ',')
 						{
 							*error = SYNTAX_ERROR;
@@ -462,10 +465,11 @@ int check_dir(char *line, int dirtype, int *dc, int *error,char* label_name)
 		case ASCIZ_DIR:
 			if(line != NULL)
 			{
-				int ch;
+			    char * data_p = line;
 
 				if(*line == '"') 
 				{
+                    strcpy(dir_data,get_next_word(data_p));
 					line++;
 					while(*line != '"')
 					{
@@ -474,14 +478,11 @@ int check_dir(char *line, int dirtype, int *dc, int *error,char* label_name)
 							*error = SYNTAX_ERROR;
 							return FALSE;
 						}
-						ch = (int)*line;
 						dcf+=CHAR_SIZE;
-
 						line++;
 					}
 					dcf+=CHAR_SIZE; /*increase string size by one because of \0*/
-					to_data(0, &dcf,label_name);
-					ch = 0;
+					to_data(dir_data, &dcf,label_name,&dirtype);
 					if(skip_space(line+1) == NULL)
 						return TRUE;
 					
@@ -926,4 +927,25 @@ int validate_label_exists_on_symbole_table(char *line,char * error)
 			return FALSE;
 	}
 	return TRUE;
+}
+
+/*this function will return the label's name if it's the next word*/
+char *get_next_word(char *line)
+{
+    int i=0,c=0;
+    char* p= line;
+    char * label_name = (char*) malloc(strlen(line));
+    while(*line!='\0' && !isspace(*line))
+    {
+        label_name[c] = *line;
+        line++;
+        i++;
+    }
+    for(c=0;c<i;c++)
+    {
+        label_name[c] =*p;
+        p++;
+    }
+    label_name[c] ='\0';
+    return label_name;
 }
