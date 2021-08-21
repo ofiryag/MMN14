@@ -262,7 +262,7 @@ char * build_inst_j_data_as_binary(instruction_node * temp_inst)
     /*Get data as binary*/
     char* binary_opcode = convert_decimal_to_binary(temp_inst->instruction_details.instruction_node_j.opcode, 5);
     char* binary_reg = convert_decimal_to_binary(temp_inst->instruction_details.instruction_node_j.reg, 1);
-    char* binary_address = convert_decimal_to_binary(temp_inst->instruction_details.instruction_node_j.address, 23);
+    char* binary_address = convert_decimal_to_binary(temp_inst->instruction_details.instruction_node_j.address, 24);
 
     strcpy(binary,binary_opcode);
     strcat(binary,binary_reg);
@@ -323,6 +323,8 @@ void print_output_line(char * data_as_binary,FILE *ob_file,instruction_node *tem
     int i=0,j=0,k=0;
     char one_byte[9];
     char * hexadecimal_line = (char *)malloc(sizeof (char)*9) ;
+    char * opposite = (char *)malloc(sizeof (char) * 9) ;
+    strcpy(opposite, "");
     strcpy(hexadecimal_line,"");
     fprintf(ob_file, "\t%04d\t",temp_inst->address); /* print address - IC*/
 	for ( i = 0; i < 32; i+=8)
@@ -338,18 +340,26 @@ void print_output_line(char * data_as_binary,FILE *ob_file,instruction_node *tem
 		strncpy(x, hex ,2);
 		strcat(hexadecimal_line, strcat(x,"\t"));
 	}
-
-	fprintf(ob_file,"%s",hexadecimal_line);
+    opposite = opposite_string(hexadecimal_line);
+	fprintf(ob_file, "%s", opposite);
 
 	fprintf(ob_file, "\n"); /*end of line*/
 }
 
-char * oppossite_string(char * string)
+/*upside down string data*/
+char * opposite_string(char * string)
 {
     char * opossite = (char *)malloc(sizeof (char)*9) ;
-    char *p = hexadecimal_line;
-    p = to_space(to_space(to_space(hexadecimal_line)));
-    opossite = p;
+    char *p = string;
+    p = to_space(to_space(to_space(string)));
+    strcpy(opossite,p);
+    p = to_space(to_space(string));
+    strncat(opossite+3,p,3);
+    p = to_space(string);
+    strncat(opossite+6,p,3);
+    p = string;
+    strncat(opossite+9,p,3);
+    return opossite;
 }
 
 /* updates the addressess of the directive data table */

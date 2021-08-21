@@ -25,7 +25,8 @@ ent_ext_node *new_ent_ext(char *,int,int);
 char *to_space(char *);
 /* adds data to directive data table */
 void to_data(char* , int *,char * ,int* );
-
+/*upside down string data*/
+char * opposite_string(char * string);
 /* adds symbol to symbol table */
 void to_symbol(char *, int ,int , int ,int , int);
 
