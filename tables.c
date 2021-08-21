@@ -640,6 +640,22 @@ symbol_node *search_sym(char *symbol)
 	return NULL;
 }
 
+/* returns node from symbol table with the given label */
+instruction_node * search_instruction_by_address(int *address)
+{
+    instruction_node *temp = instruction_head;
+
+    while(temp != NULL)
+    {
+        if(temp->address == address)
+            return temp;
+        temp = temp->next;
+    }
+    return NULL;
+}
+
+
+
 /* returns node from data table with the given label */
 data_node *search_data(char *symbol)
 {

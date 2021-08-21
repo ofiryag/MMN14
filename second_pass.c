@@ -92,9 +92,9 @@ void read_line2(char *line, FILE *ob_file, FILE *ent_file, FILE *ext_file, int *
 	/* checks if there is a label */
 	while(*p != '\0')
 	{
-	    if(*p == ':'){
-	        line++;
-	        return;
+	    if(*p == ':')
+	    {
+	        line= next_word(line);
 	    }
 		p++;
 	}
@@ -143,7 +143,8 @@ void read_line2(char *line, FILE *ob_file, FILE *ent_file, FILE *ext_file, int *
 		else
 			return;
 	}
-	if (is_inst(line) >= NA) {
+	if (is_inst(line) > NA)
+	{
 	    symbol_node *temp_sym;
 	    int instindex = is_inst(line);
 	    int insttype = check_inst_type(instindex);
@@ -161,11 +162,16 @@ void read_line2(char *line, FILE *ob_file, FILE *ent_file, FILE *ext_file, int *
 	            int isentry = temp_sym->entry_flag;
 	            if (isentry == 1){
  	                if(temp_sym->address < check_addressing(label_name,error))
+ 	                {
  	                    address= check_addressing(label_name,error);
+ 	                }
 	                else
+	                {
 	                    address= temp_sym->address;
-	                to_inst(30, rs, rt, rd, funct, immed, reg, address, ic);
-	            }
+	                }
+	                instruction_node * node = search_instruction_by_address((*ic));
+	                if(node!=NULL)
+	                    node->instruction_details.instruction_node_j.address = address;	            }
 	        }
 
 	    } else if (insttype == J_LA) {
@@ -174,12 +180,19 @@ void read_line2(char *line, FILE *ob_file, FILE *ent_file, FILE *ext_file, int *
 	        strcpy(label_name, get_next_word(x));
 	        temp_sym = search_sym(label_name);
 	        int isentry = temp_sym->entry_flag;
-	        if (isentry == 1){
+	        if (isentry == 1)
+	        {
 	            if(temp_sym->address < check_addressing(label_name,error))
+	            {
 	                address= check_addressing(label_name,error);
+	            }
 	            else
+	            {
 	                address= temp_sym->address;
-	            to_inst(31, rs, rt, rd, funct, immed, reg, address, ic);
+	            }
+	            instruction_node * node = search_instruction_by_address((*ic));
+	            if(node!=NULL)
+	                node->instruction_details.instruction_node_j.address = address;
 	        }
 	    }
 	    else if (insttype == J_CALL) {
@@ -190,13 +203,18 @@ void read_line2(char *line, FILE *ob_file, FILE *ent_file, FILE *ext_file, int *
 	        int isentry = temp_sym->entry_flag;
 	        if (isentry == 1){
 	            if(temp_sym->address < check_addressing(label_name,error))
+	            {
 	                address= check_addressing(label_name,error);
+	            }
 	            else
+	            {
 	                address= temp_sym->address;
-	            to_inst(32, rs, rt, rd, funct, immed, reg, address, ic);
-	        }
+	            }
+	            instruction_node * node = search_instruction_by_address((*ic));
+	            if(node!=NULL)
+	                node->instruction_details.instruction_node_j.address = address;	        }
 	    }
-	    ic+=4;
+	    (*ic) += INST_SIZE;
 	}
 }
 

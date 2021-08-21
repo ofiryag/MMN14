@@ -66,6 +66,9 @@ char * build_data_as_binary(data_node * ,int *);
 /*this function will convert a decimal number into binary*/
 char * convert_decimal_to_binary(int ,int  );
 
+/* returns node from symbol table with the given label */
+instruction_node * search_instruction_by_address(int *);
+
 /*this function will convert data from binary string into hexadecimal*/
 char * convert_binary_to_hexadecimal(char * );
 

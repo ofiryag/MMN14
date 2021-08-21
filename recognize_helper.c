@@ -273,10 +273,16 @@ int check_dir(char *line, int dirtype, int *dc, int *error, char *label_name) {
 
                         data[i] = '\0';
                         integer = atoi(data);
-
+                        int count_operands = 0;
+                        char *p = dir_data;
+                        while(p!=NULL)
+                        {
+                            p= to_comma(p);
+                            count_operands++;
+                        }
                         /* checks if the  integer fits 32 bits */
                         if (integer >= MIN_DW_INT && integer <= MAX_DW_INT)
-                            dcf += DW_SIZE;
+                            dcf += DW_SIZE*count_operands;
                         else {
                             *error = BAD_ARG_ERROR;
                             return FALSE;
@@ -328,9 +334,17 @@ int check_dir(char *line, int dirtype, int *dc, int *error, char *label_name) {
                         data[i] = '\0';
                         integer = atoi(data);
 
+                        int count_operands = 0;
+                        char *p = dir_data;
+                        while(p!=NULL)
+                        {
+                            p= to_comma(p);
+                            count_operands++;
+                        }
+
                         /* checks if the  integer fits 16 bits */
                         if (integer >= MIN_DH_INT && integer <= MAX_DH_INT)
-                            dcf += DH_SIZE;
+                            dcf += DH_SIZE*count_operands;
                         else {
                             *error = BAD_ARG_ERROR;
                             return FALSE;
@@ -370,7 +384,8 @@ int check_dir(char *line, int dirtype, int *dc, int *error, char *label_name) {
                 strcpy(dir_data, get_next_word(data_p));
                 char data[MAX_DB_INT_LENGTH];
                 int integer, i;
-                while (TRUE) {
+                while (TRUE)
+                {
                     if (*line == '-' || *line == '+' || isdigit(*line)) {
                         data[0] = *line;
                         line++;
@@ -383,16 +398,23 @@ int check_dir(char *line, int dirtype, int *dc, int *error, char *label_name) {
                         data[i] = '\0';
                         integer = atoi(data);
 
+
+                        int count_operands = 0;
+                        char *p = dir_data;
+                        while(p!=NULL)
+                        {
+                            p= to_comma(p);
+                            count_operands++;
+                        }
+                        line = skip_space(line);
+
                         /* checks if the  integer fits 8 bits */
                         if (integer >= MIN_DB_INT && integer <= MAX_DB_INT)
-                            dcf += DB_SIZE;
+                            dcf += DB_SIZE*count_operands;
                         else {
                             *error = BAD_ARG_ERROR;
                             return FALSE;
                         }
-
-                        line = skip_space(line);
-
                         if (line != NULL) {
                             to_data(dir_data, &dcf, label_name, &dirtype);
                             return TRUE;
