@@ -27,7 +27,7 @@ char *to_space(char *);
 /* adds data to directive data table */
 void to_data(char* , int *,char * ,int* );
 /*upside down string data*/
-char * opposite_string(char * string);
+char * opposite_string(char * );
 /* adds symbol to symbol table */
 void to_symbol(char *, int ,int , int ,int , int);
 
@@ -59,7 +59,7 @@ char *  build_inst_i_data_as_binary(instruction_node * );
 char *  build_inst_j_data_as_binary(instruction_node * );
 
 /*this function will build data node data to binary string*/
-char * build_data_as_binary(data_node * temp_data,int *numOfOperands);
+char * build_data_as_binary(data_node * ,int *);
 
 /*this function will convert a decimal number into binary*/
 char * convert_decimal_to_binary(int ,int  );

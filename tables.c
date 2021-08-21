@@ -191,8 +191,7 @@ void print_to_files(FILE *ob_file, FILE *ent_file, FILE *ext_file, int* ic, int*
 			break;
 		default:
 			break;
-<<<<<<< HEAD
-		}	
+		}
 		print_output_line_inst_node(data_as_binary,ob_file,temp_inst);
 		temp_inst = temp_inst->next;
 	}
@@ -218,14 +217,6 @@ void print_to_files(FILE *ob_file, FILE *ent_file, FILE *ext_file, int* ic, int*
 	    data_temp = data_head;
 	}
 
-=======
-		}
-		print_output_line(data_as_binary,ob_file,temp_inst);
-		data_as_binary="";
-		temp_inst = temp_inst->next;
-	}
-
->>>>>>> main
 	while(temp_ent_ext != NULL)
 	{	
 		if(temp_ent_ext->ext_flag == 1)
@@ -303,17 +294,22 @@ char * build_data_as_binary(data_node * temp_data,int *numOfOperands)
 {
     char * binary=(char*)malloc(33);
     if(temp_data->dir_type == ASCIZ_DIR){
-        char* binary_data = convert_decimal_to_binary(temp_data->data, ASCIZ_SIZE);
+        char * data= temp_data->data;
+        while(data!='\0')
+        {
+            while
+        }
+        binary_data = convert_decimal_to_binary(temp_data->data, ASCIZ_SIZE);
     }
     else if(temp_data->dir_type == DB_DIR){
-        char* binary_data = convert_decimal_to_binary(temp_data->data, *numOfOperands);
+        binary_data = convert_decimal_to_binary(temp_data->data, *numOfOperands);
     }
     else if(temp_data->dir_type == DW_DIR){
-        char* binary_data = convert_decimal_to_binary(temp_data->data, *numOfOperands*DW_SIZE);
+         binary_data = convert_decimal_to_binary(temp_data->data, *numOfOperands*DW_SIZE);
         strcpy(binary,binary_data);
     }
     else if(temp_data->dir_type == DH_DIR){
-        char* binary_data = convert_decimal_to_binary(temp_data->data, *numOfOperands*DH_SIZE);
+        binary_data = convert_decimal_to_binary(temp_data->data, *numOfOperands*DH_SIZE);
         strcpy(binary,binary_data);
     }
     return binary;
@@ -386,18 +382,12 @@ void print_output_line_inst_node(char * data_as_binary,FILE *ob_file,instruction
 		strncpy(x, hex ,2);
 		strcat(hexadecimal_line, strcat(x,"\t"));
 	}
-<<<<<<< HEAD
-	fprintf(ob_file,"%s",hexadecimal_line);
-
-=======
     opposite = opposite_string(hexadecimal_line);
 	fprintf(ob_file, "%s", opposite);
->>>>>>> main
 
 	fprintf(ob_file, "\n"); /*end of line*/
 }
 
-<<<<<<< HEAD
 void print_output_line_data(char * data_as_binary,FILE *ob_file,data_node *temp_data)
 {
     int i=0,j=0,k=0;
@@ -419,7 +409,7 @@ void print_output_line_data(char * data_as_binary,FILE *ob_file,data_node *temp_
 
 
     fprintf(ob_file, "\n"); /*end of line*/
-=======
+}
 /*upside down string data*/
 char * opposite_string(char * string)
 {
@@ -434,7 +424,6 @@ char * opposite_string(char * string)
     p = string;
     strncat(opossite+9,p,3);
     return opossite;
->>>>>>> main
 }
 
 /* updates the addressess of the directive data table */
