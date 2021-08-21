@@ -6,6 +6,8 @@
 void read_line(char *line, int *ic, int *dc, int *errorCounter, int *lineNumber, int *errorType)
 {	
 	int dirtype;
+	char label_name[MAX_LABEL_LEN];
+    strcpy(label_name,"");
 
 	/* if the line is empty line or comment ignore it */
 	if(ignore_line(line) == TRUE)
@@ -21,10 +23,26 @@ void read_line(char *line, int *ic, int *dc, int *errorCounter, int *lineNumber,
 		return;
 	}
 
-
+    char *p = line;
 	/* if the first word is a label and it is vaild then put it in symbol table and go to next word */
-	if(is_label(line, ic, dc, errorCounter, lineNumber,  errorType))
-		line = next_word(line);
+	if(is_label(line, ic, dc, errorCounter, lineNumber,  errorType,label_name))
+	{
+	    int i=0,c =0;
+	    while(*p!='\0' && !isspace(*p))
+	    {
+	        label_name[c] = *p;
+	        p++;
+	        i++;
+	    }
+	    char *p = line;
+	    for(c=0;c<i;c++)
+	    {
+	        label_name[c] =*p;
+	        p++;
+	    }
+	    label_name[c-1] ='\0';
+	    line = next_word(line);
+	}
 
 	if(check_errors(lineNumber, errorType, errorCounter))
 		return;
@@ -42,7 +60,7 @@ void read_line(char *line, int *ic, int *dc, int *errorCounter, int *lineNumber,
 		if(dirtype != NA) 
 		{
 			line = next_word(line);
-			if(check_dir(line, dirtype, dc, errorType))
+			if(check_dir(line, dirtype, dc, errorType,label_name))
 				return;
 		}
 		if(dirtype != NA)

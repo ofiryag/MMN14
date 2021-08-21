@@ -34,7 +34,7 @@ void first_pass(char *file)
 	while(fgets(line,BUFF_SIZE,fp) != NULL)
 	{
 		lineCounter++;
-		read_line(line, &ic, &dc, &errorCounter, &lineCounter, &error);
+	    read_line(line, &ic, &dc, &errorCounter, &lineCounter, &error);
 		check_errors(&lineCounter, &error, &errorCounter);
 	}
 

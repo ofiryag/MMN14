@@ -11,7 +11,7 @@
 #include <stdarg.h>
 
 /* creates new node for directive data table and initializing it */
-data_node *new_data(int, int *);
+data_node *new_data(int, int *,char * );
 
 /* creates new node for symbol table and initializing it */
 symbol_node *new_symbol(char *, int , int , int ,int , int );
@@ -23,7 +23,7 @@ instruction_node *new_inst(int , int , int , int , int ,int ,int ,int ,int *);
 ent_ext_node *new_ent_ext(char *,int,int);
 
 /* adds data to directive data table */
-void to_data(int , int *,int );
+void to_data(int , int *,char * );
 
 /* adds symbol to symbol table */
 void to_symbol(char *, int ,int , int ,int , int);
@@ -37,6 +37,8 @@ void to_ent_ext(char *,int,int);
 /* prints all the tables to the correct files */
 void print_to_files(FILE *ob_file, FILE *ent_file, FILE *ext_file, int* ic, int* dc);
 
+/* returns node from data table with the given label */
+data_node *search_data(char *);
 /* updates the addressess of the directive data table */
 void update_DC(int *, int *);
 
