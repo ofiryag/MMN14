@@ -34,6 +34,7 @@
 #define DW_SIZE 4
 #define DH_SIZE 2
 #define DB_SIZE 1
+#define ASCIZ_SIZE 13
 
 #define MAX_DATA_INT 511
 #define MIN_DATA_INT -512

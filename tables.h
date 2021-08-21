@@ -22,10 +22,12 @@ instruction_node *new_inst(int , int , int , int , int ,int ,int ,int ,int *);
 
 /* creates new node for entry or extern labels table and initializing it */
 ent_ext_node *new_ent_ext(char *,int,int);
-
+/* jumps to the next word */
+char *to_space(char *);
 /* adds data to directive data table */
 void to_data(char* , int *,char * ,int* );
-
+/*upside down string data*/
+char * opposite_string(char * string);
 /* adds symbol to symbol table */
 void to_symbol(char *, int ,int , int ,int , int);
 
@@ -57,7 +59,7 @@ char *  build_inst_i_data_as_binary(instruction_node * );
 char *  build_inst_j_data_as_binary(instruction_node * );
 
 /*this function will build data node data to binary string*/
-char * build_data_as_binary(data_node * temp_data,int numOfOperands);
+char * build_data_as_binary(data_node * temp_data,int *numOfOperands);
 
 /*this function will convert a decimal number into binary*/
 char * convert_decimal_to_binary(int ,int  );

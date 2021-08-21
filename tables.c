@@ -1,6 +1,8 @@
 /* This file contains functions for handling the data stractures of the project.*/
 
+#include <ctype.h>
 #include "tables.h"
+#include "read_line.h"
 
 data_node *data_head = NULL;
 symbol_node *symbol_head = NULL;
@@ -175,7 +177,7 @@ void print_to_files(FILE *ob_file, FILE *ent_file, FILE *ext_file, int* ic, int*
 	instruction_node *temp_inst = instruction_head;
 	data_node *temp_data = data_head;
 	ent_ext_node *temp_ent_ext = ent_ext_head;
-	char * data_as_binary;
+	char * data_as_binary="";
 	fprintf(ob_file, "\t%d\t%d\n", (*ic) - 100, *dc);
 	while(temp_inst != NULL)
 	{
@@ -189,6 +191,7 @@ void print_to_files(FILE *ob_file, FILE *ent_file, FILE *ext_file, int* ic, int*
 			break;
 		default:
 			break;
+<<<<<<< HEAD
 		}	
 		print_output_line_inst_node(data_as_binary,ob_file,temp_inst);
 		temp_inst = temp_inst->next;
@@ -197,10 +200,9 @@ void print_to_files(FILE *ob_file, FILE *ent_file, FILE *ext_file, int* ic, int*
 	data_node *data_temp = data_head;
 	int numOfOperands = 0;
 	char *data = data_temp->data;
-	char tempOperand=data;
-	while(tempOperand!=NULL){
+	while(data != NULL){
 	    numOfOperands++;
-	    tempOperand=to_comma(data);
+        data=to_comma(data);
 	}
 
 	while(data_temp!=NULL)
@@ -209,13 +211,21 @@ void print_to_files(FILE *ob_file, FILE *ent_file, FILE *ext_file, int* ic, int*
 	        for( int i=0;p[i]!='\0'; i++)
 	        {
 	            int num = atoi(p);
-	            print_output_line_data(build_data_as_binary(data_temp,numOfOperands),ob_file,data_temp);
+	            print_output_line_data(build_data_as_binary(data_temp,&numOfOperands),ob_file,data_temp);
 	            p++;
 	        }
 	    data_head = data_head->next;
 	    data_temp = data_head;
 	}
 
+=======
+		}
+		print_output_line(data_as_binary,ob_file,temp_inst);
+		data_as_binary="";
+		temp_inst = temp_inst->next;
+	}
+
+>>>>>>> main
 	while(temp_ent_ext != NULL)
 	{	
 		if(temp_ent_ext->ext_flag == 1)
@@ -256,10 +266,10 @@ char * build_inst_i_data_as_binary(instruction_node * temp_inst)
 {
     char * binary=(char*)malloc(32);
 
-    char* binary_opcode = convert_decimal_to_binary(temp_inst->instruction_details.instruction_node_i.opcode, 6);
-    char* binary_rs =convert_decimal_to_binary(temp_inst->instruction_details.instruction_node_i.rs, 5);
-    char* binary_rt =convert_decimal_to_binary(temp_inst->instruction_details.instruction_node_i.rt, 5);
-    char* binary_immed =convert_decimal_to_binary(temp_inst->instruction_details.instruction_node_i.immed,16);
+    char* binary_opcode = convert_decimal_to_binary(temp_inst->instruction_details.instruction_node_i.opcode, 5);
+    char* binary_rs =convert_decimal_to_binary(temp_inst->instruction_details.instruction_node_i.rs, 4);
+    char* binary_rt =convert_decimal_to_binary(temp_inst->instruction_details.instruction_node_i.rt, 4);
+    char* binary_immed =convert_decimal_to_binary(temp_inst->instruction_details.instruction_node_i.immed,15);
 
     strcpy(binary,binary_opcode);
     strcat(binary,binary_rs);
@@ -277,7 +287,7 @@ char * build_inst_j_data_as_binary(instruction_node * temp_inst)
 {
     char * binary=(char*)malloc(32);
     /*Get data as binary*/
-    char* binary_opcode = convert_decimal_to_binary(temp_inst->instruction_details.instruction_node_j.opcode, 6);
+    char* binary_opcode = convert_decimal_to_binary(temp_inst->instruction_details.instruction_node_j.opcode, 5);
     char* binary_reg = convert_decimal_to_binary(temp_inst->instruction_details.instruction_node_j.reg, 1);
     char* binary_address = convert_decimal_to_binary(temp_inst->instruction_details.instruction_node_j.address, 24);
 
@@ -287,24 +297,23 @@ char * build_inst_j_data_as_binary(instruction_node * temp_inst)
 
     /*Build data as binary string*/
     return binary;
-   /* return concat(3,binary_opcode+1,binary_reg+1,binary_address+1);*/
 }
 /*this function will build data node data to binary string*/
-char * build_data_as_binary(data_node * temp_data,int numOfOperands)
+char * build_data_as_binary(data_node * temp_data,int *numOfOperands)
 {
     char * binary=(char*)malloc(33);
     if(temp_data->dir_type == ASCIZ_DIR){
-        char* binary_data = convert_decimal_to_binary(temp_data->data, 12);
+        char* binary_data = convert_decimal_to_binary(temp_data->data, ASCIZ_SIZE);
     }
     else if(temp_data->dir_type == DB_DIR){
-        char* binary_data = convert_decimal_to_binary(temp_data->data, numOfOperands);
+        char* binary_data = convert_decimal_to_binary(temp_data->data, *numOfOperands);
     }
     else if(temp_data->dir_type == DW_DIR){
-        char* binary_data = convert_decimal_to_binary(temp_data->data, numOfOperands*4);
+        char* binary_data = convert_decimal_to_binary(temp_data->data, *numOfOperands*DW_SIZE);
         strcpy(binary,binary_data);
     }
     else if(temp_data->dir_type == DH_DIR){
-        char* binary_data = convert_decimal_to_binary(temp_data->data, numOfOperands*2);
+        char* binary_data = convert_decimal_to_binary(temp_data->data, *numOfOperands*DH_SIZE);
         strcpy(binary,binary_data);
     }
     return binary;
@@ -360,6 +369,8 @@ void print_output_line_inst_node(char * data_as_binary,FILE *ob_file,instruction
     int i=0,j=0,k=0;
     char one_byte[9];
     char * hexadecimal_line = (char *)malloc(sizeof (char)*9) ;
+    char * opposite = (char *)malloc(sizeof (char) * 9) ;
+    strcpy(opposite, "");
     strcpy(hexadecimal_line,"");
     fprintf(ob_file, "\t%04d\t",temp_inst->address); /* print address - IC*/
 	for ( i = 0; i < 32; i+=8)
@@ -369,14 +380,24 @@ void print_output_line_inst_node(char * data_as_binary,FILE *ob_file,instruction
 		{
 			one_byte[j] = data_as_binary[i+j];
 		}
-		strcat(hexadecimal_line, strcat(convert_binary_to_hexadecimal(one_byte),"\t"));
+		char x[3];
+		memset(x, '\0', sizeof(x));
+		char * hex = convert_binary_to_hexadecimal(one_byte);
+		strncpy(x, hex ,2);
+		strcat(hexadecimal_line, strcat(x,"\t"));
 	}
+<<<<<<< HEAD
 	fprintf(ob_file,"%s",hexadecimal_line);
 
+=======
+    opposite = opposite_string(hexadecimal_line);
+	fprintf(ob_file, "%s", opposite);
+>>>>>>> main
 
 	fprintf(ob_file, "\n"); /*end of line*/
 }
 
+<<<<<<< HEAD
 void print_output_line_data(char * data_as_binary,FILE *ob_file,data_node *temp_data)
 {
     int i=0,j=0,k=0;
@@ -398,6 +419,22 @@ void print_output_line_data(char * data_as_binary,FILE *ob_file,data_node *temp_
 
 
     fprintf(ob_file, "\n"); /*end of line*/
+=======
+/*upside down string data*/
+char * opposite_string(char * string)
+{
+    char * opossite = (char *)malloc(sizeof (char)*9) ;
+    char *p = string;
+    p = to_space(to_space(to_space(string)));
+    strcpy(opossite,p);
+    p = to_space(to_space(string));
+    strncat(opossite+3,p,3);
+    p = to_space(string);
+    strncat(opossite+6,p,3);
+    p = string;
+    strncat(opossite+9,p,3);
+    return opossite;
+>>>>>>> main
 }
 
 /* updates the addressess of the directive data table */
@@ -505,4 +542,20 @@ void free_tables()
 		free(ent_ext);
 		ent_ext = ent_ext_head;
 	}
+}
+
+/* jumps to the next word */
+char *to_space(char *line)
+{
+    if(line == NULL)
+        return NULL;
+
+    while(!isspace(*line) && *line != '\0')
+    {
+        line++;
+    }
+
+    line = skip_space(line);
+
+    return line;
 }
