@@ -19,6 +19,8 @@ symbol_node *new_symbol(char *, int , int , int ,int , int );
 
 /* creates new node for instructions table and initializing it */
 instruction_node *new_inst(int , int , int , int , int ,int ,int ,int ,int *);
+/* jumps get the word between first char and comma */
+char * get_data_until_comma(char * );
 
 /* creates new node for entry or extern labels table and initializing it */
 ent_ext_node *new_ent_ext(char *,int,int);
@@ -67,6 +69,9 @@ char * convert_decimal_to_binary(int ,int  );
 /*this function will convert data from binary string into hexadecimal*/
 char * convert_binary_to_hexadecimal(char * );
 
+/*print byte to file*/
+void print_output_line_data_as_byte(char * ,FILE *,int ,int );
+
 /*this function is converting the line(from the instruction node) from binary to hexadecimal and print it according to the required format for example:
 0104	FB	FF	22	35
 */
@@ -75,7 +80,7 @@ void print_output_line_inst_node(char *, FILE *, instruction_node *);
 /*this function is converting the line(from the data node) from binary to hexadecimal and print it according to the required format for example:
 0104	FB	FF	22	35
 */
-void print_output_line_data(char *, FILE *, data_node *);
+void print_output_line_data(char *, FILE *,int );
 
 
 /* free all tables */

@@ -451,7 +451,7 @@ int check_dir(char *line, int dirtype, int *dc, int *error, char *label_name) {
                         strncat(x,p,1);
                         p++;
                     }
-                    to_data(dir_data, &dcf, x, &dirtype);
+                    to_data(x, &dcf, label_name, &dirtype);
                     if (skip_space(line + 1) == NULL)
                         return TRUE;
 
