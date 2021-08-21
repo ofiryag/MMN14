@@ -56,6 +56,9 @@ char *  build_inst_i_data_as_binary(instruction_node * );
 /*this function will build J instruction node's data to binary string*/
 char *  build_inst_j_data_as_binary(instruction_node * );
 
+/*this function will build data node data to binary string*/
+char * build_data_as_binary(data_node * temp_data,int numOfOperands);
+
 /*this function will convert a decimal number into binary*/
 char * convert_decimal_to_binary(int ,int  );
 
@@ -65,12 +68,12 @@ char * convert_binary_to_hexadecimal(char * );
 /*this function is converting the line(from the instruction node) from binary to hexadecimal and print it according to the required format for example:
 0104	FB	FF	22	35
 */
-void print_output_line_inst_node(char *data_as_binary, FILE *ob_file, instruction_node *temp_inst);
+void print_output_line_inst_node(char *, FILE *, instruction_node *);
 
 /*this function is converting the line(from the data node) from binary to hexadecimal and print it according to the required format for example:
 0104	FB	FF	22	35
 */
-void print_output_line_data(char * data_as_binary, FILE *ob_file, data_node *temp_data);
+void print_output_line_data(char *, FILE *, data_node *);
 
 
 /* free all tables */

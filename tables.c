@@ -195,28 +195,25 @@ void print_to_files(FILE *ob_file, FILE *ent_file, FILE *ext_file, int* ic, int*
 	}
 
 	data_node *data_temp = data_head;
-	while(data_temp!=NULL){
-	    char *p = data_head->dir_type;
-	    if(data_head->dir_type == ASCIZ_DIR)
-	    {
-	        for( int i=0;p[i]!='\0'; i++)
-	        {
-	            print_output_line_data(convert_decimal_to_binary(atoi(p[i]),8),ob_file,data_temp);
-	            p++;
-	        }
-	    }
+	int numOfOperands = 0;
+	char *data = data_temp->data;
+	char tempOperand=data;
+	while(tempOperand!=NULL){
+	    numOfOperands++;
+	    tempOperand=to_comma(data);
+	}
 
 	    if(data_head->dir_type == DB_DIR || data_head->dir_type == DH_DIR || data_head->dir_type == DW_DIR)
 	    {
+	        char *p = data_temp->data;
 	        for( int i=0;p[i]!='\0'; i++)
 	        {
-	            print_output_line_data(convert_decimal_to_binary(atoi(p[i]),8),ob_file,data_temp);
-	            p = to_comma(p);
-
+	            int num = atoi(p);
+	            print_output_line_data(build_data_as_binary(data_temp,numOfOperands),ob_file,data_temp);
+	            p++;
 	        }
-
-	    }
 	    data_head = data_head->next;
+	    data_temp = data_head;
 	}
 
 	while(temp_ent_ext != NULL)
@@ -292,6 +289,26 @@ char * build_inst_j_data_as_binary(instruction_node * temp_inst)
     return binary;
    /* return concat(3,binary_opcode+1,binary_reg+1,binary_address+1);*/
 }
+/*this function will build data node data to binary string*/
+char * build_data_as_binary(data_node * temp_data,int numOfOperands)
+{
+    char * binary=(char*)malloc(33);
+    if(temp_data->dir_type == ASCIZ_DIR){
+        char* binary_data = convert_decimal_to_binary(temp_data->data, 12);
+    }
+    else if(temp_data->dir_type == DB_DIR){
+        char* binary_data = convert_decimal_to_binary(temp_data->data, numOfOperands);
+    }
+    else if(temp_data->dir_type == DW_DIR){
+        char* binary_data = convert_decimal_to_binary(temp_data->data, numOfOperands*4);
+        strcpy(binary,binary_data);
+    }
+    else if(temp_data->dir_type == DH_DIR){
+        char* binary_data = convert_decimal_to_binary(temp_data->data, numOfOperands*2);
+        strcpy(binary,binary_data);
+    }
+    return binary;
+}
 
 char* convert_decimal_to_binary(int n,int bitAmount)
 {
@@ -355,10 +372,32 @@ void print_output_line_inst_node(char * data_as_binary,FILE *ob_file,instruction
 		strcat(hexadecimal_line, strcat(convert_binary_to_hexadecimal(one_byte),"\t"));
 	}
 	fprintf(ob_file,"%s",hexadecimal_line);
-    free(hexadecimal_line);
 
 
 	fprintf(ob_file, "\n"); /*end of line*/
+}
+
+void print_output_line_data(char * data_as_binary,FILE *ob_file,data_node *temp_data)
+{
+    int i=0,j=0,k=0;
+    char one_byte[9];
+    char * hexadecimal_line = (char *)malloc(sizeof (char)*9) ;
+    strcpy(hexadecimal_line,"");
+    fprintf(ob_file, "\t%04d\t",temp_data->data); /* print address - IC*/
+    for ( i = 0; i < 32; i+=8)
+    {
+
+        for ( j = 0; j<9; j++)
+        {
+            one_byte[j] = data_as_binary[i+j];
+        }
+        strcat(hexadecimal_line, strcat(convert_binary_to_hexadecimal(one_byte),"\t"));
+    }
+    fprintf(ob_file,"%s",hexadecimal_line);
+    free(hexadecimal_line);
+
+
+    fprintf(ob_file, "\n"); /*end of line*/
 }
 
 /* updates the addressess of the directive data table */
