@@ -203,8 +203,8 @@ void print_to_files(FILE *ob_file, FILE *ent_file, FILE *ext_file, int* ic, int*
 	    tempOperand=to_comma(data);
 	}
 
-	    if(data_head->dir_type == DB_DIR || data_head->dir_type == DH_DIR || data_head->dir_type == DW_DIR)
-	    {
+	while(data_temp!=NULL)
+	{
 	        char *p = data_temp->data;
 	        for( int i=0;p[i]!='\0'; i++)
 	        {
