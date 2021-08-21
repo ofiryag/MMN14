@@ -394,7 +394,7 @@ char * build_inst_r_data_as_binary(instruction_node * temp_inst)
     char* binary_rt = convert_decimal_to_binary(temp_inst->instruction_details.instruction_node_r.rt, 4);
     char* binary_rd = convert_decimal_to_binary(temp_inst->instruction_details.instruction_node_r.rd, 4);
     char* binary_funct = convert_decimal_to_binary(temp_inst->instruction_details.instruction_node_r.funct, 4);
-    char* binary_unused = "000000";
+    char* binary_unused = "00000";
 
     strcpy(binary,binary_opcode);
     strcat(binary,binary_rs);
