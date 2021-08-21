@@ -22,4 +22,6 @@ void read_line2(char *, FILE *, FILE *, FILE *, int *, int * ,int *,int* , int* 
 
 /*this function will return the label's name if it's the next word*/
 char * get_label_name(char* );
+
+void add_j_inst(char *, int *, int *);
 #endif
