@@ -169,7 +169,6 @@ void to_ent_ext(char *label, int  address, int ext_flag)
 	return;
 }
 
-
 /* prints all the tables to the correct files */
 void print_to_files(FILE *ob_file, FILE *ent_file, FILE *ext_file, int* ic, int* dc)
 {
@@ -190,10 +189,11 @@ void print_to_files(FILE *ob_file, FILE *ent_file, FILE *ext_file, int* ic, int*
 			break;
 		default:
 			break;
-		}
-		print_output_line_inst_node(data_as_binary, ob_file, temp_inst);
+		}	
+		print_output_line_inst_node(data_as_binary,ob_file,temp_inst);
 		temp_inst = temp_inst->next;
 	}
+
 	data_node *data_temp = data_head;
 	while(data_temp!=NULL){
 	    char *p = data_head->dir_type;
@@ -218,13 +218,6 @@ void print_to_files(FILE *ob_file, FILE *ent_file, FILE *ext_file, int* ic, int*
 	    }
 	    data_head = data_head->next;
 	}
-
-
-	/*print data into ob_file*/
-	/*if dir type = asciz -> foreach char write a line that is translated to binary string*/
-	/*if db dh dw each item that is seperated by comma should be printed - which means do a while loop until data is \0*/
-
-
 
 	while(temp_ent_ext != NULL)
 	{	
@@ -345,7 +338,7 @@ char * convert_binary_to_hexadecimal(char * one_byte)
 /*this function is converting the line from binary to hexadecimal and print it according to the required format for example:
 0104	FB	FF	22	35
 */
-void print_output_line_inst_node(char * data_as_binary, FILE *ob_file, instruction_node *temp_inst)
+void print_output_line_inst_node(char * data_as_binary,FILE *ob_file,instruction_node *temp_inst)
 {
     int i=0,j=0,k=0;
     char one_byte[9];
@@ -366,29 +359,6 @@ void print_output_line_inst_node(char * data_as_binary, FILE *ob_file, instructi
 
 
 	fprintf(ob_file, "\n"); /*end of line*/
-}
-
-void print_output_line_data(char * data_as_binary, FILE *ob_file, data_node *temp_data)
-{
-    int i=0,j=0,k=0;
-    char one_byte[9];
-    char * hexadecimal_line = (char *)malloc(sizeof (char)*9) ;
-    strcpy(hexadecimal_line,"");
-    fprintf(ob_file, "\t%04d\t",temp_data->data); /* print address - IC*/
-    for ( i = 0; i < 32; i+=8)
-    {
-
-        for ( j = 0; j<9; j++)
-        {
-            one_byte[j] = data_as_binary[i+j];
-        }
-        strcat(hexadecimal_line, strcat(convert_binary_to_hexadecimal(one_byte),"\t"));
-    }
-    fprintf(ob_file,"%s",hexadecimal_line);
-    free(hexadecimal_line);
-
-
-    fprintf(ob_file, "\n"); /*end of line*/
 }
 
 /* updates the addressess of the directive data table */
