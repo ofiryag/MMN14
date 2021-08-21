@@ -437,7 +437,21 @@ int check_dir(char *line, int dirtype, int *dc, int *error, char *label_name) {
                         line++;
                     }
                     dcf += CHAR_SIZE; /*increase string size by one because of \0*/
-                    to_data(dir_data, &dcf, label_name, &dirtype);
+                    char *p = dir_data;
+                    char x[strlen(dir_data)];
+                    strcpy(x,"");
+                    int c=0;
+                    while(*p!='\"')
+                    {
+                        p++;
+                    }
+                    p++;
+                    while(*p!='\"')
+                    {
+                        strncat(x,p,1);
+                        p++;
+                    }
+                    to_data(dir_data, &dcf, x, &dirtype);
                     if (skip_space(line + 1) == NULL)
                         return TRUE;
 
@@ -849,11 +863,13 @@ void insert_new_instruction(char *line, int *ic, int *error)
         char label[MAX_LABEL_LEN];
         line = next_word(line);
 
-        if (insttype == R_ARITHMETHIC) {
+        if (insttype == R_ARITHMETHIC)
+        {
             rs = get_number_from_string(to_dollar(line), 3, error);
             rt = get_number_from_string(to_dollar(to_dollar(line)), 3, error);
             rd = get_number_from_string(to_dollar(to_dollar(to_dollar(line))), 3, error);
-        } else if (insttype == R_COPY) {
+        }
+        else if (insttype == R_COPY) {
             rs = get_number_from_string(to_dollar(line), 3, error);
             rt = get_number_from_string(to_dollar(to_dollar(line)), 3, error);
         } else if (insttype == I_ARITHMETIC) {

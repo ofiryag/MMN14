@@ -1,6 +1,8 @@
 /* This file contains functions for handling the data stractures of the project.*/
 
+#include <ctype.h>
 #include "tables.h"
+#include "read_line.h"
 
 data_node *data_head = NULL;
 symbol_node *symbol_head = NULL;
@@ -177,7 +179,7 @@ void print_to_files(FILE *ob_file, FILE *ent_file, FILE *ext_file, int* ic, int*
 	instruction_node *temp_inst = instruction_head;
 	data_node *temp_data = data_head;
 	ent_ext_node *temp_ent_ext = ent_ext_head;
-	char * data_as_binary;
+	char * data_as_binary="";
 	fprintf(ob_file, "\t%d\t%d\n", (*ic) - 100, *dc);
 	while(temp_inst != NULL)
 	{
@@ -193,13 +195,9 @@ void print_to_files(FILE *ob_file, FILE *ent_file, FILE *ext_file, int* ic, int*
 			break;
 		}
 		print_output_line(data_as_binary,ob_file,temp_inst);
+		data_as_binary="";
 		temp_inst = temp_inst->next;
 	}
-
-	/*print data into ob_file*/
-	/*if dir type = asciz -> foreach char write a line that is translated to binary string*/
-	/*if db dh dw each item that is seperated by comma should be printed - which means do a while loop until data is \0*/
-
 
 	while(temp_ent_ext != NULL)
 	{
@@ -241,10 +239,10 @@ char * build_inst_i_data_as_binary(instruction_node * temp_inst)
 {
     char * binary=(char*)malloc(32);
 
-    char* binary_opcode = convert_decimal_to_binary(temp_inst->instruction_details.instruction_node_i.opcode, 6);
-    char* binary_rs =convert_decimal_to_binary(temp_inst->instruction_details.instruction_node_i.rs, 5);
-    char* binary_rt =convert_decimal_to_binary(temp_inst->instruction_details.instruction_node_i.rt, 5);
-    char* binary_immed =convert_decimal_to_binary(temp_inst->instruction_details.instruction_node_i.immed,16);
+    char* binary_opcode = convert_decimal_to_binary(temp_inst->instruction_details.instruction_node_i.opcode, 5);
+    char* binary_rs =convert_decimal_to_binary(temp_inst->instruction_details.instruction_node_i.rs, 4);
+    char* binary_rt =convert_decimal_to_binary(temp_inst->instruction_details.instruction_node_i.rt, 4);
+    char* binary_immed =convert_decimal_to_binary(temp_inst->instruction_details.instruction_node_i.immed,15);
 
     strcpy(binary,binary_opcode);
     strcat(binary,binary_rs);
@@ -262,7 +260,7 @@ char * build_inst_j_data_as_binary(instruction_node * temp_inst)
 {
     char * binary=(char*)malloc(32);
     /*Get data as binary*/
-    char* binary_opcode = convert_decimal_to_binary(temp_inst->instruction_details.instruction_node_j.opcode, 6);
+    char* binary_opcode = convert_decimal_to_binary(temp_inst->instruction_details.instruction_node_j.opcode, 5);
     char* binary_reg = convert_decimal_to_binary(temp_inst->instruction_details.instruction_node_j.reg, 1);
     char* binary_address = convert_decimal_to_binary(temp_inst->instruction_details.instruction_node_j.address, 24);
 
@@ -325,6 +323,8 @@ void print_output_line(char * data_as_binary,FILE *ob_file,instruction_node *tem
     int i=0,j=0,k=0;
     char one_byte[9];
     char * hexadecimal_line = (char *)malloc(sizeof (char)*9) ;
+    char * opposite = (char *)malloc(sizeof (char) * 9) ;
+    strcpy(opposite, "");
     strcpy(hexadecimal_line,"");
     fprintf(ob_file, "\t%04d\t",temp_inst->address); /* print address - IC*/
 	for ( i = 0; i < 32; i+=8)
@@ -334,13 +334,32 @@ void print_output_line(char * data_as_binary,FILE *ob_file,instruction_node *tem
 		{
 			one_byte[j] = data_as_binary[i+j];
 		}
-		strcat(hexadecimal_line, strcat(convert_binary_to_hexadecimal(one_byte),"\t"));
+		char x[3];
+		memset(x, '\0', sizeof(x));
+		char * hex = convert_binary_to_hexadecimal(one_byte);
+		strncpy(x, hex ,2);
+		strcat(hexadecimal_line, strcat(x,"\t"));
 	}
-	fprintf(ob_file,"%s",hexadecimal_line);
-    free(hexadecimal_line);
-
+    opposite = opposite_string(hexadecimal_line);
+	fprintf(ob_file, "%s", opposite);
 
 	fprintf(ob_file, "\n"); /*end of line*/
+}
+
+/*upside down string data*/
+char * opposite_string(char * string)
+{
+    char * opossite = (char *)malloc(sizeof (char)*9) ;
+    char *p = string;
+    p = to_space(to_space(to_space(string)));
+    strcpy(opossite,p);
+    p = to_space(to_space(string));
+    strncat(opossite+3,p,3);
+    p = to_space(string);
+    strncat(opossite+6,p,3);
+    p = string;
+    strncat(opossite+9,p,3);
+    return opossite;
 }
 
 /* updates the addressess of the directive data table */
@@ -448,4 +467,20 @@ void free_tables()
 		free(ent_ext);
 		ent_ext = ent_ext_head;
 	}
+}
+
+/* jumps to the next word */
+char *to_space(char *line)
+{
+    if(line == NULL)
+        return NULL;
+
+    while(!isspace(*line) && *line != '\0')
+    {
+        line++;
+    }
+
+    line = skip_space(line);
+
+    return line;
 }

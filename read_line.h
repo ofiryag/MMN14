@@ -28,7 +28,7 @@ char *next_word(char *);
 /* jumps to the word after the comma */
 char *to_comma(char *);
 
-/*jumps to the number after the dollar*/
+/* jumps to $ */
 char *to_dollar(char *);
 
 
