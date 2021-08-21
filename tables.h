@@ -72,9 +72,6 @@ instruction_node * search_instruction_by_address(int *);
 /*this function will convert data from binary string into hexadecimal*/
 char * convert_binary_to_hexadecimal(char * );
 
-/*print byte to file*/
-void print_output_line_data_as_byte(char * ,FILE *,int ,int );
-
 /*this function is converting the line(from the instruction node) from binary to hexadecimal and print it according to the required format for example:
 0104	FB	FF	22	35
 */
@@ -84,6 +81,9 @@ void print_output_line_inst_node(char *, FILE *, instruction_node *);
 0104	FB	FF	22	35
 */
 void print_output_line_data(char *, FILE *,int );
+
+/*this function will translate one byte from binary to hexadecimal and print it*/
+void print_byte_data(char * ,FILE *,int );
 
 
 /* free all tables */
