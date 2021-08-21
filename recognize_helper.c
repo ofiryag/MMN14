@@ -849,11 +849,13 @@ void insert_new_instruction(char *line, int *ic, int *error)
         char label[MAX_LABEL_LEN];
         line = next_word(line);
 
-        if (insttype == R_ARITHMETHIC) {
+        if (insttype == R_ARITHMETHIC)
+        {
             rs = get_number_from_string(to_dollar(line), 3, error);
             rt = get_number_from_string(to_dollar(to_dollar(line)), 3, error);
             rd = get_number_from_string(to_dollar(to_dollar(to_dollar(line))), 3, error);
-        } else if (insttype == R_COPY) {
+        }
+        else if (insttype == R_COPY) {
             rs = get_number_from_string(to_dollar(line), 3, error);
             rt = get_number_from_string(to_dollar(to_dollar(line)), 3, error);
         } else if (insttype == I_ARITHMETIC) {
