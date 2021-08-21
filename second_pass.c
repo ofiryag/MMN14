@@ -162,30 +162,53 @@ void read_line2(char *line, FILE *ob_file, FILE *ent_file, FILE *ext_file, int *
 		}
 		else if(insttype == R_COPY){
 		    rs = get_number_from_string(to_dollar(line),3,error);
-		    rt = get_number_from_string(to_dollar(to_comma(line)), 3,error);
+		    rt = get_number_from_string(to_dollar(to_dollar(line)), 3,error);
 		}
 		else if(insttype == I_ARITHMETIC){
 		        rs = get_number_from_string(to_dollar(line),3,error);
-				immed = get_number_from_string(to_comma(line),6,error);
-				rd = get_number_from_string(to_dollar(to_comma(to_comma(line))), 3,error);
+		        immed = get_number_from_string(to_dollar(line),6,error);
+		        rd = get_number_from_string(to_dollar(to_dollar(to_dollar(line))), 3,error);
 		}
 		else if(insttype == I_CONDITIONAL_BRANCHING){
 		    rs = get_number_from_string(to_dollar(line),3,error);
-		    rt = get_number_from_string(to_dollar(to_comma(line)), 3,error);
-		    rd = get_number_from_string(to_dollar(to_comma(to_comma(line))), 3,error);
+		    rt = get_number_from_string(to_dollar(to_dollar(line)), 3,error);
+		    int firstaddress = get_number_from_string(to_dollar(to_dollar(to_dollar(line))), 3,error);
+		    if(firstaddress < *ic)
+		        immed = *ic - firstaddress;
+		    else
+		        immed = firstaddress - *ic;
 		}
 		else if(insttype == I_STORAGE){
 		    rs = get_number_from_string(to_dollar(line),3,error);
-		    immed = get_number_from_string(to_comma(line),6, error);
-		    rt = get_number_from_string(to_dollar(to_comma(to_comma(line))), 3,error);
+		    rt = get_number_from_string(to_dollar(to_comma(to_dollar(line))), 3,error);
+		    immed = get_number_from_string(to_dollar(to_comma(line)), 3,error);
 		}
-		else if(insttype == J_JMP || insttype == J_LA){
-		    address = get_number_from_string(to_dollar(line),3,error);
 
+		else if(insttype == J_JMP){
+		    if(next_word(line)[0] == '$'){
+		        reg=1;
+		        address= (get_number_from_string(to_dollar(next_word(line)),3,error);
+		    }
+		        int isentry = search_sym(line)->entry_flag;
+		        if(isentry == 1)
+                    address = check_addressing(line,error);
+		        else
+		            address = 0;
+		}
+
+		else if(insttype == J_LA){
+		    int isentry = search_sym(next_word(line))->entry_flag;
+		    if(isentry == 1)
+		     address = check_addressing(next_word(line),error);
+		    else
+		      address = 0;
 		}
 		else if(insttype == J_CALL){
-		    address = get_number_from_string(next_word(line),3,error);
-		    get_number_from_string(to_dollar(line),3,error);
+		    int isentry = search_sym(next_word(line))->entry_flag;
+		    if(isentry == 1)
+		        address = check_addressing(next_word(line),error);
+		    else
+		        address = 0;
 
 		}
 
@@ -283,32 +306,13 @@ void read_line2(char *line, FILE *ob_file, FILE *ent_file, FILE *ext_file, int *
 			break;
 
 			case jmp:
-			    if(is_label(next_word(line), ic, dc, errorCounter, lineNumber,  error))
-				/* is the next word entry */
-				if(is_dir(next_word(line),error) == 6)
-					to_inst(30,rs,rt,rd,funct,immed,reg,address,ic);
-				else
-					to_inst(30,rs,rt,rd,funct,immed,reg,address,ic);
-			else
-				to_inst(30,rs,rt,rd,funct,immed,1,address,ic);
+			    to_inst(30,rs,rt,rd,funct,immed,reg,address,ic);
 			break;
 
 			case la:
-			/* is the next word entry */
-			if(is_dir(next_word(line),error) == 6)
 				to_inst(31,rs,rt,rd,funct,immed,reg,address,ic);
-			else
-				to_inst(31,rs,rt,rd,funct,immed,1,0,ic);
-			break;
-
 			case call:
-			/* is the next word entry */
-			if(is_dir(next_word(line),error) == 6)
 				to_inst(32,rs,rt,rd,funct,immed,reg,address,ic);
-			else
-				to_inst(32,rs,rt,rd,funct,immed,reg,0,ic);;
-			break;
-
 			case stop:
 			to_inst(63,rs,rt,rd,funct,immed,reg,address,ic);
 			break;

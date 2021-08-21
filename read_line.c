@@ -1,6 +1,7 @@
 /* This file contains functions for scanning the lines of the file, reading and decoding each word in the line. */
 
 #include "read_line.h"
+#include <ctype.h>
 
 /* reads each line and check its validation */
 void read_line(char *line, int *ic, int *dc, int *errorCounter, int *lineNumber, int *errorType)
@@ -137,7 +138,7 @@ char *to_comma(char *line)
 	line = skip_space(line);
 	return line;
 }
-
+/* jumps to $ */
 char *to_dollar(char *line)
 {
     if(line == NULL)
