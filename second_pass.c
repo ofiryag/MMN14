@@ -143,6 +143,61 @@ void read_line2(char *line, FILE *ob_file, FILE *ent_file, FILE *ext_file, int *
 		else
 			return;
 	}
+	if (is_inst(line) >= NA) {
+	    symbol_node *temp_sym;
+	    int instindex = is_inst(line);
+	    int insttype = check_inst_type(instindex);
+	    int rs = IRRELEVANT, rt = IRRELEVANT, rd = IRRELEVANT;
+	    int reg = IRRELEVANT, immed = IRRELEVANT, address = IRRELEVANT, funct = IRRELEVANT;
+	    char label[MAX_LABEL_LEN];
+	    line = next_word(line);
+
+	    if (insttype == J_JMP) {
+	        if (line[0] != '$') {
+	            char label_name[MAX_LABEL_LEN];
+	            char *x = line;
+	            strcpy(label_name, get_next_word(x));
+	            temp_sym = search_sym(label_name);
+	            int isentry = temp_sym->entry_flag;
+	            if (isentry == 1){
+ 	                if(temp_sym->address < check_addressing(label_name,error))
+ 	                    address= check_addressing(label_name,error);
+	                else
+	                    address= temp_sym->address;
+	                to_inst(30, rs, rt, rd, funct, immed, reg, address, ic);
+	            }
+	        }
+
+	    } else if (insttype == J_LA) {
+	        char label_name[MAX_LABEL_LEN];
+	        char *x = line;
+	        strcpy(label_name, get_next_word(x));
+	        temp_sym = search_sym(label_name);
+	        int isentry = temp_sym->entry_flag;
+	        if (isentry == 1){
+	            if(temp_sym->address < check_addressing(label_name,error))
+	                address= check_addressing(label_name,error);
+	            else
+	                address= temp_sym->address;
+	            to_inst(31, rs, rt, rd, funct, immed, reg, address, ic);
+	        }
+	    }
+	    else if (insttype == J_CALL) {
+	        char label_name[MAX_LABEL_LEN];
+	        char *x = line;
+	        strcpy(label_name, get_next_word(x));
+	        temp_sym = search_sym(label_name);
+	        int isentry = temp_sym->entry_flag;
+	        if (isentry == 1){
+	            if(temp_sym->address < check_addressing(label_name,error))
+	                address= check_addressing(label_name,error);
+	            else
+	                address= temp_sym->address;
+	            to_inst(32, rs, rt, rd, funct, immed, reg, address, ic);
+	        }
+	    }
+	    ic+=4;
+	}
 }
 
 
@@ -165,4 +220,3 @@ char *get_label_name(char *line) {
     label_name[c] ='\0';
     return label_name;
 }
-
