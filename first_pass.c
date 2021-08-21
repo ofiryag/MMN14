@@ -46,6 +46,8 @@ void first_pass(char *file)
     if(errorCounter > NO_ERROR)
     {
         printf("\n%s contains %d errors.\n",file_name,errorCounter);
+        printf("ic=%d",ic);
+        printf("dc=%d",dc);
         return;
     }
 

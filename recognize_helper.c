@@ -1,6 +1,7 @@
 /* This file contains functions that tests the validation of the file. */
 
 #include "recognize_helper.h"
+#include <ctype.h>
 
 keywords instructions[] =
 {
