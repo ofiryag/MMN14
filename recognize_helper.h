@@ -24,6 +24,8 @@ int is_inst(char *);
 
 /* checks the instruction type, and returns the index */
 int check_inst_type(int);
+/* checks if its an instruction sentence */
+void insert_new_instruction(char *, int *, int *);
 
 /* checks the validation of the directive sentence */
 int check_dir(char *, int,  int *, int *,char *);
@@ -32,6 +34,9 @@ char *get_next_word(char *);
 
 /* checks the validation of the instruction sentence */
 int check_inst(char *, int *, int *);
+
+/*this function will return decimal number from string to int*/
+int get_number_from_string(char * ,int ,int* );
 
 /* checks operand addressing */
 int check_addressing(char *, int *);

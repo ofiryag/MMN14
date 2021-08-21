@@ -76,7 +76,7 @@ instruction_node *new_inst(int opcode, int rs, int rt, int rd, int funct,int imm
 		    new->instruction_details.instruction_node_j.address = 0;
 		new->instructiontype = J;
 	}
-	
+
 	return new;
 }
 
@@ -103,10 +103,10 @@ void to_data(char* data, int *dc,char * label_name,int* dir_type)
 		data_head = new;
 		return;
 	}
-	
+
 	while(temp->next != NULL)
 		temp = temp->next;
-	
+
 	temp->next = new;
 	return;
 }
@@ -116,16 +116,16 @@ void to_symbol(char *symbol, int address,int ext_flag, int data_flag,int code_fl
 {
 	symbol_node *temp = symbol_head;
 	symbol_node *new = new_symbol(symbol, address, ext_flag, data_flag, code_flag, entry_flag);
-	
+
 	if(symbol_head == NULL)
 	{
 		symbol_head = new;
 		return;
 	}
-	
+
 	while(temp->next != NULL)
 		temp = temp->next;
-	
+
 	temp->next = new;
 	return;
 }
@@ -135,36 +135,38 @@ void to_inst(int opcode, int rs, int rt, int rd, int funct,int immed,int reg,int
 {
 	instruction_node *temp = instruction_head;
 	instruction_node *new = new_inst(opcode, rs,rt, rd, funct,immed,reg,address,ic);
-	
+
 	if(instruction_head == NULL)
 	{
 		instruction_head = new;
 		return;
 	}
-	
+
 	while(temp->next != NULL)
 		temp = temp->next;
-	
+
 	temp->next = new;
 	return;
 }
+
+
 
 /* adds label to entry or extern labels table */
 void to_ent_ext(char *label, int  address, int ext_flag)
 {
 	ent_ext_node *temp = ent_ext_head;
-	
+
 	ent_ext_node *new = new_ent_ext(label, address, ext_flag);
-	
+
 	if(ent_ext_head == NULL)
 	{
 		ent_ext_head = new;
 		return;
 	}
-	
+
 	while(temp->next != NULL)
 		temp = temp->next;
-	
+
 	temp->next = new;
 	return;
 }
@@ -189,7 +191,7 @@ void print_to_files(FILE *ob_file, FILE *ent_file, FILE *ext_file, int* ic, int*
 			break;
 		default:
 			break;
-		}	
+		}
 		print_output_line(data_as_binary,ob_file,temp_inst);
 		temp_inst = temp_inst->next;
 	}
@@ -200,7 +202,7 @@ void print_to_files(FILE *ob_file, FILE *ent_file, FILE *ext_file, int* ic, int*
 
 
 	while(temp_ent_ext != NULL)
-	{	
+	{
 		if(temp_ent_ext->ext_flag == 1)
 			fprintf(ext_file, "%s\t%04d\n", temp_ent_ext->label, temp_ent_ext->address);
 		else if(temp_ent_ext->ext_flag == 0){
@@ -347,7 +349,7 @@ void update_DC(int *ic, int *error)
     int dc=0;
 	data_node *data_temp = data_head;
 	symbol_node *sym_temp = symbol_head;
-	
+
 	while(data_temp != NULL)
 	{
 	    dc = data_temp->address;
@@ -376,22 +378,22 @@ void update_DC(int *ic, int *error)
 	    }
 	    sym_temp = sym_temp->next;
 	}
-	
+
 }
 
 /* returns node from symbol table with the given label */
 symbol_node *search_sym(char *symbol)
 {
 	symbol_node *temp = symbol_head;
-	
+
 	while(temp != NULL)
 	{
 		if(strcmp(temp->symbol, symbol) == FALSE)
 			return temp;
-		
+
 		temp = temp->next;
 	}
-	
+
 	return NULL;
 }
 
@@ -418,28 +420,28 @@ void free_tables()
 	symbol_node *sym = symbol_head;
 	instruction_node *inst = instruction_head;
 	ent_ext_node *ent_ext = ent_ext_head;
-	
+
 	while(data_head != NULL)
 	{
 		data_head = data_head->next;
 		free(dat);
 		dat = data_head;
 	}
-	
+
 	while(symbol_head != NULL)
 	{
 		symbol_head = symbol_head->next;
 		free(sym);
 		sym = symbol_head;
 	}
-	
+
 	while(instruction_head != NULL)
 	{
 		instruction_head = instruction_head->next;
 		free(inst);
 		inst = instruction_head;
 	}
-	
+
 	while(ent_ext_head != NULL)
 	{
 		ent_ext_head = ent_ext_head->next;

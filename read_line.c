@@ -77,6 +77,7 @@ void read_line(char *line, int *ic, int *dc, int *errorCounter, int *lineNumber,
 	if(is_inst(line) != NA)
 	{
 		check_inst(line, errorType, ic);
+		insert_new_instruction(line,ic,errorType);
 		check_errors(lineNumber, errorType, errorCounter);
 	}
 		
