@@ -212,10 +212,32 @@ void read_line2(char *line, FILE *ob_file, FILE *ent_file, FILE *ext_file, int *
 	            }
 	            instruction_node * node = search_instruction_by_address((*ic));
 	            if(node!=NULL)
-	                node->instruction_details.instruction_node_j.address = address;	        }
+	                node->instruction_details.instruction_node_j.address = address;
+	        }
 	    }
-	    (*ic) += INST_SIZE;
+
+	    else if (insttype == I_CONDITIONAL_BRANCHING) {
+	        char label_name[MAX_LABEL_LEN];
+	        char *x = line;
+	        strcpy(label_name, to_comma(to_comma(get_next_word(x))));
+	        temp_sym = search_sym(label_name);
+	        int isentry = temp_sym->entry_flag;
+	        if (isentry == 1){
+	            if(temp_sym->address < check_addressing(label_name,error))
+	            {
+	                address= check_addressing(label_name,error);
+	            }
+	            else
+	            {
+	                address= temp_sym->address;
+	            }
+	            instruction_node * node = search_instruction_by_address((*ic));
+	            if(node!=NULL)
+	                node->instruction_details.instruction_node_i.immed = address-*ic;
+	        }
+	    }
 	}
+	    (*ic) += INST_SIZE;
 }
 
 
