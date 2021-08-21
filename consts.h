@@ -52,7 +52,7 @@
 #define MAX_DB_INT_LENGTH 4
 
 #define CHAR_SIZE 1
-#define CHAR_BIT_SIZE
+#define CHAR_BIT_SIZE 8
 
 #define R_MIN_OPCODE 0
 #define R_MAX_OPCODE 1
