@@ -177,7 +177,7 @@ void read_line2(char *line, FILE *ob_file, FILE *ent_file, FILE *ext_file, int *
 	            temp_sym = search_sym(label_name);
 	            int isentry = temp_sym->entry_flag;
 	            if (isentry == 1){
- 	                if(temp_sym->address < check_addressing(label_name,error))
+  	                if(temp_sym->address < check_addressing(label_name,error))
  	                {
  	                    address= check_addressing(label_name,error);
  	                }

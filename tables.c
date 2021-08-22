@@ -670,7 +670,7 @@ instruction_node * search_instruction_by_address(int *address)
 
     while(temp != NULL)
     {
-        if(temp->address == address)
+         if(temp->address == address)
             return temp;
         temp = temp->next;
     }
