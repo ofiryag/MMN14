@@ -201,6 +201,7 @@ void print_to_files(FILE *ob_file, FILE *ent_file, FILE *ext_file, int* ic, int*
 	int address = 0;
 	int counter =0;
 	(*ic)+=4;
+	temp_data = data_head;
 	strcpy(data_as_binary,"");
 	while(temp_data!=NULL)
 	{
