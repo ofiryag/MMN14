@@ -98,7 +98,23 @@ void read_line2(char *line, FILE *ob_file, FILE *ent_file, FILE *ext_file, int *
 	    }
 		p++;
 	}
-	
+    p = line;
+	while(next_word(p)!=NULL)
+	{
+	    if((next_word(p)) !=NULL  && is_inst(p)!=NA)
+	    {
+	        char * word = get_label_name(next_word(p));
+	        symbol_node * temp =  search_sym(word);
+	        if(temp!=NULL)
+	        {
+	            if(temp->external_flag)
+	            {
+	                to_ent_ext(word, (*ic), temp->external_flag);
+	            }
+	        }
+	    }
+	    p= next_word(p);
+	}
 	/* checks if it is directive sentence */
 	if(*line == '.')
 	{
@@ -132,7 +148,7 @@ void read_line2(char *line, FILE *ob_file, FILE *ent_file, FILE *ext_file, int *
 			{
 				*error = NDEF_LABEL_ERROR;
 				return;
-			}	
+			}
 			else
 			{
 				to_ent_ext(label, symbol->address, symbol->external_flag);
