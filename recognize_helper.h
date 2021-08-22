@@ -24,6 +24,7 @@ int is_inst(char *);
 
 /* checks the instruction type, and returns the index */
 int check_inst_type(int);
+
 /* checks if its an instruction sentence */
 void insert_new_instruction(char *, int *, int *);
 
