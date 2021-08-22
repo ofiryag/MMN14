@@ -262,6 +262,7 @@ int check_dir(char *line, int dirtype, int *dc, int *error, char *label_name) {
                 char data[MAX_DW_INT_LENGTH];
                 int integer, i;
                 while (TRUE) {
+                    (*dc) += DW_SIZE;
                     if (*line == '-' || *line == '+' || isdigit(*line)) {
                         data[0] = *line;
                         line++;
@@ -282,7 +283,9 @@ int check_dir(char *line, int dirtype, int *dc, int *error, char *label_name) {
                         }
                         /* checks if the  integer fits 32 bits */
                         if (integer >= MIN_DW_INT && integer <= MAX_DW_INT)
+                        {
                             dcf += DW_SIZE*count_operands;
+                        }
                         else {
                             *error = BAD_ARG_ERROR;
                             return FALSE;
@@ -340,11 +343,14 @@ int check_dir(char *line, int dirtype, int *dc, int *error, char *label_name) {
                         {
                             p= to_comma(p);
                             count_operands++;
+                            (*dc) += DH_SIZE;
                         }
 
                         /* checks if the  integer fits 16 bits */
                         if (integer >= MIN_DH_INT && integer <= MAX_DH_INT)
+                        {
                             dcf += DH_SIZE*count_operands;
+                        }
                         else {
                             *error = BAD_ARG_ERROR;
                             return FALSE;
@@ -405,12 +411,15 @@ int check_dir(char *line, int dirtype, int *dc, int *error, char *label_name) {
                         {
                             p= to_comma(p);
                             count_operands++;
+                            (*dc) += DB_SIZE;
                         }
                         line = skip_space(line);
 
                         /* checks if the  integer fits 8 bits */
                         if (integer >= MIN_DB_INT && integer <= MAX_DB_INT)
+                        {
                             dcf += DB_SIZE*count_operands;
+                        }
                         else {
                             *error = BAD_ARG_ERROR;
                             return FALSE;
@@ -456,9 +465,11 @@ int check_dir(char *line, int dirtype, int *dc, int *error, char *label_name) {
                             return FALSE;
                         }
                         dcf += CHAR_SIZE;
+                        (*dc) += CHAR_SIZE;
                         line++;
                     }
                     dcf += CHAR_SIZE; /*increase string size by one because of \0*/
+                    (*dc) += CHAR_SIZE;
                     char *p = dir_data;
                     char x[strlen(dir_data)];
                     strcpy(x,"");
