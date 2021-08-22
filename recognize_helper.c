@@ -125,10 +125,10 @@ int is_label(char *line, int *ic, int *dc, int *ec, int *ln, int *error, char *l
             if (*(next_word(line)) == '.') {
                 int i = 1;
 
-                if (is_dir(next_word(line) + 1, error) < EXTERN_DIR) {
+                if (is_dir(next_word(line)+1, error) < EXTERN_DIR) {
                     data_flag = TRUE;
                 }
-                else if(is_dir(next_word(line) , error) == EXTERN_DIR)
+                else if(is_dir(next_word(line) +1, error) == EXTERN_DIR)
                     ext_flag=TRUE;
             }
 
@@ -166,13 +166,14 @@ int is_label(char *line, int *ic, int *dc, int *ec, int *ln, int *error, char *l
 /* checks if the word is a directive and returns it's index */
 int is_dir(char *line, int *error) {
     int i, c = 0;
-    char * p = (char*) malloc(strlen(line));
-    strcpy(p,line);
+    char p[strlen(line)+1];
+    strcpy(p,"");
+    strcat(p,line);
     char dir[MAX_DIRECTIVE_LEN];
 
-    while (!isspace(*p) && *p != '\0') {
-        if (isalpha(*p))
-            dir[c] = *p;
+    while (!isspace(p[c]) && p[c] != '\0' && *p !='\t' && p[c]!='\n' && p[c]!=NULL) {
+        if (isalpha(p[c]))
+            dir[c] = p[c];
 
         else {
             *error = DIR_ERROR;
@@ -180,7 +181,6 @@ int is_dir(char *line, int *error) {
         }
 
         c++;
-        p++;
     }
     dir[c] = '\0';
 
