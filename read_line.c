@@ -7,7 +7,7 @@
 void read_line(char *line, int *ic, int *dc, int *errorCounter, int *lineNumber, int *errorType)
 {	
 	int dirtype;
-	char label_name[MAX_LABEL_LEN];
+	char label_name[MAX_LABEL_LEN]="";
     strcpy(label_name,"");
 
 	/* if the line is empty line or comment ignore it */
