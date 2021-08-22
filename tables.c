@@ -369,7 +369,6 @@ void print_to_files(FILE *ob_file, FILE *ent_file, FILE *ext_file, int* ic, int*
 	            data= to_comma(data);
 	        }
 	    }
-	    address = temp_data->address;
 	    temp_data = temp_data->next;
 	}
 
@@ -397,6 +396,7 @@ char * build_inst_r_data_as_binary(instruction_node * temp_inst)
     char* binary_funct = convert_decimal_to_binary(temp_inst->instruction_details.instruction_node_r.funct, 4);
     char* binary_unused = "000000";
 
+    /*Build data as binary string*/
     strcat(binary,binary_opcode);
     strcat(binary,binary_rs);
     strcat(binary,binary_rt);
@@ -404,7 +404,6 @@ char * build_inst_r_data_as_binary(instruction_node * temp_inst)
     strcat(binary,binary_funct);
     strcat(binary,binary_unused);
 
-    /*Build data as binary string*/
     return binary;
 }
 
@@ -418,13 +417,13 @@ char * build_inst_i_data_as_binary(instruction_node * temp_inst)
     char* binary_rt =convert_decimal_to_binary(temp_inst->instruction_details.instruction_node_i.rt, 4);
     char* binary_immed =convert_decimal_to_binary(temp_inst->instruction_details.instruction_node_i.immed,15);
 
+    /*Build data as binary string*/
     strcpy(binary,binary_opcode);
     strcat(binary,binary_rs);
     strcat(binary,binary_rt);
     strcat(binary,binary_immed);
 
     return binary;
-    /*Build data as binary string*/
 }
 
 
@@ -438,40 +437,11 @@ char * build_inst_j_data_as_binary(instruction_node * temp_inst)
     char* binary_reg = convert_decimal_to_binary(temp_inst->instruction_details.instruction_node_j.reg, 0);
     char* binary_address = convert_decimal_to_binary(temp_inst->instruction_details.instruction_node_j.address, 24);
 
+    /*Build data as binary string*/
     strcpy(binary,binary_opcode);
     strcat(binary,binary_reg);
     strcat(binary,binary_address);
 
-    /*Build data as binary string*/
-    return binary;
-}
-/*this function will build data node data to binary string*/
-char * build_data_as_binary(data_node * temp_data,int * numOfOperands)
-{
-    char * binary=(char*)malloc(33);
-    char * binary_data;
-    char * data = temp_data->data;
-    strcpy(binary_data,"");
-     if(temp_data->dir_type == DB_DIR)
-     {
-         char *p;
-         while (*data!='\0')
-         {
-             p=data;
-             char * x = get_data_until_comma(p);
-             strcat(binary_data,convert_decimal_to_binary(x,DB_SIZE)); /*8 bits -> char is 1 byte*/
-             data= to_comma(data);
-         }
-        binary_data = convert_decimal_to_binary(temp_data->data, *numOfOperands);
-    }
-    else if(temp_data->dir_type == DW_DIR){
-         binary_data = convert_decimal_to_binary(temp_data->data, *numOfOperands*DW_SIZE);
-        strcpy(binary,binary_data);
-    }
-    else if(temp_data->dir_type == DH_DIR){
-        binary_data = convert_decimal_to_binary(temp_data->data, *numOfOperands*DH_SIZE);
-    }
-    strcpy(binary,binary_data);
     return binary;
 }
 

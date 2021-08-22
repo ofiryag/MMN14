@@ -60,38 +60,6 @@ typedef struct instruction_node
         }instruction_details;
 } instruction_node;
 
-/*typedef struct instruction_node_j
-{
-	unsigned int opcode : 6;
-	unsigned int reg : 1;
-	unsigned int address : 25;
-} instruction_node_j;
-
-typedef struct instruction_node_r
-{
-	unsigned int opcode : 6;
-	unsigned int rs : 5;
-	unsigned int rd : 5;
-	unsigned int rt : 5;
-	unsigned int funct : 5;
-} instruction_node_r;
-
-typedef struct instruction_node_i
-{
-	unsigned int opcode : 6;
-	unsigned int rs : 5;
-	unsigned int rt : 5;
-	unsigned int immed : 16;
-} instruction_node_i;*/
-
-	/*union instruction_details
-	{
-		struct instruction_node_r* inst_r;
-		struct instruction_node_i* inst_i;
-		struct instruction_node_j* inst_j;
-	} instruction_details;*/
-
-
 typedef struct ent_ext_node
 {
 	char *label;

@@ -17,8 +17,6 @@
 #define MAX_INSTRACTION_LEN 5
 #define MAX_OPERAND_LEN 40
 
-#define MASK_2BIT 3
-
 #define NA -1
 
 #define INST_AMOUNT 26
@@ -27,17 +25,11 @@
 #define INST_SIZE 4
 
 
-#define MAX_IMM_INT 127
-#define MIN_IMM_INT -128
 #define REG_LEN 3
 
 #define DW_SIZE 4
 #define DH_SIZE 2
 #define DB_SIZE 1
-#define ASCIZ_SIZE 13
-
-#define MAX_DATA_INT 511
-#define MIN_DATA_INT -512
 
 #define MAX_DW_INT 2147483647
 #define MIN_DW_INT -2147483648
@@ -52,7 +44,6 @@
 #define MAX_DB_INT_LENGTH 4
 
 #define CHAR_SIZE 1
-#define CHAR_BIT_SIZE 8
 
 #define R_MIN_OPCODE 0
 #define R_MAX_OPCODE 1
@@ -64,7 +55,6 @@
 
 #define IRRELEVANT 0
 
-#define TOUPPERCASE 32
 
 
 
