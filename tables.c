@@ -570,37 +570,10 @@ void print_output_line_inst_node(char * data_as_binary,FILE *ob_file,instruction
 		strcat(hexadecimal_line, strcat(x,"\t"));
 	}
     opposite = opposite_string(hexadecimal_line);
+	strupr(opposite); // Convert to uppercase
 	fprintf(ob_file, "%s", opposite);
 
 	fprintf(ob_file, "\n"); /*end of line*/
-}
-
-void print_output_line_data(char * data_as_binary,FILE *ob_file,int address)
-{
-    int i=0,j=0,k=0;
-    char one_byte[9];
-    strcpy(one_byte,"");
-    char * hexadecimal_line = (char *)malloc(sizeof (char)*9) ;
-    char * opposite = (char *)malloc(sizeof (char) * 9) ;
-    strcpy(opposite, "");
-    strcpy(hexadecimal_line,"");
-    fprintf(ob_file, "\t%04d\t",address); /* print address - IC*/
-    for ( i = 0; i < 32; i+=8)
-    {
-
-        for ( j = 0; j<8; j++)
-        {
-            one_byte[j] = data_as_binary[i+j];
-        }
-        char x[3];
-        memset(x, '\0', sizeof(x));
-        char * hex = convert_binary_to_hexadecimal(one_byte);
-        strncpy(x, hex ,2);
-        strcat(hexadecimal_line, strcat(x,"\t"));
-    }
-    fprintf(ob_file, "%s", hexadecimal_line);
-
-    fprintf(ob_file, "\n"); /*end of line*/
 }
 
 /*this function will translate one byte from binary to hexadecimal and print it*/
@@ -614,6 +587,7 @@ void print_byte_data(char * one_byte,FILE *ob_file,int address)
     char * hex = convert_binary_to_hexadecimal(one_byte);
     strncpy(x, hex ,2);
     strcat(hexadecimal_line, strcat(x,"\t"));
+    strupr(hexadecimal_line); // Convert to uppercase
     fprintf(ob_file, "%s", hexadecimal_line);
 }
 
