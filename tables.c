@@ -375,10 +375,10 @@ void print_to_files(FILE *ob_file, FILE *ent_file, FILE *ext_file, int* ic, int*
 
 	while(temp_ent_ext != NULL)
 	{	
-		if(temp_ent_ext->ext_flag == 1)
+		if(temp_ent_ext->ext_flag == TRUE)
 			fprintf(ext_file, "%s\t%04d\n", temp_ent_ext->label, temp_ent_ext->address);
-		else if(temp_ent_ext->ext_flag == 0){
-
+		else if(temp_ent_ext->ext_flag == FALSE)
+		{
 			fprintf(ent_file, "%s\t%04d\n", temp_ent_ext->label, temp_ent_ext->address);
 		}
 		temp_ent_ext = temp_ent_ext->next;

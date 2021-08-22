@@ -124,9 +124,12 @@ int is_label(char *line, int *ic, int *dc, int *ec, int *ln, int *error, char *l
             /* if the label points to directive then the symbol address is the dc */
             if (*(next_word(line)) == '.') {
                 int i = 1;
-                if (is_dir(next_word(line) + 1, error) <= EXTERN_DIR) {
+
+                if (is_dir(next_word(line) + 1, error) < EXTERN_DIR) {
                     data_flag = TRUE;
                 }
+                else if(is_dir(next_word(line) , error) == EXTERN_DIR)
+                    ext_flag=TRUE;
             }
 
                 /* if the label points to instruction then the symbol addres is the ic */
@@ -568,7 +571,8 @@ int check_dir(char *line, int dirtype, int *dc, int *error, char *label_name) {
                 label[i] = '\0';
 
                 if (skip_space(line) == NULL) {
-                    if (search_sym(label) == NULL) {
+                    if (search_sym(label) == NULL)
+                    {
                         to_symbol(label, FALSE, TRUE, FALSE, FALSE, FALSE);
                         return TRUE;
                     } else {
