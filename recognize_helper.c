@@ -163,7 +163,8 @@ int is_label(char *line, int *ic, int *dc, int *ec, int *ln, int *error, char *l
 /* checks if the word is a directive and returns it's index */
 int is_dir(char *line, int *error) {
     int i, c = 0;
-    char *p = line;
+    char * p = (char*) malloc(strlen(line));
+    strcpy(p,line);
     char dir[MAX_DIRECTIVE_LEN];
 
     while (!isspace(*p) && *p != '\0') {
@@ -178,7 +179,6 @@ int is_dir(char *line, int *error) {
         c++;
         p++;
     }
-
     dir[c] = '\0';
 
     for (i = 0; i <= DIR_SIZE; i++) {
@@ -937,11 +937,13 @@ void insert_new_instruction(char *line, int *ic, int *error)
                 char *x = line;
                 strcpy(label_name, get_next_word(x));
                 temp_sym = search_sym(label_name);
-                int isentry = temp_sym->entry_flag;
-                if (isentry == 1)
-                    address = check_addressing(line, error);
-                else
-                    address = 0;
+                if(temp_sym!=NULL){
+                    int isentry = temp_sym->entry_flag;
+                    if (isentry == 1)
+                        address = check_addressing(line, error);
+                    else
+                        address = 0;
+                }
             }
         } else if (insttype == J_LA) {
             char label_name[MAX_LABEL_LEN];
