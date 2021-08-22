@@ -253,7 +253,7 @@ int check_inst_type(int instructionIndex) {
         return J_STOP;
 }
 
-/* checks the validation of the directive sentence */
+/* checks the validation of the directive sentence and increase dc  */
 int check_dir(char *line, int dirtype, int *dc, int *error, char *label_name) {
     int dcf = 0;
     char dir_data[MAX_LINE_LEN];
@@ -504,9 +504,7 @@ int check_dir(char *line, int dirtype, int *dc, int *error, char *label_name) {
                 return FALSE;
             }
 
-            break;
-
-            /* if the directive is entry label */
+        /* if the directive is entry label */
         case ENTRY_DIR : {
             char label[MAX_LABEL_LEN];
             int i = 0;
@@ -543,9 +541,8 @@ int check_dir(char *line, int dirtype, int *dc, int *error, char *label_name) {
             }
         }
             return TRUE;
-            break;
 
-            /* if the directive is external label */
+        /* if the directive is external label */
         case EXTERN_DIR :
 
             if (line != NULL) {
@@ -587,8 +584,6 @@ int check_dir(char *line, int dirtype, int *dc, int *error, char *label_name) {
                 *error = SYNTAX_ERROR;
                 return FALSE;
             }
-
-            break;
     }
 
     return FALSE;
@@ -598,7 +593,7 @@ int check_dir(char *line, int dirtype, int *dc, int *error, char *label_name) {
 int check_inst(char *line, int *error, int *ic) {
     int instruction = is_inst(line); /*change to inst index*/
     int instType = check_inst_type(instruction);
-/*	line = to_comma(line);*/
+
     /* if first operand isn't immidiate number */
     if (line == NULL) {
         *error = SYNTAX_ERROR;
@@ -633,18 +628,13 @@ int check_inst(char *line, int *error, int *ic) {
         case J_STOP:
             validate_inst_j_stop(line, error);
             break;
-        default:
-            break;
     }
-    line = next_word(line);
 }
 
 /* checks operand addressing */
 int check_addressing(char *line, int *error) {
     char operand[MAX_OPERAND_LEN];
     int i, j = 1;
-    symbol_node *node;
-    char key[MAX_OPERAND_LEN];
 
     for (i = 0; !isspace(*line) && *line != '\0' && *line != ','; i++) {
         operand[i] = *line;
@@ -803,8 +793,7 @@ int validate_inst_j_stop(char *line, int *error) {
 /*validate that register operand doesn't contain invalid characters*/
 int validate_register_operand(char *line, int *error) {
     char *p = line;
-    if (p[0] != '$' || p[1] < '0' && p[1] > '3' ||
-        p[2] > '1') /*might cause error index out of range if p size is 2 chars*/
+    if (p[0] != '$' || p[1] < '0' && p[1] > '3' ||p[2] > '1') /*register is between 0 to 31 and marked with $, for example $1 */
     {
         return FALSE;
     } else
@@ -815,26 +804,19 @@ int validate_register_operand(char *line, int *error) {
 int validate_immed_operand(char *line, int *error) /* validate is contains digits*/
 {
     char *p = line;
-    while (isdigit(*p) || *p == '-') {
+    while (isdigit(*p) || *p == '-' ||  *p == '+')
+    {
         p = p + 1;
     }
-
-    /* for some reason this make line miss a parameter and p equals to ""
-    check that the are no invalid characters between operands
-    if(*p =! ',' && *p!='\0')
-    {
-        *error = SYNTAX_ERROR;
-            return FALSE;
-    }
-    */
     return TRUE;
 }
 
 /*validate that label doesn't contain invalid characters*/
-int validate_label_operand(char *line, int *error) /* validate is contains digits*/
+int validate_label_operand(char *line, int *error)
 {
     char *p = line;
-    if (isalpha(p[0] == FALSE)) {
+    if (isalpha(p[0]) == FALSE) /*label's first char can't be different then a-z or A-Z*/
+    {
         *error = SYNTAX_ERROR;
         return FALSE;
     }
@@ -846,25 +828,6 @@ int validate_label_operand(char *line, int *error) /* validate is contains digit
     /*check that the are no invalid characters between operands*/
     if (*p = !',' || !isspace(*p)) {
         *error = SYNTAX_ERROR;
-        return FALSE;
-    }
-    return TRUE;
-}
-
-/*validate that label doesn't contain invalid characters*/
-int validate_label_exists_on_symbole_table(char *line, char *error) {
-    char *p = line;
-    char label[MAX_LABEL_LEN];
-    int c = 0;
-    /* label characters can be only letters or digits */
-    while (*p != '\0') {
-        label[c] = *p;
-        p++;
-        c++;
-    }
-    if (search_sym(label) == NULL) /* label should be on symbole table*/
-    {
-        *error = LABEL_DOESNT_EXIST;
         return FALSE;
     }
     return TRUE;
@@ -897,26 +860,24 @@ void insert_new_instruction(char *line, int *ic, int *error)
         int insttype = check_inst_type(instindex);
         int rs = IRRELEVANT, rt = IRRELEVANT, rd = IRRELEVANT;
         int reg = IRRELEVANT, immed = IRRELEVANT, address = IRRELEVANT, funct = IRRELEVANT;
-        char label[MAX_LABEL_LEN];
         line = next_word(line);
-
-        if (insttype == R_ARITHMETHIC)
+        if (insttype == R_ARITHMETHIC) /*R Arithmetic example - add  $3 ,$19,$8*/
         {
             rs = get_number_from_string(to_dollar(line), 3, error);
             rt = get_number_from_string(to_dollar(to_dollar(line)), 3, error);
             rd = get_number_from_string(to_dollar(to_dollar(to_dollar(line))), 3, error);
         }
-        else if (insttype == R_COPY)
+        else if (insttype == R_COPY)/*R Copy example -  move $23, $2*/
         {
             rd = get_number_from_string(to_dollar(line), 3, error);
             rs = get_number_from_string(to_dollar(to_dollar(line)), 3, error);
-        } else if (insttype == I_ARITHMETIC)
+        } else if (insttype == I_ARITHMETIC)/*I Arithmetic example - addi $9, -45, $8  */
         {
             rs = get_number_from_string(to_dollar(line), 3, error);
             immed = get_number_from_string(to_comma(line), 6, error);
             rt = get_number_from_string(to_dollar(to_comma(line)), 3, error);
         }
-        else if (insttype == I_CONDITIONAL_BRANCHING)
+        else if (insttype == I_CONDITIONAL_BRANCHING)/*I CONDITIONAL BRANCHING example - blt $5, $24, loop*/
         {
             rs = get_number_from_string(to_dollar(line), 3, error);
             rt = get_number_from_string(to_dollar(to_dollar(line)), 3, error);
@@ -926,13 +887,14 @@ void insert_new_instruction(char *line, int *ic, int *error)
             temp_sym = search_sym(label_name);
             if(temp_sym!=NULL)
                 immed = temp_sym->address - (*ic);
-        } else if (insttype == I_STORAGE)
+        } else if (insttype == I_STORAGE)/*I STORAGE example - lh $9, 34, $2*/
         {
             rs = get_number_from_string(to_dollar(line), 3, error);
             rt = get_number_from_string(to_dollar(to_comma(to_dollar(line))), 3, error);
             immed = get_number_from_string(to_comma(line), 3, error);
         }
-        else if (insttype == J_JMP) {
+        else if (insttype == J_JMP)/*J JMP example -     1) jmp label       2) jmp $3*/
+        {
             if (line[0] == '$') {
                 reg = 1;
                 address = get_number_from_string(to_dollar(line), 3, error);
@@ -949,7 +911,8 @@ void insert_new_instruction(char *line, int *ic, int *error)
                         address = 0;
                 }
             }
-        } else if (insttype == J_LA) {
+        } else if (insttype == J_LA)/*J LA example - la label */
+        {
             char label_name[MAX_LABEL_LEN];
             char *x = line;
             strcpy(label_name, get_next_word(x));
@@ -962,7 +925,8 @@ void insert_new_instruction(char *line, int *ic, int *error)
             }
             else
                 address = 0;
-        } else if (insttype == J_CALL) {
+        } else if (insttype == J_CALL)/*J CALL example - call myfunc*/
+        {
             char label_name[MAX_LABEL_LEN];
             char *x = line;
             strcpy(label_name, get_next_word(x));
@@ -977,6 +941,7 @@ void insert_new_instruction(char *line, int *ic, int *error)
                 address = 0;
         }
 
+        /*insert instruction into instruction node with the correct syntax*/
         switch (instindex) {
             case add:
                 to_inst(0, rs, rt, rd, 1, immed, reg, address, ic);
@@ -1087,7 +1052,7 @@ void insert_new_instruction(char *line, int *ic, int *error)
                 break;
         }
     }
-    (*ic) += INST_SIZE;
+    (*ic) += INST_SIZE; /*increase ic after new inst was insert*/
 }
 /*this function will return decimal number from string to int*/
 int get_number_from_string(char * line, int maxSize, int* error)
