@@ -891,15 +891,18 @@ void insert_new_instruction(char *line, int *ic, int *error)
             rt = get_number_from_string(to_dollar(to_dollar(line)), 3, error);
             rd = get_number_from_string(to_dollar(to_dollar(to_dollar(line))), 3, error);
         }
-        else if (insttype == R_COPY) {
-            rs = get_number_from_string(to_dollar(line), 3, error);
-            rt = get_number_from_string(to_dollar(to_dollar(line)), 3, error);
-        } else if (insttype == I_ARITHMETIC) {
+        else if (insttype == R_COPY)
+        {
+            rd = get_number_from_string(to_dollar(line), 3, error);
+            rs = get_number_from_string(to_dollar(to_dollar(line)), 3, error);
+        } else if (insttype == I_ARITHMETIC)
+        {
             rs = get_number_from_string(to_dollar(line), 3, error);
             immed = get_number_from_string(to_comma(line), 6, error);
-            rd = get_number_from_string(to_dollar(to_comma(line)), 3, error);
+            rt = get_number_from_string(to_dollar(to_comma(line)), 3, error);
         }
-        else if (insttype == I_CONDITIONAL_BRANCHING) {
+        else if (insttype == I_CONDITIONAL_BRANCHING)
+        {
             rs = get_number_from_string(to_dollar(line), 3, error);
             rt = get_number_from_string(to_dollar(to_dollar(line)), 3, error);
             char label_name[MAX_LABEL_LEN];
@@ -908,11 +911,13 @@ void insert_new_instruction(char *line, int *ic, int *error)
             temp_sym = search_sym(label_name);
             if(temp_sym!=NULL)
                 immed = temp_sym->address - (*ic);
-        } else if (insttype == I_STORAGE) {
+        } else if (insttype == I_STORAGE)
+        {
             rs = get_number_from_string(to_dollar(line), 3, error);
             rt = get_number_from_string(to_dollar(to_comma(to_dollar(line))), 3, error);
-            immed = get_number_from_string(to_dollar(to_comma(line)), 3, error);
-        } else if (insttype == J_JMP) {
+            immed = get_number_from_string(to_comma(line), 3, error);
+        }
+        else if (insttype == J_JMP) {
             if (line[0] == '$') {
                 reg = 1;
                 address = get_number_from_string(to_dollar(line), 3, error);
@@ -977,7 +982,7 @@ void insert_new_instruction(char *line, int *ic, int *error)
                 break;
 
             case move:
-                to_inst(1, rs, rt, rd, 1, immed, reg, address, ic);
+                to_inst(1, rd, rt, rs, 1, immed, reg, address, ic);
                 break;
 
             case mvhi:
@@ -993,19 +998,19 @@ void insert_new_instruction(char *line, int *ic, int *error)
                 break;
 
             case subi:
-                to_inst(11, rs, rd, rd, funct, immed, reg, address, ic);
+                to_inst(11, rs, rt, rd, funct, immed, reg, address, ic);
                 break;
 
             case andi:
-                to_inst(12, rs, rd, rd, funct, immed, reg, address, ic);
+                to_inst(12, rs, rt, rd, funct, immed, reg, address, ic);
                 break;
 
             case ori:
-                to_inst(13, rs, rd, rd, funct, immed, reg, address, ic);
+                to_inst(13, rs, rt, rd, funct, immed, reg, address, ic);
                 break;
 
             case nori:
-                to_inst(14, rs, rd, rd, funct, immed, reg, address, ic);
+                to_inst(14, rs, rt, rd, funct, immed, reg, address, ic);
                 break;
 
             case bne:

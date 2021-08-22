@@ -388,7 +388,7 @@ void print_to_files(FILE *ob_file, FILE *ent_file, FILE *ext_file, int* ic, int*
 char * build_inst_r_data_as_binary(instruction_node * temp_inst)
 {
     char * binary=(char*)malloc(33);
-
+    strcpy(binary,"");
     char* binary_opcode = convert_decimal_to_binary(temp_inst->instruction_details.instruction_node_r.opcode, 5);
     char* binary_rs =  convert_decimal_to_binary(temp_inst->instruction_details.instruction_node_r.rs, 4);
     char* binary_rt = convert_decimal_to_binary(temp_inst->instruction_details.instruction_node_r.rt, 4);
@@ -396,7 +396,7 @@ char * build_inst_r_data_as_binary(instruction_node * temp_inst)
     char* binary_funct = convert_decimal_to_binary(temp_inst->instruction_details.instruction_node_r.funct, 4);
     char* binary_unused = "000000";
 
-    strcpy(binary,binary_opcode);
+    strcat(binary,binary_opcode);
     strcat(binary,binary_rs);
     strcat(binary,binary_rt);
     strcat(binary,binary_rd);
@@ -558,8 +558,8 @@ void print_output_line_inst_node(char * data_as_binary,FILE *ob_file,instruction
     fprintf(ob_file, "\t%04d\t",temp_inst->address); /* print address - IC*/
 	for ( i = 0; i < 32; i+=8)
 	{
-
-		for ( j = 0; j<9; j++)
+	    strcpy(one_byte,"");
+		for ( j = 0; j<8; j++)
 		{
 			one_byte[j] = data_as_binary[i+j];
 		}

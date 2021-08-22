@@ -221,8 +221,8 @@ void read_line2(char *line, FILE *ob_file, FILE *ent_file, FILE *ext_file, int *
 	        char *x = line;
 	        strcpy(label_name, to_comma(to_comma(get_next_word(x))));
 	        temp_sym = search_sym(label_name);
-	        int isentry = temp_sym->entry_flag;
-	        if (isentry == 1){
+	        int islabel1 = temp_sym->code_flag;
+	        if (islabel1 == 1){
 	            if(temp_sym->address < check_addressing(label_name,error))
 	            {
 	                address= check_addressing(label_name,error);
