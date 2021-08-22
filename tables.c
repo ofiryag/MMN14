@@ -544,6 +544,15 @@ char * get_data_until_comma(char * line)
     data[c] ='\0';
     return data;
 }
+/* Convert to uppercase */
+void strtoupper (char *p )
+{
+    while( *p )
+    {
+        *p=toupper( *p );
+        p++;
+    }
+}
 
 /*this function is converting the line from binary to hexadecimal and print it according to the required format for example:
 0104	FB	FF	22	35
@@ -571,7 +580,7 @@ void print_output_line_inst_node(char * data_as_binary,FILE *ob_file,instruction
 		strcat(hexadecimal_line, strcat(x,"\t"));
 	}
     opposite = opposite_string(hexadecimal_line);
-	strupr(opposite); // Convert to uppercase
+    strtoupper(opposite); // Convert to uppercase
 	fprintf(ob_file, "%s", opposite);
 
 	fprintf(ob_file, "\n"); /*end of line*/
@@ -588,7 +597,7 @@ void print_byte_data(char * one_byte,FILE *ob_file,int address)
     char * hex = convert_binary_to_hexadecimal(one_byte);
     strncpy(x, hex ,2);
     strcat(hexadecimal_line, strcat(x,"\t"));
-    strupr(hexadecimal_line); // Convert to uppercase
+    strtoupper(hexadecimal_line); // Convert to uppercase
     fprintf(ob_file, "%s", hexadecimal_line);
 }
 
